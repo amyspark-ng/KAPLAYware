@@ -13,19 +13,54 @@ const newGame: Minigame = {
 		ctx.loadSprite("steel", assets.steel.sprite);
 	},
 	start(ctx) {
-		const game = ctx.make();
+		const game = ctx.make([
+			ctx.timer()
+		]);
 
-		const level = [
-			"------------",
-			"- -        -",
-			"-   ------ -",
-			"- -        -",
-			"- --- ---- -",
-			"-       -  -",
-			"- ---- --- -",
-			"-          -",
-			"------------",
-		];
+		const moveRate = 0.5 / ctx.speed;
+		let level;
+
+		switch (ctx.difficulty) {
+			case 1:
+				level = [
+					"------------",
+					"-          -",
+					"- ---  --- -",
+					"-          -",
+					"- ---  --- -",
+					"-          -",
+					"- ---  --- -",
+					"-          -",
+					"------------",
+				]
+				break;
+			case 2:
+				level = [
+					"------------",
+					"- -        -",
+					"-   ------ -",
+					"- -        -",
+					"- --- ---- -",
+					"-       -  -",
+					"- ---- --- -",
+					"-          -",
+					"------------",
+				]
+				break;
+			case 3:
+				level = [
+					"------------",
+					"-          -",
+					"- -- -- -- -",
+					"- -      - -",
+					"- -- ----- -",
+					"- -   -    -",
+					"---------  -",
+					"-          -",
+					"------------",
+				]
+				break;
+		}
 
 		const directions = {
 			UP: ctx.vec2(0, -1),
@@ -78,7 +113,6 @@ const newGame: Minigame = {
 		}
 
 		function moveTo(obj, coordinates, sound = true) {
-			var coords = grid.getCellCoords(obj.pos);
 			if (grid.isCellBlocked(coordinates.x, coordinates.y)) {
 				if (sound) {
 					// play blocked sound
@@ -87,6 +121,8 @@ const newGame: Minigame = {
 			} else {
 				// move the object
 				obj.pos = grid.getWorldPos(coordinates.x, coordinates.y);
+				// the way i made the characters move doesn't work with this lol
+				//ctx.tween(obj.pos, grid.getWorldPos(coordinates.x, coordinates.y), 0.2, (p) => obj.pos = p, ctx.easings.easeInOutCubic);
 				if (sound) {
 					// play move sound
 
@@ -138,7 +174,7 @@ const newGame: Minigame = {
 			moveTo(kat, moveCoords)
 		})
 
-		let karatMoveLoop = ctx.loop(0.5, () => {
+		let karatMoveLoop = game.loop(moveRate, () => {
 			let availableDirections = [];
 			var cellCoords = grid.getCellCoords(karat.pos);
 			for (const [k, dir] of Object.entries(directions)) {
@@ -148,8 +184,10 @@ const newGame: Minigame = {
 			}
 
 			var randomDir = availableDirections[Math.floor(Math.random() * availableDirections.length)];
-			moveTo(karat, randomDir.add(cellCoords.x, cellCoords.y), false);
-			karat.pos = karat.pos.add(12,16);
+			if (randomDir != null) {
+				moveTo(karat, randomDir.add(cellCoords.x, cellCoords.y), false);
+				karat.pos = karat.pos.add(12,16);
+			}
 		})
 
 		kat.onCollide("karat", () => {
