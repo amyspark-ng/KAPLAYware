@@ -13,7 +13,7 @@ const ware = kaplayware(games);
 const k = ware.kCtx;
 
 k.scene("game", () => {
-	ware.runGame(games[2]).start();
+	ware.runGame(games[0]).start();
 });
 
 k.scene("gameover", () => {
