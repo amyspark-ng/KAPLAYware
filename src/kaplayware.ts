@@ -208,13 +208,13 @@ export default function kaplayware(k: KAPLAYCtx, games: Minigame[] = [], opts: K
 	const getGameID = (g: Minigame) => `${g.author}:${g.prompt}`;
 	const getByID = (id: string) => games.find((minigame) => `${minigame.author}:${minigame.prompt}` == id);
 	let wonLastGame: boolean = null;
-	let visibleCursor: boolean = false;
+	let visibleCursor: boolean = !k.isFocused();
 	let minigameHistory: string[] = []; // this is so you can't get X minigame, Y minigame, then X minigame again
 
 	k.setCursor("none");
 
 	/** Game object that runs everything in the gamescene */
-	const GameScene = k.add([k.stay(["game"])]);
+	const GameScene = k.add([k.stay()]);
 
 	/** The container for minigames, if you want to pause the minigame you should pause this */
 	const gameBox = GameScene.add([k.fixed(), k.pos()]);
@@ -222,12 +222,12 @@ export default function kaplayware(k: KAPLAYCtx, games: Minigame[] = [], opts: K
 	/** The cursor object :) */
 	const cursor = k.add([
 		k.sprite("@cursor"),
-		k.pos(),
+		k.pos(Infinity),
 		k.anchor("topleft"),
 		k.scale(2),
 		k.opacity(),
 		k.z(999),
-		k.stay(["game"]),
+		k.stay(),
 	]);
 
 	GameScene.onUpdate(() => {
@@ -627,6 +627,8 @@ export default function kaplayware(k: KAPLAYCtx, games: Minigame[] = [], opts: K
 	}
 
 	gameBox.onDraw(() => {
+		if (k.getSceneName() == "focus") return;
+
 		const BG_S = 0.27;
 		const BG_L = 0.52;
 

@@ -23,6 +23,7 @@ export const k = kaplay({
 	width: 800,
 	height: 600,
 	letterbox: true,
+	background: [0, 0, 0],
 	font: "happy-o",
 	focus: false,
 	plugins: [dragCompPlugin],
@@ -52,15 +53,21 @@ k.scene("game", () => {
 
 k.scene("gameover", () => {
 	k.add([
+		k.rect(k.width(), k.height()),
+		k.color(k.BLACK),
+	]);
+
+	k.add([
 		k.text("you lost :("),
 		k.pos(k.center()),
 		k.anchor("center"),
 	]);
 
 	k.onClick(() => k.go("game"));
+	k.onKeyPress("space", () => k.go("game"));
 });
 
 k.onLoad(() => {
 	if (k.isFocused()) k.go("game");
-	else k.go("game");
+	else k.go("focus");
 });
