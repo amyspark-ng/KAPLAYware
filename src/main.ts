@@ -6,17 +6,19 @@ import knockGame from "../games/amyspark-ng/knock";
 import sortGame from "../games/amyspark-ng/sort";
 import spamGame from "../games/amyspark-ng/spam";
 import chaseGame from "../games/nanopoison/chase";
+import transformGame from "../games/ricjones/transform/game";
 import kaplayware from "./kaplayware";
 import { dragCompPlugin } from "./plugins/drag";
 
 const games = [
-	getGame,
-	spamGame,
-	knockGame,
-	connectGame,
-	chaseGame,
-	dodgeGame,
-	sortGame,
+	// getGame,
+	// spamGame,
+	// knockGame,
+	// connectGame,
+	// chaseGame,
+	// dodgeGame,
+	// sortGame,
+	transformGame
 ];
 
 export const k = kaplay({
