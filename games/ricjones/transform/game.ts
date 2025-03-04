@@ -14,10 +14,42 @@ const transformGame: Minigame = {
 		ctx.loadSprite("down", "/down.png");
 	},
 	start(ctx) {
+		const PIXEL_VEL = ctx.width()*0.4;
+		enum DIRECTION {
+			LEFT,
+			RIGHT,
+			UP,
+			DOWN
+		}
+		const dir_sprites = ["left", "right", "up", "down"]
+		const orders = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT, DIRECTION.RIGHT]
+		let currIdx = 0
 		const game = ctx.make();
 
+		function createCommand(onLeft: boolean, dir: DIRECTION) {
+			const _obj = game.add([
+				ctx.offscreen({hide: true}),
+				ctx.sprite(dir_sprites[dir]),
+				ctx.area(),
+				ctx.pos(),
+				ctx.opacity(),
+				{canMove: true, command_dir: dir},
+				"command"
+			])
+
+			if(onLeft) {
+				_obj.use(ctx.anchor("left"))
+				_obj.pos = spawnPointLeft
+			} else {
+				_obj.use(ctx.anchor("right"))
+				_obj.pos = spawnPointRight
+			}
+
+			return _obj
+		}
+
 		// checking box for the transform
-		game.add([
+		const check = game.add([
 			ctx.rect(200, 100, {fill: false}),
 			ctx.pos(ctx.width()/2, ctx.height()*0.18),
 			ctx.anchor("center"),
@@ -29,24 +61,114 @@ const transformGame: Minigame = {
 		const spawnPointRight = ctx.vec2(ctx.width(), ctx.height()*0.18)
 
 		// spawn button sprites
-		const left_com = game.add([
-			ctx.sprite("up"),
-			ctx.anchor("left"),
-			ctx.pos(spawnPointLeft)
-		])
+		const left_com = createCommand(true, orders[currIdx])
 
-		const right_com = game.add([
-			ctx.sprite("up"),
-			ctx.anchor("right"),
-			ctx.pos(spawnPointRight)
-		])
+		const right_com = createCommand(false, orders[currIdx])
+
+		function updateBothCommands() {
+			currIdx = ctx.clamp(currIdx + 1, 0, orders.length)
+			if (currIdx > orders.length - 1) return
+			const next_comm = orders[currIdx]
+			left_com.command_dir = next_comm
+			left_com.sprite = dir_sprites[next_comm]
+			left_com.pos = spawnPointLeft
+			right_com.command_dir = next_comm
+			right_com.sprite = dir_sprites[next_comm]
+			right_com.pos = spawnPointRight
+		}
 
 		const bean = game.add([
 			ctx.sprite("bean"),
 			ctx.anchor("center"),
 			ctx.pos(ctx.width()/2, ctx.height()*0.8),
-			ctx.scale(1)
+			ctx.scale(1),
+			{
+				beefiness: 1
+			}
 		]);
+
+		// game.onUpdate(() => {
+		// 	if(check.isOverlapping(left_com)) {
+		// 		const check_dir = left_com.command_dir
+		// 		switch (check_dir) {
+		// 			case DIRECTION.UP: {
+		// 				ctx.onButtonPress("up", () => {
+		// 					bean.beefiness += 1
+		// 					updateBothCommands()
+		// 				})
+		// 				break
+		// 			}
+		// 			case DIRECTION.DOWN: {
+		// 				ctx.onButtonPress("down", () => {
+		// 					bean.beefiness += 1
+		// 					updateBothCommands()
+		// 				})
+		// 				break
+		// 			}
+		// 			case DIRECTION.LEFT: {
+		// 				ctx.onButtonPress("left", () => {
+		// 					bean.beefiness += 1
+		// 					updateBothCommands()
+		// 				})
+		// 				break
+		// 			}
+		// 			case DIRECTION.RIGHT: {
+		// 				ctx.onButtonPress("right", () => {
+		// 					bean.beefiness += 1
+		// 					updateBothCommands()
+		// 				})
+		// 				break
+		// 			}
+		// 		}
+		// 	}	
+		// })
+
+
+		left_com.onUpdate(() => {
+			if(!left_com.canMove) {
+				left_com.move(0, 0)
+			} else {
+				left_com.move(PIXEL_VEL, 0)
+			}
+		})
+
+		right_com.onUpdate(() => {
+			if(!right_com.canMove) {
+				right_com.move(0, 0)
+			} else {
+				right_com.move(-PIXEL_VEL, 0)
+			}
+		})
+
+		
+
+		// left_com.onCollide("command", (obj, col) => {
+		// 	if (currIdx > orders.length - 1) {
+		// 		left_com.destroy()
+		// 		right_com.destroy()
+		// 		ctx.win()
+		// 		return
+		// 	}
+
+		// 	// update curr index
+		// 	currIdx += 1
+		// 	// reset the left_command_icon pos
+		// 	left_com.pos = spawnPointLeft
+		// 	// update the dir data and sprite
+		// 	left_com.command_dir = orders[currIdx]
+		// 	left_com.sprite = dir_sprites[left_com.command_dir]
+
+		// 	// do the same for right_com
+		// 	right_com.pos = spawnPointRight
+		// 	// update the dir data and sprite
+		// 	right_com.command_dir = orders[currIdx]
+		// 	right_com.sprite = dir_sprites[right_com.command_dir]
+		// })
+
+		ctx.onTimeout(() => {
+			ctx.lose();
+			ctx.wait(0.5, () => ctx.finish());
+		});
 
 		return game;
 	},
