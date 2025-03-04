@@ -1,5 +1,6 @@
 import { assets } from "@kaplayjs/crew";
 import { Minigame } from "../../../src/types.ts";
+import { TweenController } from "kaplay";
 
 const transformGame: Minigame = {
 	prompt: "transform",
@@ -65,6 +66,8 @@ const transformGame: Minigame = {
 
 		const right_com = createCommand(false, orders[currIdx])
 
+		let currTween: TweenController|null = null
+
 		function updateBothCommands() {
 			currIdx = ctx.clamp(currIdx + 1, 0, orders.length)
 			if (currIdx > orders.length-1) {
@@ -86,25 +89,25 @@ const transformGame: Minigame = {
 			right_com.command_dir = next_comm
 			right_com.sprite = dir_sprites[next_comm]
 			right_com.pos = spawnPointRight
+
+			if (currTween) currTween.cancel()
+			currTween = ctx.tween(
+				bean.scale,
+				bean.scale.add(2),
+				0.2,
+				(value) => {
+					bean.scale = value
+				},
+				ctx.easings.easeInBounce
+			)
 		}
 
 		const bean = game.add([
 			ctx.sprite("bean"),
-			ctx.anchor("center"),
+			ctx.anchor("bot"),
 			ctx.pos(ctx.width()/2, ctx.height()*0.8),
-			ctx.scale(1),
-			{
-				beefiness: 1
-			}
+			ctx.scale(1)
 		]);
-
-		const dir_map = {
-			"up": DIRECTION.UP,
-			"down": DIRECTION.DOWN,
-			"left": DIRECTION.LEFT,
-			"right": DIRECTION.RIGHT,
-			
-		}
 
 		function isInputValid(_dir: DIRECTION) {
 			return check.isOverlapping(left_com) && left_com.command_dir == _dir
@@ -112,28 +115,24 @@ const transformGame: Minigame = {
 
 		ctx.onButtonPress("up", () => {
 			if(isInputValid(DIRECTION.UP)) {
-				bean.beefiness += 1;
 				updateBothCommands();
 			}
 		})
 
 		ctx.onButtonPress("down", () => {
 			if(isInputValid(DIRECTION.DOWN)) {
-				bean.beefiness += 1;
 				updateBothCommands();
 			}
 		})
 
 		ctx.onButtonPress("left", () => {
 			if(isInputValid(DIRECTION.LEFT)) {
-				bean.beefiness += 1;
 				updateBothCommands();
 			}
 		})
 
 		ctx.onButtonPress("right", () => {
 			if(isInputValid(DIRECTION.RIGHT)) {
-				bean.beefiness += 1;
 				updateBothCommands();
 			}
 		})
