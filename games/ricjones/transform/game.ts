@@ -22,7 +22,7 @@ const transformGame: Minigame = {
 			DOWN
 		}
 		const dir_sprites = ["left", "right", "up", "down"]
-		const orders = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT, DIRECTION.RIGHT]
+		const orders = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT]
 		let currIdx = 0
 		const game = ctx.make();
 
@@ -67,11 +67,22 @@ const transformGame: Minigame = {
 
 		function updateBothCommands() {
 			currIdx = ctx.clamp(currIdx + 1, 0, orders.length)
-			if (currIdx > orders.length - 1) return
+			if (currIdx > orders.length-1) {
+				left_com.destroy()
+				right_com.destroy()
+				ctx.win();
+				ctx.burp().onEnd(() => {
+					ctx.wait(0.1, () => {
+						ctx.finish();
+				});
+			});
+				return
+			}
 			const next_comm = orders[currIdx]
 			left_com.command_dir = next_comm
 			left_com.sprite = dir_sprites[next_comm]
 			left_com.pos = spawnPointLeft
+			
 			right_com.command_dir = next_comm
 			right_com.sprite = dir_sprites[next_comm]
 			right_com.pos = spawnPointRight
@@ -87,42 +98,45 @@ const transformGame: Minigame = {
 			}
 		]);
 
-		// game.onUpdate(() => {
-		// 	if(check.isOverlapping(left_com)) {
-		// 		const check_dir = left_com.command_dir
-		// 		switch (check_dir) {
-		// 			case DIRECTION.UP: {
-		// 				ctx.onButtonPress("up", () => {
-		// 					bean.beefiness += 1
-		// 					updateBothCommands()
-		// 				})
-		// 				break
-		// 			}
-		// 			case DIRECTION.DOWN: {
-		// 				ctx.onButtonPress("down", () => {
-		// 					bean.beefiness += 1
-		// 					updateBothCommands()
-		// 				})
-		// 				break
-		// 			}
-		// 			case DIRECTION.LEFT: {
-		// 				ctx.onButtonPress("left", () => {
-		// 					bean.beefiness += 1
-		// 					updateBothCommands()
-		// 				})
-		// 				break
-		// 			}
-		// 			case DIRECTION.RIGHT: {
-		// 				ctx.onButtonPress("right", () => {
-		// 					bean.beefiness += 1
-		// 					updateBothCommands()
-		// 				})
-		// 				break
-		// 			}
-		// 		}
-		// 	}	
-		// })
+		const dir_map = {
+			"up": DIRECTION.UP,
+			"down": DIRECTION.DOWN,
+			"left": DIRECTION.LEFT,
+			"right": DIRECTION.RIGHT,
+			
+		}
 
+		function isInputValid(_dir: DIRECTION) {
+			return check.isOverlapping(left_com) && left_com.command_dir == _dir
+		}
+
+		ctx.onButtonPress("up", () => {
+			if(isInputValid(DIRECTION.UP)) {
+				bean.beefiness += 1;
+				updateBothCommands();
+			}
+		})
+
+		ctx.onButtonPress("down", () => {
+			if(isInputValid(DIRECTION.DOWN)) {
+				bean.beefiness += 1;
+				updateBothCommands();
+			}
+		})
+
+		ctx.onButtonPress("left", () => {
+			if(isInputValid(DIRECTION.LEFT)) {
+				bean.beefiness += 1;
+				updateBothCommands();
+			}
+		})
+
+		ctx.onButtonPress("right", () => {
+			if(isInputValid(DIRECTION.RIGHT)) {
+				bean.beefiness += 1;
+				updateBothCommands();
+			}
+		})
 
 		left_com.onUpdate(() => {
 			if(!left_com.canMove) {
@@ -140,7 +154,11 @@ const transformGame: Minigame = {
 			}
 		})
 
-		
+		// game is lost when the command icons clashes
+		left_com.onCollide("command", () => {
+			ctx.lose();
+			ctx.wait(0.5, () => ctx.finish());
+		})
 
 		// left_com.onCollide("command", (obj, col) => {
 		// 	if (currIdx > orders.length - 1) {
