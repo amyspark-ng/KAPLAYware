@@ -25,7 +25,12 @@ const transformGame: Minigame = {
 			DOWN
 		}
 		const dir_sprites = ["left", "right", "up", "down"]
-		const orders = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT]
+
+		const orders = []
+		for(let i = 0; i < 3; i++) {
+			orders.push(ctx.randi(3))
+		}
+
 		let currIdx = 0
 		const game = ctx.make();
 
@@ -232,12 +237,6 @@ const transformGame: Minigame = {
 			})
 			// ctx.lose();
 			// ctx.wait(0.5, () => ctx.finish());
-		})
-
-		ctx.onTimeout(() => {
-			ctx.wait(0.1, () => {
-				ctx.finish()
-			})
 		})
 
 		return game;
