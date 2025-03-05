@@ -10,6 +10,7 @@ import sortGame from "../games/amyspark-ng/sort";
 import spamGame from "../games/amyspark-ng/spam";
 import uploadGame from "../games/amyspark-ng/upload";
 import chaseGame from "../games/nanopoison/chase";
+import transformGame from "../games/ricjones/transform"
 
 const games = [
 	// spamGame,
@@ -23,7 +24,8 @@ const games = [
 	// avoidGame,
 	// dontGame,
 	// slapGame,
-	uploadGame,
+	// uploadGame,
+	transformGame
 ];
 
 export default games;
