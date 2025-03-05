@@ -15,7 +15,7 @@ const spamGame: Minigame = {
 		let score = 0;
 		const SCORE_TO_WIN = ctx.difficulty == 1 ? 5 : ctx.difficulty == 2 ? 10 : ctx.difficulty == 3 ? 20 : 20;
 
-		ctx.play("music");
+		ctx.play("music", { speed: ctx.speed });
 
 		const scoreText = game.add([
 			ctx.text(`0/${SCORE_TO_WIN}`),
@@ -37,21 +37,21 @@ const spamGame: Minigame = {
 
 		ctx.onButtonPress("action", () => {
 			score++;
-			ctx.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15, (p) => scoreText.scale = p);
-			ctx.tween(score % 2 == 0 ? -10 : 10, 0, 0.15, (p) => scoreText.angle = p);
-			ctx.tween(ctx.vec2(1 + (0.009 * score)), ctx.vec2(1), 0.15, (p) => hexagon.scale = p);
+			ctx.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => scoreText.scale = p);
+			ctx.tween(score % 2 == 0 ? -10 : 10, 0, 0.15 / ctx.speed, (p) => scoreText.angle = p);
+			ctx.tween(ctx.vec2(1 + (0.009 * score)), ctx.vec2(1), 0.15 / ctx.speed, (p) => hexagon.scale = p);
 			scoreText.text = `${score.toString()}/${SCORE_TO_WIN}`;
 		});
 
 		ctx.onTimeout(() => {
 			if (score >= SCORE_TO_WIN) {
 				ctx.win();
-				ctx.tween(ctx.vec2(1.25), ctx.vec2(1), 0.15, (p) => hexagon.scale = p);
+				ctx.tween(ctx.vec2(1.25), ctx.vec2(1), 0.15 / ctx.speed, (p) => hexagon.scale = p);
 				hexagon.color = ctx.rgb(99, 217, 81);
 			}
 			else {
 				ctx.lose();
-				ctx.tween(ctx.vec2(0.5), ctx.vec2(1), 0.15, (p) => hexagon.scale = p);
+				ctx.tween(ctx.vec2(0.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => hexagon.scale = p);
 				hexagon.color = ctx.rgb(217, 81, 81);
 			}
 
@@ -61,7 +61,7 @@ const spamGame: Minigame = {
 		});
 
 		hexagon.onUpdate(() => {
-			hexagon.angle = ctx.lerp(hexagon.angle, hexagon.angle + score / 8, 0.5);
+			hexagon.angle = ctx.lerp(hexagon.angle, hexagon.angle + (score / 8 * ctx.speed), 0.5);
 		});
 
 		return game;

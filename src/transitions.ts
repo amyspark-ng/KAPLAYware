@@ -1,7 +1,7 @@
-import { AudioPlay, KAPLAYCtx } from "kaplay";
+import { assets, crew } from "@kaplayjs/crew";
+import { KAPLAYCtx } from "kaplay";
 import { Conductor } from "./conductor";
-import { friends } from "./kaplayware";
-import { addPrompt, makeConfetti, makeFriend, makeHeart, makeHearts, makeScoreText } from "./objects";
+import { addPrompt, makeFriend, makeHearts, makeScoreText } from "./objects";
 import { KaplayWareCtx } from "./types";
 
 let sunAngle = 0;
@@ -490,6 +490,7 @@ export function speedupTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 			return;
 		}
 
+		const friends = Object.keys(assets).filter((key) => assets[key].type == "crew");
 		const friendToAdd = k.choose(friends.filter((friendThing) => !friendsChosen.includes(friendThing)));
 		const friend = transition.add(makeFriend(k, friendToAdd));
 		const direction = k.choose([-1, 1]);

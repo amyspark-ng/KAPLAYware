@@ -1,35 +1,11 @@
-import kaplay from "kaplay";
-import connectGame from "../games/amyspark-ng/connect";
-import dodgeGame from "../games/amyspark-ng/dodge";
-import getGame from "../games/amyspark-ng/get";
-import knockGame from "../games/amyspark-ng/knock";
-import sortGame from "../games/amyspark-ng/sort";
-import spamGame from "../games/amyspark-ng/spam";
-import chaseGame from "../games/nanopoison/chase";
-import transformGame from "../games/ricjones/transform/game";
+import k from "./engine";
+import "./loader";
+import "./plugins/cursor";
+
+import games from "./games";
 import kaplayware from "./kaplayware";
-import { dragCompPlugin } from "./plugins/drag";
 
-const games = [
-	// getGame,
-	// spamGame,
-	// knockGame,
-	// connectGame,
-	// chaseGame,
-	// dodgeGame,
-	// sortGame,
-	transformGame
-];
-
-export const k = kaplay({
-	width: 800,
-	height: 600,
-	font: "happy-o",
-	focus: false,
-	plugins: [dragCompPlugin],
-});
-
-const ware = kaplayware(k, games);
+k.setCursor("none");
 
 k.scene("focus", () => {
 	k.add([
@@ -47,11 +23,16 @@ k.scene("focus", () => {
 });
 
 k.scene("game", () => {
-	ware.reset();
+	const ware = kaplayware(games);
 	ware.nextGame();
 });
 
 k.scene("gameover", () => {
+	k.add([
+		k.rect(k.width(), k.height()),
+		k.color(k.BLACK),
+	]);
+
 	k.add([
 		k.text("you lost :("),
 		k.pos(k.center()),
@@ -59,9 +40,10 @@ k.scene("gameover", () => {
 	]);
 
 	k.onClick(() => k.go("game"));
+	k.onKeyPress("space", () => k.go("game"));
 });
 
 k.onLoad(() => {
 	if (k.isFocused()) k.go("game");
-	else k.go("game");
+	else k.go("focus");
 });

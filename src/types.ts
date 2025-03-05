@@ -1,6 +1,6 @@
-import { AudioPlay, AudioPlayOpt, GameObj, KAPLAYCtx, KEvent, KEventController, TimerComp } from "kaplay";
+import { AudioPlay, AudioPlayOpt, Color, GameObj, KAPLAYCtx, KEvent, KEventController, TimerComp, Vec2 } from "kaplay";
+import k from "./engine";
 import { gameAPIs, loadAPIs } from "./kaplayware";
-import { k } from "./main";
 
 /** A button */
 export type Button =
@@ -28,6 +28,12 @@ export type MinigameAPI = {
 	 * Register an event that runs every frame when a button is held down.
 	 */
 	onButtonDown(btn: Button, action: () => void): KEventController;
+	isButtonPressed(btn: Button): boolean;
+	isButtonDown(btn: Button): boolean;
+	isButtonReleased(btn: Button): boolean;
+
+	onMouseMove(action: (pos: Vec2, delta: Vec2) => void): KEventController;
+	onMouseRelease(action: () => void): KEventController;
 	/**
 	 * Register an event that runs once when timer runs out.
 	 */
@@ -44,6 +50,7 @@ export type MinigameAPI = {
 	 * Run this when your minigame has 100% finished all win/lose animations etc
 	 */
 	finish: () => void;
+	cursor: { color: Color; };
 	/**
 	 * The current difficulty of the game
 	 */
@@ -68,7 +75,7 @@ export type Minigame = {
 	/** The author of the game */
 	author: string;
 	/** The RGB code for the game's backgroun */
-	rgb?: [number, number, number];
+	rgb?: [number, number, number] | Color;
 	/** Wheter the games use the mouse, If you want to use a custom mouse you can set `hidden` to true */
 	mouse?: { hidden: boolean; };
 	/** How long the minigames goes for (choose a reasonable number) */
@@ -103,9 +110,11 @@ export type Minigame = {
 	start: (ctx: MinigameCtx) => GameObj;
 };
 
+export type KAPLAYwareOpts = {
+	onlyMouse?: boolean;
+};
+
 export type KaplayWareCtx = {
-	/** The KAPLAY context */
-	kCtx: KAPLAYCtx;
 	/** Wheter input is enabled */
 	inputEnabled: boolean;
 	/** Wheter the current game is running */
@@ -126,8 +135,6 @@ export type KaplayWareCtx = {
 	gameIdx: number;
 	/** The amount of times the game has sped up */
 	timesSpeed: number;
-	/** Resets the ware to initial state */
-	reset: () => void;
 	/** Transition to the next game */
 	nextGame: () => void;
 	/** Returns the current minigame */

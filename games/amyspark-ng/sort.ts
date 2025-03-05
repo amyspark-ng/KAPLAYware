@@ -1,5 +1,4 @@
 import { assets } from "@kaplayjs/crew";
-import { GameObj } from "kaplay";
 import { curDraggin, setCurDragging } from "../../src/plugins/drag.ts";
 import { Minigame } from "../../src/types.ts";
 
@@ -11,22 +10,13 @@ const newGame: Minigame = {
 	mouse: { hidden: false },
 	urlPrefix: "games/amyspark-ng/assets",
 	load(ctx) {
-		ctx.loadSprite("bean", assets.bean.sprite);
-		ctx.loadSprite("bag", assets.bag.sprite);
-		ctx.loadSprite("bag-o", assets.bag.outlined);
-		ctx.loadSprite("moneybag", assets.money_bag.sprite);
-		ctx.loadSprite("moneybag-o", assets.money_bag.outlined);
-		ctx.loadSprite("bobo", assets.bobo.sprite);
-		ctx.loadSprite("bobo-o", assets.bobo.outlined);
-		ctx.loadSprite("sukomi", assets.sukomi.sprite);
-		ctx.loadSprite("sukomi-o", assets.sukomi.outlined);
 	},
 	start(ctx) {
 		const game = ctx.make();
 
 		const FISH_OR_BAG: "fish" | "bag" = ctx.choose(["fish", "bag"]);
 		const AMOUNT_TO_ADD = ctx.difficulty == 1 || ctx.difficulty == 2 ? 3 : ctx.difficulty == 3 ? 4 : 0;
-		const options = FISH_OR_BAG == "bag" ? ["bag", "moneybag"] : ["bobo", "sukomi"];
+		const options = FISH_OR_BAG == "bag" ? ["@bag", "@money_bag"] : ["@bobo", "@sukomi"];
 
 		let box1Options = [];
 		let box2Options = [];

@@ -6,18 +6,17 @@ const newGame: Minigame = {
 	mouse: { hidden: false },
 	author: "amyspark-ng",
 	rgb: [74, 48, 82],
-	urlPrefix: "/games/amyspark-ng/assets",
+	urlPrefix: "/games/amyspark-ng/assets/",
 	load(ctx) {
-		ctx.loadSprite("bean", assets.bean.sprite);
-		ctx.loadSprite("door", "/sprites/door.png");
-		ctx.loadSound("knock", "/sounds/knock.ogg");
+		ctx.loadSound("knock", "sounds/knock.ogg");
 	},
 	start(ctx) {
 		const game = ctx.make();
 		let knocksLeft = ctx.difficulty == 1 ? 3 : ctx.difficulty == 2 ? 6 : ctx.difficulty == 3 ? 10 : 10;
+		let hasWon = false;
 
 		const door = game.add([
-			ctx.sprite("door"),
+			ctx.sprite("@door"),
 			ctx.anchor("center"),
 			ctx.pos(ctx.center()),
 			ctx.scale(2),
@@ -33,10 +32,12 @@ const newGame: Minigame = {
 				return;
 			}
 			else if (knocksLeft == 0) {
+				if (hasWon) return;
+				if (!hasWon) hasWon = true;
 				door.destroy();
 
 				const bean = game.add([
-					ctx.sprite("bean"),
+					ctx.sprite("@bean"),
 					ctx.pos(ctx.center()),
 					ctx.scale(3),
 					ctx.anchor("center"),
@@ -56,10 +57,14 @@ const newGame: Minigame = {
 		});
 
 		ctx.onTimeout(() => {
-			if (knocksLeft > 0) ctx.lose();
-			ctx.wait(1, () => {
-				ctx.finish();
-			});
+			if (hasWon) return;
+
+			if (knocksLeft > 0) {
+				ctx.lose();
+				ctx.wait(1, () => {
+					ctx.finish();
+				});
+			}
 		});
 
 		return game;

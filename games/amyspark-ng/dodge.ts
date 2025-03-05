@@ -52,7 +52,7 @@ const newGame: Minigame = {
 				if (!canSpawn) return;
 
 				game.add([
-					ctx.sprite("butterfly"),
+					ctx.sprite("@butterfly"),
 					ctx.area(),
 					ctx.pos(ctx.width(), ctx.height() - 60),
 					ctx.anchor("center"),
@@ -70,7 +70,7 @@ const newGame: Minigame = {
 		}
 
 		const bean = game.add([
-			ctx.sprite("bean"),
+			ctx.sprite("@bean"),
 			ctx.pos(80, ctx.height() / 2),
 			ctx.scale(1.5),
 			ctx.area({ scale: ctx.vec2(0.5) }),
@@ -93,7 +93,7 @@ const newGame: Minigame = {
 
 			if (!beanIsDead) {
 				beanIsDead = true;
-				bean.sprite = "beant";
+				bean.sprite = "@beant";
 				jump();
 				ctx.addKaboom(bean.pos);
 				ctx.shake();

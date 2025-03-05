@@ -7,16 +7,13 @@ const getGame: Minigame = {
 	rgb: [133, 97, 97],
 	urlPrefix: "",
 	load(ctx) {
-		ctx.loadSprite("bean", assets.bean.sprite);
-		ctx.loadSprite("beant", assets.beant.sprite);
-		ctx.loadSprite("apple", assets.apple.sprite);
 	},
 	start(ctx) {
 		const game = ctx.make();
 		const SPEED = 5 * ctx.speed;
 
 		const bean = game.add([
-			ctx.sprite("bean"),
+			ctx.sprite("@bean"),
 			ctx.pos(),
 			ctx.area(),
 			ctx.anchor("center"),
@@ -24,7 +21,7 @@ const getGame: Minigame = {
 		]);
 
 		const apple = game.add([
-			ctx.sprite("apple"),
+			ctx.sprite("@apple"),
 			ctx.pos(),
 			ctx.area({ scale: ctx.vec2(0.5) }),
 			ctx.scale(1.5),
@@ -82,7 +79,7 @@ const getGame: Minigame = {
 
 		ctx.onTimeout(() => {
 			if (apple.exists()) {
-				bean.sprite = "beant";
+				bean.sprite = "@beant";
 				ctx.lose();
 				ctx.wait(0.5, () => ctx.finish());
 			}

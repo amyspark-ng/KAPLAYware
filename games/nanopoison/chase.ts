@@ -8,9 +8,6 @@ const newGame: Minigame = {
 	duration: 4,
 	urlPrefix: "games/nanopoison/assets",
 	load(ctx) {
-		ctx.loadSprite("kat", assets.kat.sprite);
-		ctx.loadSprite("karat", assets.karat.sprite);
-		ctx.loadSprite("steel", assets.steel.sprite);
 	},
 	start(ctx) {
 		const game = ctx.make();
@@ -82,7 +79,7 @@ const newGame: Minigame = {
 						else {
 							this.grid[r][c] = game.add([
 								ctx.pos(this.getWorldPos(c, r)),
-								ctx.sprite("steel"),
+								ctx.sprite("@steel"),
 							]);
 						}
 					}
@@ -131,13 +128,13 @@ const newGame: Minigame = {
 		const grid = new Grid();
 
 		const kat = game.add([
-			ctx.sprite("kat"),
+			ctx.sprite("@kat"),
 			ctx.pos(grid.getWorldPos(1, 7)),
 			ctx.area(),
 		]);
 
 		const karat = game.add([
-			ctx.sprite("karat"),
+			ctx.sprite("@karat"),
 			ctx.pos(grid.getWorldPos(8, 3).add(16, 16)),
 			ctx.area(),
 			ctx.scale(0.5),
