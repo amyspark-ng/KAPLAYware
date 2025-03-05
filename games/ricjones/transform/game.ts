@@ -9,6 +9,7 @@ const transformGame: Minigame = {
 	urlPrefix: "games/ricjones/assets",
 	load(ctx) {
 		ctx.loadSprite("bean", assets.bean.sprite);
+		ctx.loadSprite("fish", assets.bobo.sprite)
 		ctx.loadSprite("left", "/left.png");
 		ctx.loadSprite("right", "/right.png");
 		ctx.loadSprite("up", "/up.png");
@@ -25,6 +26,7 @@ const transformGame: Minigame = {
 		const dir_sprites = ["left", "right", "up", "down"]
 		const orders = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT]
 		let currIdx = 0
+		let winConCheck = false
 		const game = ctx.make();
 
 		function createCommand(onLeft: boolean, dir: DIRECTION) {
@@ -68,19 +70,78 @@ const transformGame: Minigame = {
 
 		let currTween: TweenController|null = null
 
+		const transitionScreen = game.add([
+			ctx.rect(ctx.width(), ctx.height()),
+			ctx.pos(0, 0),
+			ctx.color(ctx.WHITE),
+			ctx.opacity(0),
+			ctx.z(100),
+			ctx.timer()
+		])
+
+		function clearPrevCanvas() {
+			check.destroy()
+			left_com.destroy()
+			right_com.destroy()
+			bean.destroy()
+		}
+
+		// put all the obj you need on the screen, depends on the winning cond
+		function createGameOverScreen(isWin: boolean = true) {
+			if (!isWin) {
+				game.add([
+					ctx.sprite("fish"),
+					ctx.anchor("center"),
+					ctx.pos(ctx.width()*0.4, ctx.height()/2),
+					ctx.rotate(-95),
+					ctx.scale(2.5)
+				])
+				ctx.lose()
+				ctx.wait(1.5, () => {
+					ctx.finish()
+				})
+				return
+			}
+
+			game.add([
+				ctx.text("oh hi !"),
+				ctx.pos(ctx.width()/2, ctx.height()/2)
+			])
+		}
+
+		function goToGameOver(isWin: boolean = true) {
+			// clear all previous objects
+			clearPrevCanvas()
+			// fade in 
+			transitionScreen.tween(
+				0,
+				1,
+				0.3,
+				(v) => {
+					transitionScreen.opacity = v
+				}
+			).onEnd(() => {
+				// fade out
+				transitionScreen.tween(
+					1,
+					0,
+					0.3,
+					(v) => {
+						transitionScreen.opacity = v
+					}
+				).onEnd(() => {
+					createGameOverScreen(isWin)
+				})
+			})
+		}
+
 		function updateBothCommands() {
 			currIdx = ctx.clamp(currIdx + 1, 0, orders.length)
 			if (currIdx > orders.length-1) {
-				left_com.destroy()
-				right_com.destroy()
-				ctx.win();
-				ctx.burp().onEnd(() => {
-					ctx.wait(0.1, () => {
-						ctx.finish();
-				});
-			});
+				goToGameOver(true)
 				return
 			}
+			
 			const next_comm = orders[currIdx]
 			left_com.command_dir = next_comm
 			left_com.sprite = dir_sprites[next_comm]
@@ -113,6 +174,7 @@ const transformGame: Minigame = {
 			return check.isOverlapping(left_com) && left_com.command_dir == _dir
 		}
 
+		// checking input if it is within the box
 		ctx.onButtonPress("up", () => {
 			if(isInputValid(DIRECTION.UP)) {
 				updateBothCommands();
@@ -155,37 +217,15 @@ const transformGame: Minigame = {
 
 		// game is lost when the command icons clashes
 		left_com.onCollide("command", () => {
-			ctx.lose();
-			ctx.wait(0.5, () => ctx.finish());
+			ctx.wait(0.5, () => {
+				// lose screen
+				goToGameOver(false)
+			})
+			// ctx.lose();
+			// ctx.wait(0.5, () => ctx.finish());
 		})
 
-		// left_com.onCollide("command", (obj, col) => {
-		// 	if (currIdx > orders.length - 1) {
-		// 		left_com.destroy()
-		// 		right_com.destroy()
-		// 		ctx.win()
-		// 		return
-		// 	}
-
-		// 	// update curr index
-		// 	currIdx += 1
-		// 	// reset the left_command_icon pos
-		// 	left_com.pos = spawnPointLeft
-		// 	// update the dir data and sprite
-		// 	left_com.command_dir = orders[currIdx]
-		// 	left_com.sprite = dir_sprites[left_com.command_dir]
-
-		// 	// do the same for right_com
-		// 	right_com.pos = spawnPointRight
-		// 	// update the dir data and sprite
-		// 	right_com.command_dir = orders[currIdx]
-		// 	right_com.sprite = dir_sprites[right_com.command_dir]
-		// })
-
-		ctx.onTimeout(() => {
-			ctx.lose();
-			ctx.wait(0.5, () => ctx.finish());
-		});
+		// no need to check timer
 
 		return game;
 	},
