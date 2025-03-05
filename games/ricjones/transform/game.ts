@@ -9,7 +9,8 @@ const transformGame: Minigame = {
 	urlPrefix: "games/ricjones/assets",
 	load(ctx) {
 		ctx.loadSprite("bean", assets.bean.sprite);
-		ctx.loadSprite("fish", assets.bobo.sprite)
+		ctx.loadSprite("fish", assets.bobo.sprite);
+		ctx.loadSprite("chad", "/chadBean.png");
 		ctx.loadSprite("left", "/left.png");
 		ctx.loadSprite("right", "/right.png");
 		ctx.loadSprite("up", "/up.png");
@@ -26,7 +27,6 @@ const transformGame: Minigame = {
 		const dir_sprites = ["left", "right", "up", "down"]
 		const orders = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT]
 		let currIdx = 0
-		let winConCheck = false
 		const game = ctx.make();
 
 		function createCommand(onLeft: boolean, dir: DIRECTION) {
@@ -103,10 +103,19 @@ const transformGame: Minigame = {
 				return
 			}
 
+			const chad1 = game.add([
+				ctx.sprite("chad"),
+				ctx.pos(0, 0)
+			])
+			chad1.use(ctx.scale(ctx.height()/chad1.height))
+
 			game.add([
 				ctx.text("oh hi !"),
 				ctx.pos(ctx.width()/2, ctx.height()/2)
 			])
+
+			ctx.win()
+			ctx.wait(1.5, () => ctx.finish())
 		}
 
 		function goToGameOver(isWin: boolean = true) {
@@ -225,7 +234,11 @@ const transformGame: Minigame = {
 			// ctx.wait(0.5, () => ctx.finish());
 		})
 
-		// no need to check timer
+		ctx.onTimeout(() => {
+			ctx.wait(0.1, () => {
+				ctx.finish()
+			})
+		})
 
 		return game;
 	},
