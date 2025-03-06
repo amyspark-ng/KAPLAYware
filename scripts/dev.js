@@ -1,22 +1,19 @@
-import { exec } from "child_process";
-import * as fs from "fs/promises";
+import { spawn } from "child_process";
 
-import { games } from "../src/games.ts";
+const [author, gamePrompt] = (process.argv[2] ?? "").split(":");
+const minigameID = `${author}:${gamePrompt}`;
+const minigameSet = author && gamePrompt;
 
-console.log(games);
+if (minigameSet) {
+  process.env.DEV_MINIGAME = `"${minigameID}"`;
+  console.log(
+    "\u{2728} \x1b[32m\x1b[1mRunning minigame\x1b[0m: \x1b[0m"
+    + minigameID
+  );
+}
 
-// let devMinigame = true;
-// const [author, gamePrompt] = (process.argv[2] ?? "").split(":");
-
-// if (!author || !gamePrompt) {
-// 	devMinigame = false;
-// }
-// else {
-// 	devMinigame = true;
-// 	// const gameToRun = games.find((minigame) => getGameID(minigame) == `${author}:${gamePrompt}`);
-// 	// if (!gameToRun) console.error("WE COULDN'T FIND THAT ONE MINIGAME");
-// 	// else {
-// 	// 	games = games.filter((game) => game == gameToRun);
-// 	// 	console.log("Running: " + getGameID(gameToRun));
-// 	// }
-// }
+spawn(
+  'vite',
+  [...process.argv.slice(minigameSet ? 3 : 2)],
+  { shell: true, stdio: 'inherit' }
+);

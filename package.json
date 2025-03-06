@@ -2,7 +2,7 @@
 	"name": "kaplayware",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
+		"dev": "node scripts/dev.js",
 		"build": "tsc && vite build",
 		"create-game": "node scripts/create.js"
 	},

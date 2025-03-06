@@ -1,33 +1,18 @@
-import avoidGame from "../games/amyspark-ng/avoid";
-import connectGame from "../games/amyspark-ng/connect";
-import dodgeGame from "../games/amyspark-ng/dodge";
-import dontGame from "../games/amyspark-ng/dont";
-import flipGame from "../games/amyspark-ng/flip";
-import getGame from "../games/amyspark-ng/get";
-import hitGame from "../games/amyspark-ng/hit";
-import knockGame from "../games/amyspark-ng/knock";
-import slapGame from "../games/amyspark-ng/slap";
-import sortGame from "../games/amyspark-ng/sort";
-import spamGame from "../games/amyspark-ng/spam";
-import spreadGame from "../games/amyspark-ng/spread";
-import uploadGame from "../games/amyspark-ng/upload";
-import chaseGame from "../games/nanopoison/chase";
+import { getGameID } from "./utils";
 
-const games = [
-	// spamGame,
-	// getGame,
-	// chaseGame,
-	// knockGame,
-	// connectGame,
-	// dodgeGame,
-	// sortGame,
-	// hitGame,
-	// avoidGame,
-	// dontGame,
-	// slapGame,
-	// uploadGame,
-	// spreadGame,
-	flipGame,
-];
+const gameModules = import.meta.glob("../games/*/*.ts", { eager: true });
 
-export default games;
+const exclude = new Set(["lajbel:find"]);
+
+const games = Object.values(gameModules)
+	.map((module: any) => module.default)
+	.filter((game) => !exclude.has(getGameID(game)));
+
+const onlyInclude = new Set([
+	DEV_MINIGAME, // Passed arg from npm run dev {yourname}:{gamename}
+	...(import.meta.env?.VITE_ONLY_MINIGAMES ?? "").trim().split("\n").map((s: string) => s.trim()),
+].filter((id) => games.some((game) => getGameID(game) === id)));
+
+export default onlyInclude.size
+	? games.filter((game) => onlyInclude.has(getGameID(game)))
+	: games;
