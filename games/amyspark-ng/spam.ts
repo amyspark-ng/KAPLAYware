@@ -5,7 +5,7 @@ const spamGame: Minigame = {
 	author: "amyspark-ng",
 	rgb: [26, 26, 26],
 	duration: 4,
-	urlPrefix: "/games/amyspark-ng/assets",
+	urlPrefix: "games/amyspark-ng/assets",
 	load(ctx) {
 		ctx.loadSprite("hexagon", "/sprites/hexagon.png");
 		ctx.loadSound("music", "/sounds/clicker.ogg");

@@ -14,7 +14,7 @@ k.scene("focus", () => {
 	]);
 
 	k.add([
-		k.text("CLICK TO FOCUS"),
+		k.text("CLICK TO FOCUS", { font: "happy" }),
 		k.pos(k.center()),
 		k.anchor("center"),
 	]);
@@ -23,7 +23,7 @@ k.scene("focus", () => {
 });
 
 k.scene("game", () => {
-	const ware = kaplayware(games);
+	const ware = kaplayware(games, { debug: true });
 	ware.nextGame();
 });
 

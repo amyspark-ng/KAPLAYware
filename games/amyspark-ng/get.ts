@@ -10,7 +10,7 @@ const getGame: Minigame = {
 	},
 	start(ctx) {
 		const game = ctx.make();
-		const SPEED = 5 * ctx.speed;
+		const SPEED = 300 * ctx.speed;
 
 		const bean = game.add([
 			ctx.sprite("@bean"),
@@ -37,7 +37,7 @@ const getGame: Minigame = {
 				: ctx.difficulty == 2
 				? 250
 				: ctx.difficulty == 3
-				? 350
+				? 300
 				: 0;
 
 			const X = ctx.center().x + magnitude * Math.cos(randAngle);
@@ -48,23 +48,19 @@ const getGame: Minigame = {
 		bean.pos = ctx.center();
 		apple.pos = getApplePos();
 
+		const movement = ctx.vec2();
+		let lerpMovement = ctx.vec2();
 		bean.onUpdate(() => {
 			bean.pos.x = ctx.clamp(bean.pos.x, -bean.width / 2, ctx.width() + bean.width / 2);
 			bean.pos.y = ctx.clamp(bean.pos.y, -bean.height / 2, ctx.height() + bean.height / 2);
-		});
 
-		ctx.onButtonDown("left", () => bean.pos.x -= SPEED);
+			// this is to prevent bean going faster on diagonal movement
+			movement.x = ctx.isButtonDown("left") ? -1 : ctx.isButtonDown("right") ? 1 : 0;
+			movement.y = ctx.isButtonDown("up") ? -1 : ctx.isButtonDown("down") ? 1 : 0;
 
-		ctx.onButtonDown("right", () => {
-			bean.pos.x += SPEED * ctx.speed;
-		});
-
-		ctx.onButtonDown("down", () => {
-			bean.pos.y += SPEED * ctx.speed;
-		});
-
-		ctx.onButtonDown("up", () => {
-			bean.pos.y -= SPEED * ctx.speed;
+			// this just lerps a movement to the unit, which rounds that 1.4 to 1 :thumbsup:
+			lerpMovement = ctx.lerp(lerpMovement, movement.unit().scale(SPEED), 0.75);
+			bean.move(lerpMovement);
 		});
 
 		bean.onCollide("apple", () => {

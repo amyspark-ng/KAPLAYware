@@ -1,4 +1,5 @@
 import { assets } from "@kaplayjs/crew";
+import { SpriteAtlasData } from "kaplay";
 import k from "./engine";
 import games from "./games";
 import { loadAPIs } from "./kaplayware";
@@ -81,6 +82,15 @@ games.forEach((game) => {
 			}
 			return k[loader](name, ...args);
 		};
+
+		if (loader == "loadSpriteAtlas") {
+			loadCtx[loader] = (path: string, data: SpriteAtlasData) => {
+				Object.keys(data).forEach((key) => {
+					delete Object.assign(data, { [`${getGameID(game)}-${key}`]: data[key] })[key]; // renames the keys
+				});
+				return k.loadSpriteAtlas(path, data);
+			};
+		}
 	}
 
 	// patch loadRoot() to consider g.urlPrefix

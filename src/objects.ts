@@ -106,19 +106,17 @@ export function addBomb(k: KAPLAYCtx, ware: KaplayWareCtx) {
 
 	const BOMB_POS = k.vec2(40, k.height() - 40);
 
-	const stupid = k.add([
-		k.text(""),
-	]);
-
 	const cord = k.add([
 		k.sprite("@bomb_cord", { tiled: true }),
 		k.pos(69, 527),
 		k.anchor("left"),
+		k.fixed(),
 	]);
 
 	const cord1 = k.add([
 		k.sprite("@bomb_cord1"),
 		k.pos(29, 528),
+		k.fixed(),
 	]);
 
 	const fuse = k.add([
@@ -127,6 +125,7 @@ export function addBomb(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.anchor("center"),
 		k.scale(),
 		k.opacity(),
+		k.fixed(),
 	]);
 
 	const bomb = k.add([
@@ -135,6 +134,7 @@ export function addBomb(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.anchor("center"),
 		k.scale(),
 		k.color(),
+		k.fixed(),
 	]);
 
 	cord.width = k.width() - 100;

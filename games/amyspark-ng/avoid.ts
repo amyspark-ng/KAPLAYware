@@ -93,7 +93,6 @@ const avoidGame: Minigame = {
 
 				mark.move(movement.x, 0);
 			}
-			else mark.pos.x = ctx.lerp(mark.pos.x, ctx.center().x, 0.5);
 			mark.pos.x = ctx.clamp(mark.pos.x, 0, ctx.width());
 
 			// feet
@@ -103,7 +102,7 @@ const avoidGame: Minigame = {
 
 		function stomp() {
 			ctx.wait(0.05 / 2 / ctx.speed, () => mark.jump());
-			ctx.tween(foot.pos.y, ctx.height() - 45, 0.05 / ctx.speed, (p) => foot.pos.y = p, ctx.easings.easeOutExpo).onEnd(() => {
+			ctx.tween(foot.pos.y, ctx.height() - 45, 0.1 / ctx.speed, (p) => foot.pos.y = p, ctx.easings.easeOutExpo).onEnd(() => {
 				ctx.play("stomp", { detune: ctx.rand(-50, 50) });
 				if (!mark.isColliding(foot)) ctx.tween(foot.pos.y, ctx.center().y, 0.5 / ctx.speed, (p) => foot.pos.y = p);
 			});
@@ -130,11 +129,7 @@ const avoidGame: Minigame = {
 			ctx.win();
 			footInGame = false;
 
-			mark.play("crouch");
-			mark.jump();
-			mark.onGround(() => mark.jump());
-
-			ctx.wait(1, () => {
+			ctx.wait(0.5 / ctx.speed, () => {
 				ctx.finish();
 			});
 		});

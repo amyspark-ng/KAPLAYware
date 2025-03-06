@@ -1,12 +1,7 @@
 import { assets } from "@kaplayjs/crew";
 import kaplay, { Color, GameObj, Vec2 } from "kaplay";
+import mulfokColors from "../../src/plugins/colors.ts";
 import { Minigame } from "../../src/types.ts";
-
-function shuffleArray<T extends any>(arr: T[]): T[] {
-	const copy = [...arr];
-	copy.sort(() => Math.random() - 0.5);
-	return copy;
-}
 
 function pickRandom<T extends any>(arr: T[], amount: number): T[] {
 	const copy = [...arr];
@@ -17,11 +12,13 @@ const newGame: Minigame = {
 	prompt: "connect",
 	author: "amyspark-ng",
 	mouse: { hidden: false },
-	rgb: [78, 24, 124],
+	rgb: mulfokColors.DARK_PURPLE,
 	duration: 5,
 	urlPrefix: "games/amyspark-ng/assets",
 	load(ctx) {
-		ctx.loadSprite("bean", assets.bean.sprite);
+		ctx.loadSprite("plug", "/sprites/connect/plug.png");
+		ctx.loadSprite("box", "/sprites/connect/box.png");
+		ctx.loadSound("plug", "/sounds/plug.ogg");
 	},
 	start(ctx) {
 		const game = ctx.make();
@@ -34,65 +31,99 @@ const newGame: Minigame = {
 			ctx.Color.fromHex("#ee8fcb"),
 		];
 
-		const COLOR_AMOUNT = ctx.difficulty == 1 ? 3 : ctx.difficulty == 2 ? 4 : ctx.difficulty == 3 ? 5 : 0;
+		const COLOR_AMOUNT = ctx.difficulty == 1 ? 2 : ctx.difficulty == 2 ? 3 : ctx.difficulty == 3 ? 4 : 0;
 
 		const gameColors = pickRandom(allColors, COLOR_AMOUNT);
-		const shuffledColors = shuffleArray(gameColors);
 
-		const START_POS = ctx.vec2(50, 150);
-		const SIZE = ctx.vec2(100, 100);
 		const sockets: GameObj[] = [];
-		const plugs: GameObj[] = [];
+		const sources: GameObj[] = [];
 		const plugSocketState: ("wiring" | "connected" | "disconnected")[] = [];
 		const winCondition = () => !plugSocketState.some((state) => state != "connected");
 
 		gameColors.forEach((color, index, arr) => {
 			plugSocketState[index] = "disconnected";
 
-			const socket = game.add([
-				ctx.rect(SIZE.x, SIZE.y),
+			const socketObj = game.add([
+				ctx.sprite("box"),
 				ctx.color(color),
-				ctx.pos(START_POS.add(SIZE.x * 1.2 * index, 0)),
-				ctx.outline(5, ctx.BLACK),
-				ctx.anchor("center"),
+				ctx.pos(ctx.center().x, ctx.center().y - 200),
 				ctx.area(),
+				ctx.z(1),
 				"socket",
+				"ignorepoint",
 			]);
 
-			// create plug
-			let plug_pos = ctx.vec2(START_POS.x + SIZE.x * 1.2 * shuffledColors.indexOf(color), ctx.height() * 0.75);
-
-			const plug = game.add([
-				ctx.rect(SIZE.x, SIZE.y),
+			const sourceObj = game.add([
+				ctx.sprite("box"),
 				ctx.color(color),
-				ctx.pos(plug_pos),
-				ctx.outline(5, ctx.BLACK),
-				ctx.anchor("center"),
-				ctx.area(),
-				"plug",
+				ctx.pos(ctx.center().x, ctx.center().y + 200),
+				"plugbox",
 			]);
 
-			plug.onClick(() => {
+			const plugObj = sourceObj.add([
+				ctx.sprite("plug"),
+				ctx.area(),
+				ctx.color(color),
+				ctx.pos(sourceObj.width / 2, -30),
+				ctx.anchor("center"),
+				ctx.z(socketObj.z - 1),
+			]);
+
+			sources[index] = sourceObj;
+			sockets[index] = socketObj;
+
+			let socketGap = (ctx.width() - socketObj.width * sockets.length) / (sockets.length + 1);
+			let socketX = socketGap;
+			sockets.forEach((socket) => {
+				socket.pos.x = socketX;
+				socketX += socketGap + socket.width;
+			});
+
+			sources.sort(() => Math.random() - 0.5); // shuffles them
+			let sourceGap = (ctx.width() - sourceObj.width * sources.length) / (sources.length + 1);
+			let sourceX = sourceGap;
+			sources.forEach((source, index) => {
+				source.pos.x = sourceX;
+				sourceX += sourceGap + source.width;
+			});
+
+			plugObj.onUpdate(() => {
+				if (plugSocketState[index] == "wiring") {
+					plugObj.pos = ctx.lerp(plugObj.pos, sourceObj.fromWorld(ctx.mousePos()), 0.5);
+					if (socketObj.isHovering()) {
+						ctx.play("plug", { detune: ctx.rand(-30, 30) * index });
+						plugSocketState[index] = "connected";
+					}
+				}
+				else if (plugSocketState[index] == "connected") {
+					const socketBoxPos = ctx.vec2(socketObj.pos.x + socketObj.width / 2, socketObj.pos.y + plugObj.height - 10);
+					const transformedPoint = sourceObj.fromWorld(socketBoxPos);
+					plugObj.pos = ctx.lerp(plugObj.pos, transformedPoint, 0.5);
+				}
+			});
+
+			plugObj.onClick(() => {
 				if (plugSocketState[index] == "disconnected") {
 					plugSocketState[index] = "wiring";
 				}
 			});
 
-			ctx.onButtonRelease("click", () => {
-				if (socket.isHovering() && plugSocketState[index] == "wiring") {
-					plugSocketState[index] = "connected";
-				}
-				else {
-					if (plugSocketState[index] != "connected") plugSocketState[index] = "disconnected";
-				}
-			});
+			game.onDraw(() => {
+				if (plugSocketState[index] == "disconnected") return;
 
-			plugs[index] = plug;
-			sockets[index] = socket;
+				ctx.drawLine({
+					p1: ctx.vec2(sourceObj.pos.x + sourceObj.width / 2, sourceObj.pos.y),
+					p2: sourceObj.toWorld(plugObj.pos),
+					width: 10,
+					color,
+				});
+			});
 		});
 
-		ctx.onButtonRelease("click", () => {
-			if (winCondition()) {
+		let hasWon = false;
+		game.onUpdate(() => {
+			if (winCondition() && !hasWon) {
+				hasWon = true;
 				ctx.win();
 				ctx.wait(1, () => ctx.finish());
 			}
@@ -102,17 +133,6 @@ const newGame: Minigame = {
 			// draw the connected ones
 			gameColors.forEach((color, index) => {
 				if (plugSocketState[index] == "disconnected") return;
-
-				ctx.drawLine({
-					p1: plugs[index].pos,
-					p2: plugSocketState[index] == "wiring" ? ctx.mousePos() : sockets[index].pos,
-					color: gameColors[index],
-					width: 10,
-					outline: {
-						width: 5,
-						color: ctx.BLACK,
-					},
-				});
 			});
 		});
 

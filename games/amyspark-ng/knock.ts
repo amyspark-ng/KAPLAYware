@@ -6,7 +6,7 @@ const newGame: Minigame = {
 	mouse: { hidden: false },
 	author: "amyspark-ng",
 	rgb: [74, 48, 82],
-	urlPrefix: "/games/amyspark-ng/assets/",
+	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
 		ctx.loadSound("knock", "sounds/knock.ogg");
 	},

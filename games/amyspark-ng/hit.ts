@@ -18,7 +18,7 @@ const hitGame: Minigame = {
 	},
 	start(ctx) {
 		const game = ctx.make();
-		let hitsLeft = ctx.difficulty as number;
+		let hitsLeft = ctx.difficulty == 1 ? 2 : ctx.difficulty == 2 ? 3 : ctx.difficulty == 3 ? ctx.randi(3, 5) : 0;
 		let mouseInsideTV = false;
 		let canHit = true;
 
@@ -71,20 +71,10 @@ const hitGame: Minigame = {
 					screen.flipY = false;
 					screen.sprite = "tvbean";
 					ctx.tween(0.9, 1, 0.15 / ctx.speed, (p) => tv.scale.x = p, ctx.easings.easeOutQuint);
-					if (ctx.difficulty != 3) {
-						ctx.win();
-						ctx.wait(2, () => {
-							ctx.finish();
-						});
-					}
-				}
-				// on hard mode, it was fixed and you hit it again, you dummy
-				else if (hitsLeft == 0 && ctx.difficulty >= 3 && canHit == false) {
-					canHit = true;
-					hitsLeft = ctx.randi(1, 2);
-					screen.sprite = "tvstatic";
-					ctx.play("hit", { detune: ctx.rand(-50, 50) });
-					ctx.tween(0.75, 1, 0.15 / ctx.speed, (p) => tv.scale.y = p, ctx.easings.easeOutQuint);
+					ctx.win();
+					ctx.wait(0.75 / ctx.speed, () => {
+						ctx.finish();
+					});
 				}
 			}
 			// you got outside of the tv
@@ -97,22 +87,16 @@ const hitGame: Minigame = {
 		});
 
 		ctx.loop(0.5, () => {
-			if (!canHit) return;
+			if (hitsLeft <= 0) return;
 			screen.flipX = !screen.flipX;
 			if (ctx.chance(0.5)) screen.flipY = !screen.flipY;
 			burpSfx.detune = ctx.rand(-10, 10);
 		});
 
 		ctx.onTimeout(() => {
-			if (!canHit) {
-				ctx.win();
-				ctx.wait(1, () => {
-					ctx.finish();
-				});
-			}
-			else {
+			if (hitsLeft > 0) {
 				ctx.lose();
-				ctx.wait(1, () => {
+				ctx.wait(0.5, () => {
 					ctx.finish();
 				});
 			}

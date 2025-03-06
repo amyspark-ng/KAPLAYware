@@ -1,6 +1,6 @@
-import { AudioPlay, AudioPlayOpt, Color, GameObj, KAPLAYCtx, KEvent, KEventController, TimerComp, Vec2 } from "kaplay";
+import { Asset, AudioPlay, AudioPlayOpt, Color, GameObj, KAPLAYCtx, KEvent, KEventController, SpriteComp, SpriteCompOpt, SpriteData, TimerComp, Vec2 } from "kaplay";
 import k from "./engine";
-import { gameAPIs, loadAPIs } from "./kaplayware";
+import { CustomSprite, gameAPIs, loadAPIs } from "./kaplayware";
 
 /** A button */
 export type Button =
@@ -34,6 +34,16 @@ export type MinigameAPI = {
 
 	onMouseMove(action: (pos: Vec2, delta: Vec2) => void): KEventController;
 	onMouseRelease(action: () => void): KEventController;
+
+	setCamScale(val: Vec2): Vec2;
+	getCamScale(): Vec2;
+	setCamAngle(val: number): number;
+	getCamAngle(): number;
+	setCamPos(val: Vec2): Vec2;
+	getCamPos(): Vec2;
+
+	/** Custom sprite thing for kaplayware that holds default assets */
+	sprite(spr: CustomSprite<string> | SpriteData | Asset<SpriteData>, opt?: SpriteCompOpt): SpriteComp;
 	/**
 	 * Register an event that runs once when timer runs out.
 	 */
@@ -111,6 +121,7 @@ export type Minigame = {
 };
 
 export type KAPLAYwareOpts = {
+	debug?: boolean;
 	onlyMouse?: boolean;
 };
 

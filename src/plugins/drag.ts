@@ -54,7 +54,7 @@ function drag(k: KAPLAYCtx | MinigameCtx): dragComp {
 	};
 }
 
-export function dragCompPlugin() {
+export default function dragCompPlugin() {
 	return {
 		drag,
 	};
