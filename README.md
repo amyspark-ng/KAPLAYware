@@ -21,6 +21,21 @@ Then you can reference this folder in your games like
 }
 ```
 
+## How to dev?!
+You can run dev server and play with:
+```sh
+$ npm install
+$ npm run dev
+```
+
+Or to focus only on the development of your own game, you can do:
+```sh
+$ npm run dev {yourname}:{gamename}
+# for example
+$ npm run dev wario:squeeze
+```
+> There is a one more way to limit games, more in [Advanced testing](#advanced-testing)
+
 ## Default assets
 If you want to use assets created by kaplay, you can use all the assets found in the [crew package](https://github.com/kaplayjs/crew) ! but you have to prefix your sprite with "@"
 ```ts
@@ -47,7 +62,7 @@ You can also use `hidden: true` If you're going to make a game that uses a custo
 ```ts
 game.onMousePress("right", () => bean.jump()) // BAD!! Don't do this :(
 obj.onClick(() => )
-ctx.onButtonPress("click", () => bean.jump()) // GOOD!! Do this :) 
+ctx.onButtonPress("click", () => bean.jump()) // GOOD!! Do this :)
 ```
 - If you're making a mouse minigame and you have an object with an area and you'd like for the cursor to not point at this object, you can tag it with with "ignorepoint"
 ```ts
@@ -62,6 +77,21 @@ ctx.add([
 * `Shift + Q` - Skip minigame
 * `Shift + W` - Restart with speed up
 * `1, 2, 3` - Restart with new difficulty (wanted to make it with shift but it's not working)
-* If you press F2 you'll get a panel that shows some kaplayware info (inputEnabled, score, lives, speed, difficulty, etc) 
+* If you press F2 you'll get a panel that shows some kaplayware info (inputEnabled, score, lives, speed, difficulty, etc)
 
 ![alt text](debug.png)
+
+## Advanced testing
+You can limit the minigames played by their `gameID` with `.env.development` file in the root folder. Copy `.env.development.example` file and save it without `.example` suffix. Then list games in `VITE_ONLY_MINIGAMES` like `{yourname}:{gamename}`, one per line.
+
+For example:
+
+```sh
+# Include only these minigames
+VITE_ONLY_MINIGAMES="
+  amyspark-ng:spam
+  amyspark-ng:connect
+"
+```
+
+Remember to re-run the dev server when you modify it.
