@@ -8,6 +8,7 @@ const transformGame: Minigame = {
 	rgb: [74, 48, 82],  // rgb for #4a3052 from mulfok32 palette
 	urlPrefix: "games/ricjones/assets",
 	load(ctx) {
+		ctx.loadSound("jump", "/jump_37.wav");
 		ctx.loadSprite("bean", assets.bean.sprite);
 		ctx.loadSprite("fish", assets.bobo.sprite);
 		ctx.loadSprite("chad", "/chadBean.png");
@@ -74,6 +75,7 @@ const transformGame: Minigame = {
 		const right_com = createCommand(false, orders[currIdx])
 
 		let currTween: TweenController|null = null
+		let canPress = true;
 
 		const transitionScreen = game.add([
 			ctx.rect(ctx.width(), ctx.height()),
@@ -152,6 +154,9 @@ const transformGame: Minigame = {
 		function updateBothCommands() {
 			currIdx = ctx.clamp(currIdx + 1, 0, orders.length)
 			if (currIdx > orders.length-1) {
+				ctx.play("jump", {
+					volume: 1.0
+				})
 				goToGameOver(true)
 				return
 			}
@@ -164,6 +169,11 @@ const transformGame: Minigame = {
 			right_com.command_dir = next_comm
 			right_com.sprite = dir_sprites[next_comm]
 			right_com.pos = spawnPointRight
+
+			let _playVol = 0.5 + 0.25*(currIdx-1)
+			ctx.play("jump", {
+				volume: _playVol
+			})
 
 			if (currTween) currTween.cancel()
 			currTween = ctx.tween(
@@ -185,7 +195,7 @@ const transformGame: Minigame = {
 		]);
 
 		function isInputValid(_dir: DIRECTION) {
-			return check.isOverlapping(left_com) && left_com.command_dir == _dir
+			return check.isOverlapping(left_com) && left_com.command_dir == _dir && canPress
 		}
 
 		// checking input if it is within the box
@@ -232,6 +242,9 @@ const transformGame: Minigame = {
 		// game is lost when the command icons clashes
 		left_com.onCollide("command", () => {
 			ctx.wait(0.5, () => {
+				//resets
+				currIdx = 0
+				canPress = false
 				// lose screen
 				goToGameOver(false)
 			})
