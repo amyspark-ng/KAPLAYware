@@ -2,7 +2,7 @@ import type { Minigame } from "../../src/types";
 import { mulfokColors as palette } from "../../src/plugins/colors";
 
 const colorGame: Minigame = {
-	prompt: "color",
+	prompt: "choose",
 	author: "luizbills",
 	rgb: [0, 0, 0],
 	urlPrefix: "games/luizbills/assets/",
@@ -15,19 +15,26 @@ const colorGame: Minigame = {
 			'green': palette.BEAN_GREEN,
 			'blue': palette.DARK_BLUE,
 			'brown': palette.BROWN,
-			'pink': palette.PINK
+			'pink': palette.PINK,
 		}
-		const colorNum = 3
+		const qty = 3
 		let done = false
 
 		// pick 3 random colors
-		const gameColors: string[] = ctx.chooseMultiple(Object.keys(possibleColors), colorNum)
+		const gameColors: string[] = ctx.chooseMultiple(Object.keys(possibleColors), qty)
 
 		// choose a random as the correct color
 		const correctColor = ctx.choose(gameColors)
 
 		// randomize the options
-		for (const [i, color] of (gameColors).entries()) {
+		const randomNames = ctx.shuffle(Array.from(gameColors))
+		let i = qty
+		while(gameColors.length > 0) {
+			const color = gameColors.pop()
+			const name = randomNames.pop()
+
+			i--
+
 			const y = 200 + 100 * i
 			const h = 75
 
@@ -40,6 +47,7 @@ const colorGame: Minigame = {
 				ctx.color(possibleColors[color]),
 				ctx.area(),
 				ctx.opacity(),
+				ctx.outline(4, palette.WHITE),
 				{
 					colorName: color,
 				}
@@ -49,7 +57,7 @@ const colorGame: Minigame = {
 
 			option.add([
 				ctx.pos(0, 0),
-				ctx.text(correctColor),
+				ctx.text(name),
 				ctx.anchor('center'),
 				ctx.color(),
 				"label"
@@ -63,7 +71,7 @@ const colorGame: Minigame = {
 		}
 
 		game.add([
-			ctx.text(`Tap the correct "${correctColor}":`, {
+			ctx.text(`Choose the "${correctColor}" color:`, {
 				size: 30
 			}),
 			ctx.pos(20, 20),
