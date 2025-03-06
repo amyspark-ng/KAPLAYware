@@ -18,7 +18,7 @@ const transformGame: Minigame = {
 		ctx.loadSprite("down", "/down.png");
 	},
 	start(ctx) {
-		const PIXEL_VEL = ctx.width()*0.4;
+		const PIXEL_VEL = ctx.width()*0.4*(1 + (ctx.difficulty-1)*1.2);
 		enum DIRECTION {
 			LEFT,
 			RIGHT,
@@ -74,7 +74,6 @@ const transformGame: Minigame = {
 
 		const right_com = createCommand(false, orders[currIdx])
 
-		let currTween: TweenController|null = null
 		let canPress = true;
 
 		const transitionScreen = game.add([
@@ -112,14 +111,33 @@ const transformGame: Minigame = {
 
 			const chad1 = game.add([
 				ctx.sprite("chad"),
-				ctx.pos(0, 0)
+				ctx.pos(-800, 0),
+				ctx.animate()
 			])
 			chad1.use(ctx.scale(ctx.height()/chad1.height))
-
-			game.add([
+			const dialog1 = game.add([
 				ctx.text("oh hi !"),
-				ctx.pos(ctx.width()/2, ctx.height()/2)
+				ctx.pos(ctx.width()/2, ctx.height()*0.3),
+				ctx.opacity(0),
+				ctx.animate()
 			])
+
+			chad1.animate("pos", [
+				ctx.vec2(-chad1.width, 0),
+				ctx.vec2(0, 0)
+			], {
+				duration: 0.5,
+				loops: 1,
+				easing: ctx.easings.easeOutCubic
+			})
+			chad1.onAnimateFinished(() => {
+				dialog1.animate("opacity", [0, 1], {
+					duration: 0.4,
+					loops: 1
+				})
+			})
+
+			
 
 			ctx.win()
 			ctx.wait(1.5, () => ctx.finish())
@@ -175,15 +193,14 @@ const transformGame: Minigame = {
 				volume: _playVol
 			})
 
-			if (currTween) currTween.cancel()
-			currTween = ctx.tween(
+			bean.tween(
 				bean.scale,
 				bean.scale.add(2),
 				0.2,
 				(value) => {
 					bean.scale = value
 				},
-				ctx.easings.easeInBounce
+				ctx.easings.easeInOutBounce
 			)
 		}
 
@@ -191,7 +208,8 @@ const transformGame: Minigame = {
 			ctx.sprite("bean"),
 			ctx.anchor("bot"),
 			ctx.pos(ctx.width()/2, ctx.height()*0.8),
-			ctx.scale(1)
+			ctx.scale(1),
+			ctx.timer()
 		]);
 
 		function isInputValid(_dir: DIRECTION) {
