@@ -11,6 +11,7 @@ import spamGame from "../games/amyspark-ng/spam";
 import spreadGame from "../games/amyspark-ng/spread";
 import uploadGame from "../games/amyspark-ng/upload";
 import chaseGame from "../games/nanopoison/chase";
+import transformGame from "../games/ricjones/transform"
 
 const games = [
 	spamGame,
@@ -26,6 +27,7 @@ const games = [
 	slapGame,
 	uploadGame,
 	spreadGame,
+  transformGame
 ];
 
 export default games;
