@@ -14,19 +14,19 @@ import chaseGame from "../games/nanopoison/chase";
 import transformGame from "../games/ricjones/transform"
 
 const games = [
-	spamGame,
-	getGame,
-	chaseGame,
-	knockGame,
-	connectGame,
-	dodgeGame,
-	sortGame,
-	hitGame,
-	avoidGame,
-	dontGame,
-	slapGame,
-	uploadGame,
-	spreadGame,
+	// spamGame,
+	// getGame,
+	// chaseGame,
+	// knockGame,
+	// connectGame,
+	// dodgeGame,
+	// sortGame,
+	// hitGame,
+	// avoidGame,
+	// dontGame,
+	// slapGame,
+	// uploadGame,
+	// spreadGame,
   transformGame
 ];
 

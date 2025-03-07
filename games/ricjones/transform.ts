@@ -9,8 +9,6 @@ const transformGame: Minigame = {
 	urlPrefix: "games/ricjones/assets",
 	load(ctx) {
 		ctx.loadSound("jump", "/jump_37.wav");
-		ctx.loadSprite("bean", assets.bean.sprite);
-		ctx.loadSprite("fish", assets.bobo.sprite);
 		ctx.loadSprite("chad", "/chadBean.png");
 		ctx.loadSprite("left", "/left.png");
 		ctx.loadSprite("right", "/right.png");
@@ -18,7 +16,7 @@ const transformGame: Minigame = {
 		ctx.loadSprite("down", "/down.png");
 	},
 	start(ctx) {
-		const PIXEL_VEL = ctx.width()*0.4*(1 + (ctx.difficulty-1)*1.2);
+		const PIXEL_VEL = ctx.width()*0.4*ctx.speed;
 		enum DIRECTION {
 			LEFT,
 			RIGHT,
@@ -96,14 +94,14 @@ const transformGame: Minigame = {
 		function createGameOverScreen(isWin: boolean = true) {
 			if (!isWin) {
 				game.add([
-					ctx.sprite("fish"),
+					ctx.sprite("@bobo"),
 					ctx.anchor("center"),
 					ctx.pos(ctx.width()*0.4, ctx.height()/2),
 					ctx.rotate(-95),
 					ctx.scale(2.5)
 				])
 				ctx.lose()
-				ctx.wait(1.5, () => {
+				ctx.wait(1.5/ctx.speed, () => {
 					ctx.finish()
 				})
 				return
@@ -126,13 +124,13 @@ const transformGame: Minigame = {
 				ctx.vec2(-chad1.width, 0),
 				ctx.vec2(0, 0)
 			], {
-				duration: 0.5,
+				duration: 0.5/ctx.speed,
 				loops: 1,
 				easing: ctx.easings.easeOutCubic
 			})
 			chad1.onAnimateFinished(() => {
 				dialog1.animate("opacity", [0, 1], {
-					duration: 0.4,
+					duration: 0.4/ctx.speed,
 					loops: 1
 				})
 			})
@@ -150,7 +148,7 @@ const transformGame: Minigame = {
 			transitionScreen.tween(
 				0,
 				1,
-				0.3,
+				0.3/ctx.speed,
 				(v) => {
 					transitionScreen.opacity = v
 				}
@@ -159,7 +157,7 @@ const transformGame: Minigame = {
 				transitionScreen.tween(
 					1,
 					0,
-					0.3,
+					0.3/ctx.speed,
 					(v) => {
 						transitionScreen.opacity = v
 					}
@@ -205,7 +203,7 @@ const transformGame: Minigame = {
 		}
 
 		const bean = game.add([
-			ctx.sprite("bean"),
+			ctx.sprite("@bean"),
 			ctx.anchor("bot"),
 			ctx.pos(ctx.width()/2, ctx.height()*0.8),
 			ctx.scale(1),
@@ -259,7 +257,8 @@ const transformGame: Minigame = {
 
 		// game is lost when the command icons clashes
 		left_com.onCollide("command", () => {
-			ctx.wait(0.5, () => {
+			bean.sprite = "@beant"
+			ctx.wait(0.4/ctx.speed, () => {
 				//resets
 				currIdx = 0
 				canPress = false
