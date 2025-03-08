@@ -8,8 +8,12 @@ const colorGame: Minigame = {
 	urlPrefix: "games/luizbills/assets/",
 	mouse: { hidden: false },
 	duration: 4,
+	load(ctx) {
+		ctx.loadSound("correct", "sounds/applause.ogg");
+	},
 	start(ctx) {
 		const game = ctx.make();
+
 		const possibleColors = {
 			'red': palette.RED,
 			'green': palette.BEAN_GREEN,
@@ -17,7 +21,9 @@ const colorGame: Minigame = {
 			'brown': palette.BROWN,
 			'pink': palette.PINK,
 		}
-		const qty = 3
+		const qty = Math.min(4, ctx.difficulty + 1)
+		const hasLabels = ctx.difficulty >= 2
+
 		let done = false
 
 		// pick 3 random colors
@@ -27,15 +33,19 @@ const colorGame: Minigame = {
 		const correctColor = ctx.choose(gameColors)
 
 		// randomize the options
-		const randomNames = ctx.shuffle(Array.from(gameColors))
+		const colorNames = Array.from(gameColors)
+		if (ctx.difficulty >= 3) {
+			ctx.shuffle(colorNames)
+		}
+
 		let i = qty
 		while(gameColors.length > 0) {
 			const color = gameColors.pop()
-			const name = randomNames.pop()
+			const name = colorNames.pop()
 
 			i--
 
-			const y = 200 + 100 * i
+			const y = (250 - 50 * (ctx.difficulty - 1)) + 100 * i
 			const h = 75
 
 			const option = game.add([
@@ -55,13 +65,15 @@ const colorGame: Minigame = {
 
 			option.tag(correctColor === color ? "correct" : "wrong")
 
-			option.add([
-				ctx.pos(0, 0),
-				ctx.text(name),
-				ctx.anchor('center'),
-				ctx.color(),
-				"label"
-			]);
+			if (hasLabels) {
+				option.add([
+					ctx.pos(0, 0),
+					ctx.text(ctx.difficulty >= 3 ? name : correctColor),
+					ctx.anchor('center'),
+					ctx.color(),
+					"label"
+				]);
+			}
 
 			option.onClick(() => {
 				if (done) return
@@ -87,14 +99,20 @@ const colorGame: Minigame = {
 			for (const wrong of game.get("wrong")) {
 				wrong.color = palette.WHITE
 				wrong.opacity = 0.5
-				wrong.get("label")[0].color = palette.GRAY
+				if (hasLabels) {
+					wrong.get("label")[0].color = palette.GRAY
+				}
 			}
 			if (victory) {
+				ctx.play('correct', {
+					speed: 1.25 * ctx.speed
+				})
 				ctx.win()
 			} else {
+				ctx.burp()
 				ctx.lose()
 			}
-			ctx.wait(1, () => ctx.finish());
+			ctx.wait(1 / ctx.speed, () => ctx.finish());
 		}
 
 		return game;
