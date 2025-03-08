@@ -12,6 +12,7 @@ import spamGame from "../games/amyspark-ng/spam";
 import spreadGame from "../games/amyspark-ng/spread";
 import uploadGame from "../games/amyspark-ng/upload";
 import chaseGame from "../games/nanopoison/chase";
+import chooseGame from "../games/luizbills/choose";
 
 const games = [
 	// spamGame,
@@ -28,6 +29,7 @@ const games = [
 	// uploadGame,
 	// spreadGame,
 	flipGame,
+	chooseGame
 ];
 
 export default games;
