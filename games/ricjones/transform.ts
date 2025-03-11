@@ -9,7 +9,7 @@ const transformGame: Minigame = {
 	urlPrefix: "games/ricjones/assets",
 	load(ctx) {
 		ctx.loadSound("jump", "/jump_37.wav");
-		ctx.loadSprite("chad", "/chadBean.png");
+		ctx.loadSprite("chad", "/chadbean-amy.png");
 		ctx.loadSprite("left", "/left.png");
 		ctx.loadSprite("right", "/right.png");
 		ctx.loadSprite("up", "/up.png");
@@ -109,10 +109,13 @@ const transformGame: Minigame = {
 
 			const chad1 = game.add([
 				ctx.sprite("chad"),
-				ctx.pos(-800, 0),
+				ctx.anchor("botleft"),
+				ctx.pos(-800, ctx.height()),
+				ctx.scale(1),
 				ctx.animate()
 			])
-			chad1.use(ctx.scale(ctx.height()/chad1.height))
+			// chad1.pos.x = -chad1.width
+			// chad1.use(ctx.scale(ctx.height()/chad1.height))
 			const dialog1 = game.add([
 				ctx.text("oh hi !"),
 				ctx.pos(ctx.width()/2, ctx.height()*0.3),
@@ -121,8 +124,8 @@ const transformGame: Minigame = {
 			])
 
 			chad1.animate("pos", [
-				ctx.vec2(-chad1.width, 0),
-				ctx.vec2(0, 0)
+				ctx.vec2(-chad1.width, ctx.height()),
+				ctx.vec2(0, ctx.height())
 			], {
 				duration: 0.5/ctx.speed,
 				loops: 1,
