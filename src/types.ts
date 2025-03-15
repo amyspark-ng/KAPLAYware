@@ -1,6 +1,7 @@
 import { Asset, AudioPlay, AudioPlayOpt, Color, GameObj, KAPLAYCtx, KEvent, KEventController, SpriteComp, SpriteCompOpt, SpriteData, TimerComp, Vec2 } from "kaplay";
 import k from "./engine";
 import { CustomSprite, gameAPIs, loadAPIs } from "./kaplayware";
+import { addPrompt } from "./objects";
 
 /** A button */
 export type Button =
@@ -81,7 +82,7 @@ export type MinigameCtx = Pick<typeof k, typeof gameAPIs[number]> & MinigameAPI;
 /** The type for a minigame */
 export type Minigame = {
 	/** Prompt of the mini game! */
-	prompt: string;
+	prompt: string | ((ctx: MinigameCtx, prompt: ReturnType<typeof addPrompt>) => void);
 	/** The author of the game */
 	author: string;
 	/** The RGB code for the game's backgroun */
@@ -89,7 +90,7 @@ export type Minigame = {
 	/** Wheter the games use the mouse, If you want to use a custom mouse you can set `hidden` to true */
 	mouse?: { hidden: boolean; };
 	/** How long the minigames goes for (choose a reasonable number) */
-	duration?: number;
+	duration?: number | ((ctx: MinigameCtx) => number);
 	/**
 	 * Assets URL prefix.
 	 */

@@ -25,4 +25,7 @@ export default defineConfig(async () => ({
     chunkSizeWarningLimit: 10000,
     sourcemap: "hidden", // makes it so code is obstructed on release
   },
+  define: {
+    DEV_MINIGAME: process.env.DEV_MINIGAME,
+  },
 }));

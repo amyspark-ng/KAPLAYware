@@ -5,9 +5,6 @@ const getGame: Minigame = {
 	prompt: "get",
 	author: "amyspark-ng",
 	rgb: [133, 97, 97],
-	urlPrefix: "",
-	load(ctx) {
-	},
 	start(ctx) {
 		const game = ctx.make();
 		const SPEED = 300 * ctx.speed;

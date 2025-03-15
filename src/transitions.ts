@@ -1,6 +1,7 @@
 import { assets, crew } from "@kaplayjs/crew";
 import { KAPLAYCtx } from "kaplay";
 import { Conductor } from "./conductor";
+import k from "./engine";
 import { addPrompt, makeFriend, makeHearts, makeScoreText } from "./objects";
 import { KaplayWareCtx } from "./types";
 
@@ -8,7 +9,7 @@ let sunAngle = 0;
 let cloudX = 40;
 let cloudY = 40;
 
-function makeCloud(k: KAPLAYCtx) {
+function makeCloud() {
 	const cloud = k.make([
 		k.sprite("@cloud"),
 		k.pos(cloudX, cloudY),
@@ -25,7 +26,7 @@ function makeCloud(k: KAPLAYCtx) {
 	return cloud;
 }
 
-function makeSun(k: KAPLAYCtx) {
+function makeSun() {
 	const sun = k.make([
 		k.sprite("@sun"),
 		k.pos(k.vec2(k.width() - 70, 70)),
@@ -42,7 +43,7 @@ function makeSun(k: KAPLAYCtx) {
 	return sun;
 }
 
-export function prepTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
+export function prepTransition(ware: KaplayWareCtx) {
 	const SKY_COLOR = k.rgb(141, 183, 255);
 	const sound = k.play("@prepJingle", { speed: ware.speed });
 	const DURATION = sound.duration() / ware.speed;
@@ -87,8 +88,8 @@ export function prepTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.pos(0, k.center().y),
 	]);
 
-	topBg.add(makeCloud(k)).onUpdate(() => cloudX += 1 * ware.speed);
-	topBg.add(makeSun(k)).onUpdate(() => sunAngle += 0.1 * ware.speed);
+	topBg.add(makeCloud()).onUpdate(() => cloudX += 1 * ware.speed);
+	topBg.add(makeSun()).onUpdate(() => sunAngle += 0.1 * ware.speed);
 
 	const ground = botBg.add([
 		k.sprite("@grass_tile", { tiled: true, width: k.width() }),
@@ -104,8 +105,8 @@ export function prepTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.pos(k.vec2(k.width() / 2, 0)),
 	]);
 
-	const scoreText = topBg.add(makeScoreText(k, ware.score - 1));
-	const hearts = makeHearts(k, botBg, ware.lives);
+	const scoreText = topBg.add(makeScoreText(ware.score - 1));
+	const hearts = makeHearts(botBg, ware.lives);
 
 	let scoreTextAngle = 0;
 	conductor.onBeat((beat) => {
@@ -149,7 +150,7 @@ export function prepTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 	};
 }
 
-export function winTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
+export function winTransition(ware: KaplayWareCtx) {
 	const SKY_COLOR = k.rgb(141, 183, 255);
 	const sound = k.play("@winJingle", { speed: ware.speed });
 	const DURATION = sound.duration() / ware.speed;
@@ -194,8 +195,8 @@ export function winTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 	]);
 
 	cloudX = k.rand(k.center().x - 40, k.center().x + 40);
-	topBg.add(makeCloud(k)).onUpdate(() => cloudX += 1 * ware.speed);
-	topBg.add(makeSun(k)).onUpdate(() => sunAngle += 0.5 * ware.speed);
+	topBg.add(makeCloud()).onUpdate(() => cloudX += 1 * ware.speed);
+	topBg.add(makeSun()).onUpdate(() => sunAngle += 0.5 * ware.speed);
 
 	const trophy = k.add([
 		k.sprite("@trophy"),
@@ -225,8 +226,8 @@ export function winTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.rotate(0),
 	]);
 
-	const scoreText = topBg.add(makeScoreText(k, ware.score - 1));
-	const hearts = makeHearts(k, botBg, ware.lives);
+	const scoreText = topBg.add(makeScoreText(ware.score - 1));
+	const hearts = makeHearts(botBg, ware.lives);
 
 	let heartToBop = -1;
 	let scoreTextAngle = 0;
@@ -280,7 +281,7 @@ export function winTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 	};
 }
 
-export function loseTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
+export function loseTransition(ware: KaplayWareCtx) {
 	const SKY_COLOR = k.rgb(60, 92, 148);
 	const HAPPY_SKY_COLOR = k.rgb(141, 183, 255);
 
@@ -338,9 +339,10 @@ export function loseTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.pos(k.vec2(k.width() / 2, 0)),
 	]);
 
-	const scoreText = topBg.add(makeScoreText(k, ware.score - 1));
-	const hearts = makeHearts(k, botBg, k.clamp(ware.lives + 1, 0, 4));
-	hearts[hearts.length - 1].kill();
+	const scoreText = topBg.add(makeScoreText(ware.score - 1));
+	const hearts = makeHearts(botBg, k.clamp(ware.lives + 1, 0, 4));
+	k.debug.log(ware.lives);
+	hearts[ware.lives].kill();
 
 	let soundAtHalf = false;
 	let quarterToEnd = false;
@@ -388,7 +390,7 @@ export function loseTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 	};
 }
 
-export function speedupTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
+export function speedupTransition(ware: KaplayWareCtx) {
 	const sound = k.play("@speedJingle", { speed: ware.speed });
 	const DURATION = sound.duration() / ware.speed;
 	const conductor = new Conductor(k, sound, 140 * ware.speed);
@@ -441,11 +443,11 @@ export function speedupTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.setCamPos(camX, camY);
 	});
 
-	const cloud = transition.add(makeCloud(k));
+	const cloud = transition.add(makeCloud());
 	cloud.onUpdate(() => {
 		cloudX += spinSpeed * 10;
 	});
-	const sun = transition.add(makeSun(k));
+	const sun = transition.add(makeSun());
 	sun.onUpdate(() => sunAngle += spinSpeed);
 
 	const ground = transition.add([
@@ -464,11 +466,11 @@ export function speedupTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 		k.pos(k.center().x, k.height() - 40),
 	]);
 
-	const scoreText = transition.add(makeScoreText(k, ware.score - 1));
-	const hearts = makeHearts(k, bg, ware.lives);
+	const scoreText = transition.add(makeScoreText(ware.score - 1));
+	const hearts = makeHearts(bg, ware.lives);
 	hearts.forEach((heart) => heart.pos.x -= 50);
 
-	const prompt = addPrompt(k, "SPEED UP", 0.25 / ware.speed);
+	const prompt = addPrompt("SPEED UP", 0.25 / ware.speed);
 	conductor.onBeat((beat) => {
 		const theAngle = beat % 2 == 0 ? -20 : 20;
 		const BEAN_SCALE = 2.5;
@@ -492,7 +494,7 @@ export function speedupTransition(k: KAPLAYCtx, ware: KaplayWareCtx) {
 
 		const friends = Object.keys(assets).filter((key) => assets[key].type == "crew");
 		const friendToAdd = k.choose(friends.filter((friendThing) => !friendsChosen.includes(friendThing)));
-		const friend = transition.add(makeFriend(k, friendToAdd));
+		const friend = transition.add(makeFriend(friendToAdd));
 		const direction = k.choose([-1, 1]);
 		friend.pos.y = bean.pos.y;
 		if (direction == -1) transition.tween(-k.width() - friend.width * 2, k.width() + friend.width * 2, DURATION / 3.5, (p) => friend.pos.x = p);

@@ -1,7 +1,8 @@
 import { Color, GameObj, KAPLAYCtx, Mat4, Vec2 } from "kaplay";
+import k from "./engine";
 import { KaplayWareCtx } from "./types";
 
-export function addPrompt(k: KAPLAYCtx, prompt: string, time: number = 0.25, wobbleLetters: boolean = true) {
+export function addPrompt(prompt: string, time: number = 0.25, wobbleLetters: boolean = true) {
 	const promptTitle = k.add([
 		k.color(k.WHITE),
 		k.fixed(),
@@ -42,10 +43,10 @@ export function addPrompt(k: KAPLAYCtx, prompt: string, time: number = 0.25, wob
 	return promptTitle;
 }
 
-export function makeHearts(k: KAPLAYCtx, parent: GameObj | KAPLAYCtx, amount: number) {
+export function makeHearts(parent: GameObj | KAPLAYCtx, amount: number) {
 	const hearts: ReturnType<typeof makeHeart>[] = [];
 	for (let i = 0; i < amount; i++) {
-		const heart = parent.add(makeHeart(k));
+		const heart = parent.add(makeHeart());
 		heart.scale = k.vec2(2);
 		const HEART_WIDTH = heart.width * heart.scale.x * 1.1;
 		const INITIAL_POS = k.vec2(k.center().x - HEART_WIDTH * 1.5, 0);
@@ -56,7 +57,7 @@ export function makeHearts(k: KAPLAYCtx, parent: GameObj | KAPLAYCtx, amount: nu
 	return hearts;
 }
 
-export function makeHeart(k: KAPLAYCtx) {
+export function makeHeart() {
 	const heart = k.make([
 		k.sprite("@heart"),
 		k.pos(),
@@ -79,7 +80,7 @@ export function makeHeart(k: KAPLAYCtx) {
 	return heart;
 }
 
-export function makeScoreText(k: KAPLAYCtx, score: number) {
+export function makeScoreText(score: number) {
 	return k.make([
 		k.text(`${score.toString()}`, { align: "left" }),
 		k.color(k.WHITE),
@@ -91,7 +92,7 @@ export function makeScoreText(k: KAPLAYCtx, score: number) {
 	]);
 }
 
-export function makeFriend(k: KAPLAYCtx, name: string) {
+export function makeFriend(name: string) {
 	return k.make([
 		k.sprite("@" + name),
 		k.scale(2),
@@ -101,7 +102,7 @@ export function makeFriend(k: KAPLAYCtx, name: string) {
 	]);
 }
 
-export function addBomb(k: KAPLAYCtx, ware: KaplayWareCtx) {
+export function addBomb(ware: KaplayWareCtx) {
 	const timeAtCreate = ware.time;
 
 	const BOMB_POS = k.vec2(40, k.height() - 40);
@@ -211,7 +212,7 @@ export type ConfettiOpt = {
 	obj?: () => { draw: () => void; };
 };
 
-export function makeConfetti(k: KAPLAYCtx) {
+export function makeConfetti() {
 	const DEF_COUNT = 80;
 	const DEF_GRAVITY = 800;
 	const DEF_AIR_DRAG = 0.9;

@@ -1,3 +1,4 @@
+import { GameObj } from "kaplay";
 import { curDraggin, setCurDragging } from "../../src/plugins/drag.ts";
 import { Minigame } from "../../src/types.ts";
 
@@ -17,8 +18,8 @@ const newGame: Minigame = {
 		const AMOUNT_TO_ADD = ctx.difficulty == 1 || ctx.difficulty == 2 ? 3 : ctx.difficulty == 3 ? 4 : 0;
 		const options = FISH_OR_BAG == "bag" ? ["@bag", "@money_bag"] : ["@bobo", "@sukomi"];
 
-		let box1Options = [];
-		let box2Options = [];
+		let box1Options: GameObj[] = [];
+		let box2Options: GameObj[] = [];
 
 		function addOptionObject() {
 			const obj = game.add([
@@ -28,7 +29,7 @@ const newGame: Minigame = {
 				ctx.area(),
 				ctx.scale(1.5),
 				ctx.anchor("center"),
-				ctx.drag(ctx),
+				ctx.drag(),
 				"option",
 			]);
 

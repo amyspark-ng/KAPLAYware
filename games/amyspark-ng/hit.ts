@@ -98,6 +98,7 @@ const hitGame: Minigame = {
 				ctx.lose();
 				ctx.wait(0.5, () => {
 					ctx.finish();
+					burpSfx.stop();
 				});
 			}
 		});

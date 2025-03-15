@@ -5,6 +5,7 @@ import "./plugins/cursor";
 import games from "./games";
 import kaplayware from "./kaplayware";
 
+k.setVolume(0.5);
 k.setCursor("none");
 
 k.scene("focus", () => {
