@@ -3,277 +3,265 @@ import { Minigame } from "../../src/types.ts";
 import { TweenController } from "kaplay";
 
 const transformGame: Minigame = {
-	prompt: "transform",
-	author: "ricjones",
-	rgb: [74, 48, 82],  // rgb for #4a3052 from mulfok32 palette
-	urlPrefix: "games/ricjones/assets",
-	load(ctx) {
-		ctx.loadSound("jump", "/jump_37.wav");
-		ctx.loadSprite("chad", "/chadbean-amy.png");
-		ctx.loadSprite("left", "/left.png");
-		ctx.loadSprite("right", "/right.png");
-		ctx.loadSprite("up", "/up.png");
-		ctx.loadSprite("down", "/down.png");
-	},
-	start(ctx) {
-		const PIXEL_VEL = ctx.width()*0.4*ctx.speed;
-		enum DIRECTION {
-			LEFT,
-			RIGHT,
-			UP,
-			DOWN
-		}
-		const dir_sprites = ["left", "right", "up", "down"]
+  prompt: "transform",
+  author: "ricjones",
+  rgb: [74, 48, 82], // rgb for #4a3052 from mulfok32 palette
+  urlPrefix: "games/ricjones/assets",
+  load(ctx) {
+    ctx.loadSound("jump", "/jump_37.wav");
+    ctx.loadSprite("chad", "/chadbean-amy.png");
+    ctx.loadSprite("left", "/left.png");
+    ctx.loadSprite("right", "/right.png");
+    ctx.loadSprite("up", "/up.png");
+    ctx.loadSprite("down", "/down.png");
+  },
+  start(ctx) {
+    const PIXEL_VEL = ctx.width() * 0.4 * ctx.speed;
+    enum DIRECTION {
+      LEFT,
+      RIGHT,
+      UP,
+      DOWN,
+    }
+    const dir_sprites = ["left", "right", "up", "down"];
 
-		const orders = []
-		for(let i = 0; i < 3; i++) {
-			orders.push(ctx.randi(3))
-		}
+    const orders: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      orders.push(ctx.randi(3));
+    }
 
-		let currIdx = 0
-		const game = ctx.make();
+    let currIdx = 0;
+    const game = ctx.make();
 
-		function createCommand(onLeft: boolean, dir: DIRECTION) {
-			const _obj = game.add([
-				ctx.offscreen({hide: true}),
-				ctx.sprite(dir_sprites[dir]),
-				ctx.area(),
-				ctx.pos(),
-				ctx.opacity(),
-				{canMove: true, command_dir: dir},
-				"command"
-			])
+    function createCommand(dir: DIRECTION) {
+      const _obj = game.add([
+        ctx.offscreen({ hide: true }),
+        ctx.sprite(dir_sprites[dir]),
+        ctx.area(),
+        ctx.pos(),
+        ctx.opacity(),
+        { canMove: true, command_dir: dir },
+        "command",
+      ]);
 
-			if(onLeft) {
-				_obj.use(ctx.anchor("left"))
-				_obj.pos = spawnPointLeft
-			} else {
-				_obj.use(ctx.anchor("right"))
-				_obj.pos = spawnPointRight
-			}
+      _obj.use(ctx.anchor("left"));
+      _obj.pos = spawnPointLeft;
 
-			return _obj
-		}
+      return _obj;
+    }
 
-		// checking box for the transform
-		const check = game.add([
-			ctx.rect(200, 100, {fill: false}),
-			ctx.pos(ctx.width()/2, ctx.height()*0.18),
-			ctx.anchor("center"),
-			ctx.area(),
-			ctx.outline(2, ctx.RED)
-		])
+    // checking box for the transform
+    const check = game.add([
+      ctx.rect(200, 100, { fill: false }),
+      ctx.pos(ctx.width() / 2, ctx.height() * 0.18),
+      ctx.anchor("center"),
+      ctx.area(),
+      ctx.outline(2, ctx.RED),
+    ]);
 
-		const spawnPointLeft = ctx.vec2(0, ctx.height()*0.18)
-		const spawnPointRight = ctx.vec2(ctx.width(), ctx.height()*0.18)
+    const spawnPointLeft = ctx.vec2(0, ctx.height() * 0.18);
+    // const spawnPointRight = ctx.vec2(ctx.width(), ctx.height()*0.18)
 
-		// spawn button sprites
-		const left_com = createCommand(true, orders[currIdx])
+    // spawn button sprites
+    const left_com = createCommand(orders[currIdx]);
 
-		const right_com = createCommand(false, orders[currIdx])
+    // const right_com = createCommand(false, orders[currIdx])
 
-		let canPress = true;
+    let canPress = true;
 
-		const transitionScreen = game.add([
-			ctx.rect(ctx.width(), ctx.height()),
-			ctx.pos(0, 0),
-			ctx.color(ctx.WHITE),
-			ctx.opacity(0),
-			ctx.z(100),
-			ctx.timer()
-		])
+    const transitionScreen = game.add([
+      ctx.rect(ctx.width(), ctx.height()),
+      ctx.pos(0, 0),
+      ctx.color(ctx.WHITE),
+      ctx.opacity(0),
+      ctx.z(100),
+      ctx.timer(),
+    ]);
 
-		function clearPrevCanvas() {
-			check.destroy()
-			left_com.destroy()
-			right_com.destroy()
-			bean.destroy()
-		}
+    function clearPrevCanvas() {
+      check.destroy();
+      left_com.destroy();
+      bean.destroy();
+    }
 
-		// put all the obj you need on the screen, depends on the winning cond
-		function createGameOverScreen(isWin: boolean = true) {
-			if (!isWin) {
-				game.add([
-					ctx.sprite("@bobo"),
-					ctx.anchor("center"),
-					ctx.pos(ctx.width()*0.4, ctx.height()/2),
-					ctx.rotate(-95),
-					ctx.scale(2.5)
-				])
-				ctx.lose()
-				ctx.wait(1.5/ctx.speed, () => {
-					ctx.finish()
-				})
-				return
-			}
+    // put all the obj you need on the screen, depends on the winning cond
+    function createGameOverScreen(isWin: boolean = true) {
+      if (!isWin) {
+        game.add([
+          ctx.sprite("@bobo"),
+          ctx.anchor("center"),
+          ctx.pos(ctx.width() * 0.4, ctx.height() / 2),
+          ctx.rotate(-95),
+          ctx.scale(2.5),
+        ]);
+        ctx.lose();
+        ctx.wait(1.5 / ctx.speed, () => {
+          ctx.finish();
+        });
+        return;
+      }
 
-			const chad1 = game.add([
-				ctx.sprite("chad"),
-				ctx.anchor("botleft"),
-				ctx.pos(-800, ctx.height()),
-				ctx.scale(1),
-				ctx.animate()
-			])
-			// chad1.pos.x = -chad1.width
-			// chad1.use(ctx.scale(ctx.height()/chad1.height))
-			const dialog1 = game.add([
-				ctx.text("oh hi !"),
-				ctx.pos(ctx.width()/2, ctx.height()*0.3),
-				ctx.opacity(0),
-				ctx.animate()
-			])
+      const chad1 = game.add([
+        ctx.sprite("chad"),
+        ctx.anchor("botleft"),
+        ctx.pos(-800, ctx.height()),
+        ctx.scale(1),
+        ctx.animate(),
+      ]);
+      // chad1.pos.x = -chad1.width
+      // chad1.use(ctx.scale(ctx.height()/chad1.height))
+      const dialog1 = game.add([
+        ctx.text("oh hi !"),
+        ctx.pos(ctx.width() / 2, ctx.height() * 0.3),
+        ctx.opacity(0),
+        ctx.animate(),
+      ]);
 
-			chad1.animate("pos", [
-				ctx.vec2(-chad1.width, ctx.height()),
-				ctx.vec2(0, ctx.height())
-			], {
-				duration: 0.5/ctx.speed,
-				loops: 1,
-				easing: ctx.easings.easeOutCubic
-			})
-			chad1.onAnimateFinished(() => {
-				dialog1.animate("opacity", [0, 1], {
-					duration: 0.4/ctx.speed,
-					loops: 1
-				})
-			})
+      chad1.animate(
+        "pos",
+        [ctx.vec2(-chad1.width, ctx.height()), ctx.vec2(0, ctx.height())],
+        {
+          duration: 0.5 / ctx.speed,
+          loops: 1,
+          easing: ctx.easings.easeOutCubic,
+        }
+      );
+      chad1.onAnimateFinished(() => {
+        dialog1.animate("opacity", [0, 1], {
+          duration: 0.4 / ctx.speed,
+          loops: 1,
+        });
+      });
 
-			
+      ctx.win();
+      ctx.wait(1.5, () => ctx.finish());
+    }
 
-			ctx.win()
-			ctx.wait(1.5, () => ctx.finish())
-		}
+    function goToGameOver(isWin: boolean = true) {
+      // clear all previous objects
+      clearPrevCanvas();
+      // fade in
+      transitionScreen
+        .tween(0, 1, 0.3 / ctx.speed, (v) => {
+          transitionScreen.opacity = v;
+        })
+        .onEnd(() => {
+          // fade out
+          transitionScreen
+            .tween(1, 0, 0.3 / ctx.speed, (v) => {
+              transitionScreen.opacity = v;
+            })
+            .onEnd(() => {
+              createGameOverScreen(isWin);
+            });
+        });
+    }
 
-		function goToGameOver(isWin: boolean = true) {
-			// clear all previous objects
-			clearPrevCanvas()
-			// fade in 
-			transitionScreen.tween(
-				0,
-				1,
-				0.3/ctx.speed,
-				(v) => {
-					transitionScreen.opacity = v
-				}
-			).onEnd(() => {
-				// fade out
-				transitionScreen.tween(
-					1,
-					0,
-					0.3/ctx.speed,
-					(v) => {
-						transitionScreen.opacity = v
-					}
-				).onEnd(() => {
-					createGameOverScreen(isWin)
-				})
-			})
-		}
+    function updateBothCommands() {
+      currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
+      if (currIdx > orders.length - 1) {
+        ctx.play("jump", {
+          volume: 1.0,
+        });
+        goToGameOver(true);
+        return;
+      }
 
-		function updateBothCommands() {
-			currIdx = ctx.clamp(currIdx + 1, 0, orders.length)
-			if (currIdx > orders.length-1) {
-				ctx.play("jump", {
-					volume: 1.0
-				})
-				goToGameOver(true)
-				return
-			}
-			
-			const next_comm = orders[currIdx]
-			left_com.command_dir = next_comm
-			left_com.sprite = dir_sprites[next_comm]
-			left_com.pos = spawnPointLeft
-			
-			right_com.command_dir = next_comm
-			right_com.sprite = dir_sprites[next_comm]
-			right_com.pos = spawnPointRight
+      const next_comm = orders[currIdx];
+      left_com.command_dir = next_comm;
+      left_com.sprite = dir_sprites[next_comm];
+      left_com.pos = spawnPointLeft;
 
-			let _playVol = 0.5 + 0.25*(currIdx-1)
-			ctx.play("jump", {
-				volume: _playVol
-			})
+      let _playVol = 0.5 + 0.25 * (currIdx - 1);
+      ctx.play("jump", {
+        volume: _playVol,
+      });
 
-			bean.tween(
-				bean.scale,
-				bean.scale.add(2),
-				0.2,
-				(value) => {
-					bean.scale = value
-				},
-				ctx.easings.easeInOutBounce
-			)
-		}
+      const tScale = ctx.lerp(1, 4, currIdx / orders.length);
+      // use animate instead
+      bean.animate("scale", [bean.scale, ctx.vec2(tScale)], {
+        duration: 1,
+        loops: 1,
+        easing: ctx.easings.easeInOutBounce,
+      });
 
-		const bean = game.add([
-			ctx.sprite("@bean"),
-			ctx.anchor("bot"),
-			ctx.pos(ctx.width()/2, ctx.height()*0.8),
-			ctx.scale(1),
-			ctx.timer()
-		]);
+      //   bean.tween(
+      //     bean.scale,
+      //     bean.scale.add(2),
+      //     0.2,
+      //     (value) => {
+      //       bean.scale = value;
+      //     },
+      //     ctx.easings.easeInOutBounce
+      //   );
+    }
 
-		function isInputValid(_dir: DIRECTION) {
-			return check.isOverlapping(left_com) && left_com.command_dir == _dir && canPress
-		}
+    const bean = game.add([
+      ctx.sprite("@bean"),
+      ctx.anchor("bot"),
+      ctx.pos(ctx.width() / 2, ctx.height() * 0.8),
+      ctx.scale(1),
+      //   ctx.timer(),
+      ctx.animate(),
+    ]);
 
-		// checking input if it is within the box
-		ctx.onButtonPress("up", () => {
-			if(isInputValid(DIRECTION.UP)) {
-				updateBothCommands();
-			}
-		})
+    function isInputValid(_dir: DIRECTION) {
+      return (
+        check.isOverlapping(left_com) &&
+        left_com.command_dir == _dir &&
+        canPress
+      );
+    }
 
-		ctx.onButtonPress("down", () => {
-			if(isInputValid(DIRECTION.DOWN)) {
-				updateBothCommands();
-			}
-		})
+    // checking input if it is within the box
+    ctx.onButtonPress("up", () => {
+      if (isInputValid(DIRECTION.UP)) {
+        updateBothCommands();
+      }
+    });
 
-		ctx.onButtonPress("left", () => {
-			if(isInputValid(DIRECTION.LEFT)) {
-				updateBothCommands();
-			}
-		})
+    ctx.onButtonPress("down", () => {
+      if (isInputValid(DIRECTION.DOWN)) {
+        updateBothCommands();
+      }
+    });
 
-		ctx.onButtonPress("right", () => {
-			if(isInputValid(DIRECTION.RIGHT)) {
-				updateBothCommands();
-			}
-		})
+    ctx.onButtonPress("left", () => {
+      if (isInputValid(DIRECTION.LEFT)) {
+        updateBothCommands();
+      }
+    });
 
-		left_com.onUpdate(() => {
-			if(!left_com.canMove) {
-				left_com.move(0, 0)
-			} else {
-				left_com.move(PIXEL_VEL, 0)
-			}
-		})
+    ctx.onButtonPress("right", () => {
+      if (isInputValid(DIRECTION.RIGHT)) {
+        updateBothCommands();
+      }
+    });
 
-		right_com.onUpdate(() => {
-			if(!right_com.canMove) {
-				right_com.move(0, 0)
-			} else {
-				right_com.move(-PIXEL_VEL, 0)
-			}
-		})
+    left_com.onUpdate(() => {
+      if (!left_com.canMove) {
+        left_com.move(0, 0);
+      } else {
+        left_com.move(PIXEL_VEL, 0);
+      }
+    });
 
-		// game is lost when the command icons clashes
-		left_com.onCollide("command", () => {
-			bean.sprite = "@beant"
-			ctx.wait(0.4/ctx.speed, () => {
-				//resets
-				currIdx = 0
-				canPress = false
-				// lose screen
-				goToGameOver(false)
-			})
-			// ctx.lose();
-			// ctx.wait(0.5, () => ctx.finish());
-		})
+    // game is lost when the command icons clashes
+    left_com.onCollide("command", () => {
+      bean.sprite = "@beant";
+      ctx.wait(0.4 / ctx.speed, () => {
+        //resets
+        currIdx = 0;
+        canPress = false;
+        // lose screen
+        goToGameOver(false);
+      });
+      // ctx.lose();
+      // ctx.wait(0.5, () => ctx.finish());
+    });
 
-		return game;
-	},
+    return game;
+  },
 };
 
 export default transformGame;
