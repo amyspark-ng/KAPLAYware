@@ -1,6 +1,8 @@
 import * as fs from "fs/promises";
 
-const [author, gamePrompt] = (process.argv[2] ?? "").split(":");
+let [author, gamePrompt] = (process.argv[2] ?? "").split(":");
+// verify the gameprompt name, to not break class minigame //
+gamePrompt = gamePrompt.replace(/[\s_\-\.]/g, "");
 
 if (!author || !gamePrompt) {
 	console.error("Must specify author and game name");
@@ -21,8 +23,7 @@ const ${gamePrompt}Game: Minigame = {
 	author: "${author}",
 	rgb: [0, 0, 0],
 	urlPrefix: "${assets_dir}",
-	load(ctx) {
-	},
+	load(ctx) {},
 	start(ctx) {
 		const game = ctx.make();
 
