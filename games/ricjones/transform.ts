@@ -134,7 +134,7 @@ const transformGame: Minigame = {
       });
 
       ctx.win();
-      ctx.wait(1.5, () => ctx.finish());
+      ctx.wait(1.5 / ctx.speed, () => ctx.finish());
     }
 
     function goToGameOver(isWin: boolean = true) {
@@ -158,7 +158,8 @@ const transformGame: Minigame = {
     }
 
     function updateBothCommands() {
-      currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
+		currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
+		// go to the win condition screen.
       if (currIdx > orders.length - 1) {
         ctx.play("jump", {
           volume: 1.0,
@@ -177,23 +178,12 @@ const transformGame: Minigame = {
         volume: _playVol,
       });
 
-      const tScale = ctx.lerp(1, 4, currIdx / orders.length);
+      const tScale = ctx.lerp(1, 4, currIdx + 1 / orders.length);
       // use animate instead
       bean.animate("scale", [bean.scale, ctx.vec2(tScale)], {
-        duration: 1,
+        duration: 1 / ctx.speed,
         loops: 1,
-        easing: ctx.easings.easeInOutBounce,
       });
-
-      //   bean.tween(
-      //     bean.scale,
-      //     bean.scale.add(2),
-      //     0.2,
-      //     (value) => {
-      //       bean.scale = value;
-      //     },
-      //     ctx.easings.easeInOutBounce
-      //   );
     }
 
     const bean = game.add([
@@ -201,7 +191,6 @@ const transformGame: Minigame = {
       ctx.anchor("bot"),
       ctx.pos(ctx.width() / 2, ctx.height() * 0.8),
       ctx.scale(1),
-      //   ctx.timer(),
       ctx.animate(),
     ]);
 
@@ -246,7 +235,7 @@ const transformGame: Minigame = {
       }
     });
 
-    // game is lost when the command icons clashes
+    // game is lost when the command icons clashes ( needs rewrite )
     left_com.onCollide("command", () => {
       bean.sprite = "@beant";
       ctx.wait(0.4 / ctx.speed, () => {
