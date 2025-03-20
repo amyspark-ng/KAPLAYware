@@ -1,3 +1,10 @@
 node_modules/
 www/main.js
 dist/
+.env*
+!.env*.example
+ideas.txt
+aseprites
+.vscode
+ship.bat
+web-build.zip

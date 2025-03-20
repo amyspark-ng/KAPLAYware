@@ -1,9 +1,9 @@
 import { assets } from "@kaplayjs/crew";
 import { Minigame } from "../../src/types";
 
-const newGame: Minigame = {
+const knockGame: Minigame = {
 	prompt: "knock",
-	mouse: { hidden: false },
+	input: { cursor: { hide: false } },
 	author: "amyspark-ng",
 	rgb: [74, 48, 82],
 	urlPrefix: "games/amyspark-ng/assets/",
@@ -71,4 +71,4 @@ const newGame: Minigame = {
 	},
 };
 
-export default newGame;
+export default knockGame;

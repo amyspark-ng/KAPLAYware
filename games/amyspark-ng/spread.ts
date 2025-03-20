@@ -1,4 +1,4 @@
-import { Outline } from "kaplay";
+import { Outline, Vec2 } from "kaplay";
 import mulfokColors from "../../src/plugins/colors";
 import { Minigame } from "../../src/types";
 
@@ -6,7 +6,7 @@ const spreadGame: Minigame = {
 	prompt: "spread",
 	author: "amyspark-ng",
 	rgb: mulfokColors.PINK,
-	mouse: { hidden: true },
+	input: { cursor: { hide: true } },
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
 		ctx.loadSpriteAtlas("sprites/spread/bread.png", {
@@ -74,7 +74,7 @@ const spreadGame: Minigame = {
 			ctx.anchor("center"),
 		]);
 
-		const doodles = [[]]; // array of Vec2[]
+		const doodles = [[]] as Vec2[][]; // array of Vec2[]
 
 		draw.onDraw(() => {
 			function drawContent() {
@@ -118,10 +118,10 @@ const spreadGame: Minigame = {
 
 			const Xs = doodles[0].map((d) => d.x);
 			const Ys = doodles[0].map((d) => d.y);
-			const minX = Math.min(...Xs) + outline.width / 2;
-			const maxX = Math.max(...Xs) + outline.width / 2;
-			const minY = Math.min(...Ys) + outline.width / 2;
-			const maxY = Math.max(...Ys) + outline.width / 2;
+			const minX = Math.min(...Xs) + (outline.width as number) / 2;
+			const maxX = Math.max(...Xs) + (outline.width as number) / 2;
+			const minY = Math.min(...Ys) + (outline.width as number) / 2;
+			const maxY = Math.max(...Ys) + (outline.width as number) / 2;
 
 			const jamXLength = maxX - minX;
 			const jamYLength = maxY - minY;

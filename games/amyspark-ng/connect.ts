@@ -3,17 +3,12 @@ import kaplay, { Color, GameObj, Vec2 } from "kaplay";
 import mulfokColors from "../../src/plugins/colors.ts";
 import { Minigame } from "../../src/types.ts";
 
-function pickRandom<T extends any>(arr: T[], amount: number): T[] {
-	const copy = [...arr];
-	return copy.sort(() => 0.5 - Math.random()).slice(0, amount);
-}
-
 const newGame: Minigame = {
 	prompt: "connect",
 	author: "amyspark-ng",
-	mouse: { hidden: false },
+	input: { cursor: { hide: false } },
 	rgb: mulfokColors.DARK_PURPLE,
-	duration: 5,
+	duration: (ctx) => ctx.difficulty == 3 ? 7 : 5,
 	urlPrefix: "games/amyspark-ng/assets",
 	load(ctx) {
 		ctx.loadSprite("plug", "/sprites/connect/plug.png");
@@ -33,15 +28,15 @@ const newGame: Minigame = {
 
 		const COLOR_AMOUNT = ctx.difficulty == 1 ? 2 : ctx.difficulty == 2 ? 3 : ctx.difficulty == 3 ? 4 : 0;
 
-		const gameColors = pickRandom(allColors, COLOR_AMOUNT);
+		const gameColors = ctx.chooseMultiple(allColors, COLOR_AMOUNT);
 
 		const sockets: GameObj[] = [];
 		const sources: GameObj[] = [];
 		const plugSocketState: ("wiring" | "connected" | "disconnected")[] = [];
 		const winCondition = () => !plugSocketState.some((state) => state != "connected");
 
-		gameColors.forEach((color, index, arr) => {
-			plugSocketState[index] = "disconnected";
+		gameColors.forEach((color, plugIndex, arr) => {
+			plugSocketState[plugIndex] = "disconnected";
 
 			const socketObj = game.add([
 				ctx.sprite("box"),
@@ -69,8 +64,8 @@ const newGame: Minigame = {
 				ctx.z(socketObj.z - 1),
 			]);
 
-			sources[index] = sourceObj;
-			sockets[index] = socketObj;
+			sources[plugIndex] = sourceObj;
+			sockets[plugIndex] = socketObj;
 
 			let socketGap = (ctx.width() - socketObj.width * sockets.length) / (sockets.length + 1);
 			let socketX = socketGap;
@@ -88,29 +83,35 @@ const newGame: Minigame = {
 			});
 
 			plugObj.onUpdate(() => {
-				if (plugSocketState[index] == "wiring") {
+				if (plugSocketState[plugIndex] == "wiring") {
 					plugObj.pos = ctx.lerp(plugObj.pos, sourceObj.fromWorld(ctx.mousePos()), 0.5);
-					if (socketObj.isHovering()) {
-						ctx.play("plug", { detune: ctx.rand(-30, 30) * index });
-						plugSocketState[index] = "connected";
-					}
 				}
-				else if (plugSocketState[index] == "connected") {
+				else if (plugSocketState[plugIndex] == "connected") {
 					const socketBoxPos = ctx.vec2(socketObj.pos.x + socketObj.width / 2, socketObj.pos.y + plugObj.height - 10);
 					const transformedPoint = sourceObj.fromWorld(socketBoxPos);
 					plugObj.pos = ctx.lerp(plugObj.pos, transformedPoint, 0.5);
 				}
+				else if (plugSocketState[plugIndex] == "disconnected") {
+					plugObj.pos = ctx.lerp(plugObj.pos, ctx.vec2(sourceObj.width / 2, -30), 0.5);
+				}
 			});
 
 			plugObj.onClick(() => {
-				if (plugSocketState[index] == "disconnected") {
-					plugSocketState[index] = "wiring";
+				if (plugSocketState[plugIndex] == "disconnected") plugSocketState[plugIndex] = "wiring";
+			});
+
+			plugObj.onUpdate(() => {
+				if (socketObj.isHovering() && plugSocketState[plugIndex] != "connected" && plugSocketState[plugIndex] == "wiring") {
+					ctx.play("plug", { detune: ctx.rand(-30, 30) * plugIndex });
+					plugSocketState[plugIndex] = "connected";
+				}
+
+				if (ctx.isMouseReleased("left") && plugSocketState[plugIndex] == "wiring") {
+					if (!socketObj.isHovering()) plugSocketState[plugIndex] = "disconnected";
 				}
 			});
 
 			game.onDraw(() => {
-				if (plugSocketState[index] == "disconnected") return;
-
 				ctx.drawLine({
 					p1: ctx.vec2(sourceObj.pos.x + sourceObj.width / 2, sourceObj.pos.y),
 					p2: sourceObj.toWorld(plugObj.pos),

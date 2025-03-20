@@ -1,5 +1,7 @@
 import kaplay from "kaplay";
+import conductorPlug from "./plugins/conductor";
 import dragCompPlugin from "./plugins/drag";
+import wareObjectsPlugin from "./plugins/wareobjects";
 import watchPlugin from "./plugins/watch";
 
 export const k = kaplay({
@@ -9,10 +11,10 @@ export const k = kaplay({
 	background: [0, 0, 0],
 	font: "happy-o",
 	focus: false,
-	plugins: [dragCompPlugin, watchPlugin],
+	plugins: [dragCompPlugin, watchPlugin, conductorPlug, wareObjectsPlugin],
 	debug: true,
+	maxFPS: 120,
 });
-
 console.log("KAPLAY RAN");
 
 export default k;

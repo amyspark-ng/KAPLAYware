@@ -5,6 +5,8 @@
 		"module": "ESNext",
 		"lib": ["ES2023", "DOM", "DOM.Iterable"],
 		"skipLibCheck": true,
+		"types": ["vite/client"],
+
 		/* Bundler mode */
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,

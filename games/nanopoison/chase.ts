@@ -5,7 +5,7 @@ const newGame: Minigame = {
 	prompt: "chase",
 	author: "nanopoison",
 	rgb: [133, 97, 97],
-	duration: 4,
+	duration: (ctx) => ctx.difficulty == 3 ? 5 : 4,
 	urlPrefix: "games/nanopoison/assets",
 	load(ctx) {
 	},

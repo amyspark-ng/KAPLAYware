@@ -16,7 +16,7 @@ const assets_dir = `${author_dir}/assets/`;
 const template = `
 import { Minigame } from "../../src/types";
 
-const newGame: Minigame = {
+const ${gamePrompt}Game: Minigame = {
 	prompt: "${gamePrompt}",
 	author: "${author}",
 	rgb: [0, 0, 0],
@@ -35,7 +35,7 @@ const newGame: Minigame = {
 	},
 };
 
-export default newGame;
+export default ${gamePrompt}Game;
 `.trim();
 
 const isDir = (path) =>
