@@ -52,20 +52,17 @@ const transformGame: Minigame = {
 
     // checking box for the transform
     const check = game.add([
-      ctx.rect(200, 100, { fill: false }),
-      ctx.pos(ctx.width() / 2, ctx.height() * 0.18),
+      ctx.rect(100, 100, { fill: false }),
+      ctx.pos(ctx.width() * 0.75, ctx.height() * 0.18),
       ctx.anchor("center"),
       ctx.area(),
       ctx.outline(2, ctx.RED),
     ]);
 
     const spawnPointLeft = ctx.vec2(0, ctx.height() * 0.18);
-    // const spawnPointRight = ctx.vec2(ctx.width(), ctx.height()*0.18)
 
     // spawn button sprites
     const left_com = createCommand(orders[currIdx]);
-
-    // const right_com = createCommand(false, orders[currIdx])
 
     let canPress = true;
 
@@ -108,8 +105,7 @@ const transformGame: Minigame = {
         ctx.scale(1),
         ctx.animate(),
       ]);
-      // chad1.pos.x = -chad1.width
-      // chad1.use(ctx.scale(ctx.height()/chad1.height))
+
       const dialog1 = game.add([
         ctx.text("oh hi !"),
         ctx.pos(ctx.width() / 2, ctx.height() * 0.3),
@@ -235,19 +231,33 @@ const transformGame: Minigame = {
       }
     });
 
+	ctx.onUpdate(() => {
+		if (left_com.x >= check.x + check.width*0.5) {
+			bean.sprite = "@beant";
+			ctx.wait(0.4 / ctx.speed, () => {
+	        	//resets
+	        	currIdx = 0;
+	        	canPress = false;
+	        	// lose screen
+	        	goToGameOver(false);
+      		});
+		}
+	})
+	  
+
     // game is lost when the command icons clashes ( needs rewrite )
-    left_com.onCollide("command", () => {
-      bean.sprite = "@beant";
-      ctx.wait(0.4 / ctx.speed, () => {
-        //resets
-        currIdx = 0;
-        canPress = false;
-        // lose screen
-        goToGameOver(false);
-      });
-      // ctx.lose();
-      // ctx.wait(0.5, () => ctx.finish());
-    });
+    // left_com.onCollide("command", () => {
+    //   bean.sprite = "@beant";
+    //   ctx.wait(0.4 / ctx.speed, () => {
+    //     //resets
+    //     currIdx = 0;
+    //     canPress = false;
+    //     // lose screen
+    //     goToGameOver(false);
+    //   });
+    //   // ctx.lose();
+    //   // ctx.wait(0.5, () => ctx.finish());
+    // });
 
     return game;
   },
