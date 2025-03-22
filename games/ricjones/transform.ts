@@ -14,46 +14,79 @@ const transformGame: Minigame = {
     ctx.loadSprite("right", "/right.png");
     ctx.loadSprite("up", "/up.png");
     ctx.loadSprite("down", "/down.png");
+    ctx.loadSprite("strong", "/strong.png")
   },
   start(ctx) {
-    const PIXEL_VEL = ctx.width() * 0.4 * ctx.speed;
+    const PIXEL_VEL = ctx.width() * 0.5 * ctx.speed;
     enum DIRECTION {
       LEFT,
       RIGHT,
       UP,
       DOWN,
     }
-    const dir_sprites = ["left", "right", "up", "down"];
 
     const orders: number[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       orders.push(ctx.randi(3));
     }
 
     let currIdx = 0;
     const game = ctx.make();
 
+    function updateCommandSprite(_obj: GameObjRaw, _dir: DIRECTION) {
+      switch (_dir) {
+        case DIRECTION.RIGHT: {
+          _obj.angle = 0;
+          _obj.scale.x = 1 / 2;
+          _obj.scale.y = 1 / 2;
+          break;
+        }
+        case DIRECTION.LEFT: {
+          _obj.angle = 0;
+          _obj.scale.x = -1 / 2;
+          _obj.scale.y = 1 / 2;
+          break;
+        }
+        case DIRECTION.UP: {
+          _obj.angle = -90;
+          _obj.scale.x = 1 / 2;
+          _obj.scale.y = 1 / 2;
+          break;
+        }
+        case DIRECTION.DOWN: {
+          _obj.angle = 90;
+          _obj.scale.x = 1 / 2;
+          _obj.scale.y = 1 / 2;
+          break;
+        }
+      }
+    }
+
     function createCommand(dir: DIRECTION) {
       const _obj = game.add([
         ctx.offscreen({ hide: true }),
-        ctx.sprite(dir_sprites[dir]),
+        ctx.sprite("strong"),
         ctx.area(),
+        ctx.rotate(),
+        ctx.scale(),
         ctx.pos(),
         ctx.opacity(),
+        ctx.anchor("center"),
         { canMove: true, command_dir: dir },
         "command",
       ]);
 
-      _obj.use(ctx.anchor("left"));
       _obj.pos = spawnPointLeft;
+
+      updateCommandSprite(_obj, dir)
 
       return _obj;
     }
 
     // checking box for the transform
     const check = game.add([
-      ctx.rect(100, 100, { fill: false }),
-      ctx.pos(ctx.width() * 0.75, ctx.height() * 0.18),
+      ctx.rect(300, 100, { fill: false }),
+      ctx.pos(ctx.width() * 0.5, ctx.height() * 0.18),
       ctx.anchor("center"),
       ctx.area(),
       ctx.outline(2, ctx.RED),
@@ -154,8 +187,8 @@ const transformGame: Minigame = {
     }
 
     function updateBothCommands() {
-		currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
-		// go to the win condition screen.
+      currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
+      // go to the win condition screen.
       if (currIdx > orders.length - 1) {
         ctx.play("jump", {
           volume: 1.0,
@@ -165,8 +198,9 @@ const transformGame: Minigame = {
       }
 
       const next_comm = orders[currIdx];
-      left_com.command_dir = next_comm;
-      left_com.sprite = dir_sprites[next_comm];
+      updateCommandSprite(left_com, next_comm)
+      //left_com.command_dir = next_comm;
+      //left_com.sprite = dir_sprites[next_comm];
       left_com.pos = spawnPointLeft;
 
       let _playVol = 0.5 + 0.25 * (currIdx - 1);
@@ -231,19 +265,19 @@ const transformGame: Minigame = {
       }
     });
 
-	ctx.onUpdate(() => {
-		if (left_com.x >= check.x + check.width*0.5) {
-			bean.sprite = "@beant";
-			ctx.wait(0.4 / ctx.speed, () => {
-	        	//resets
-	        	currIdx = 0;
-	        	canPress = false;
-	        	// lose screen
-	        	goToGameOver(false);
-      		});
-		}
-	})
-	  
+    game.onUpdate(() => {
+      if (left_com.pos.x >= check.pos.x + check.width * 0.5 && canPress) {
+        bean.sprite = "@beant";
+        ctx.wait(0.4 / ctx.speed, () => {
+          //resets
+          currIdx = 0;
+          canPress = false;
+          // lose screen
+          goToGameOver(false);
+        });
+      }
+    })
+
 
     // game is lost when the command icons clashes ( needs rewrite )
     // left_com.onCollide("command", () => {
