@@ -1,4 +1,3 @@
-import k from "../../src/engine";
 import { Minigame } from "../../src/types";
 
 const fishGame: Minigame = {
@@ -6,6 +5,7 @@ const fishGame: Minigame = {
   author: "erik",
   rgb: [109, 128, 250],
   duration: (ctx) => 10 - ctx.difficulty / 2,
+  playsOwnMusic: true,
   urlPrefix: "games/erik/assets/",
   load(ctx) {
     ctx.loadSprite("alert", "sprites/fish/alert.png");
@@ -93,8 +93,8 @@ const fishGame: Minigame = {
       const centerPoint = ctx.lerp(startPos, endPos, 0.5).add(ctx.vec2(0, 20));
 
       // Was not available on ctx
-      k.drawCurve(
-        (t) => k.evaluateQuadratic(startPos, centerPoint, endPos, t),
+      ctx.drawCurve(
+        (t) => ctx.evaluateQuadratic(startPos, centerPoint, endPos, t),
         {
           color: ctx.rgb(240, 240, 240),
         }
@@ -186,9 +186,13 @@ const fishGame: Minigame = {
     }
 
     // fishes? fishs? fishies? fish?
-    const fishs = [addFish(), addFish()];
+    const fishs = [addFish()];
 
     if (ctx.difficulty == 1) {
+      fishs.push(addFish());
+    }
+
+    if (ctx.difficulty <= 2) {
       fishs.push(addFish());
     }
 
@@ -295,7 +299,7 @@ const fishGame: Minigame = {
 
       await ctx.tween(0, 1, reelSpeed / ctx.speed, (p) => {
         // Was not available on ctx
-        bobber.pos = k.evaluateQuadratic(startPos, centerPoint, endPos, p);
+        bobber.pos = ctx.evaluateQuadratic(startPos, centerPoint, endPos, p);
       });
 
       reelSound.stop();
@@ -322,11 +326,16 @@ const fishGame: Minigame = {
         0,
         3 / ctx.speed,
         0.5,
-        (p) => (boomSquare.scale = k.vec2(p)),
+        (p) => (boomSquare.scale = ctx.vec2(p)),
         ctx.easings.easeOutCubic
       );
 
-      const fishSpr = k.choose(["@sukomi-o", "@bobo-o", "@cake-o", "@bean-o"]);
+      const fishSpr = ctx.choose([
+        "@sukomi-o",
+        "@bobo-o",
+        "@cake-o",
+        "@bean-o",
+      ]);
 
       const fish = game.add([
         ctx.sprite(fishSpr),
@@ -340,7 +349,7 @@ const fishGame: Minigame = {
         0,
         3 / ctx.speed,
         0.5,
-        (p) => (fish.scale = k.vec2(p)),
+        (p) => (fish.scale = ctx.vec2(p)),
         ctx.easings.easeOutCubic
       );
 

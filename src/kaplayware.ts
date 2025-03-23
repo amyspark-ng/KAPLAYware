@@ -99,6 +99,7 @@ export const gameAPIs = [
 	"drawFormattedText",
 	"drawMasked",
 	"drawSubtracted",
+	"drawCurve",
 	"pushTransform",
 	"popTransform",
 	"pushTranslate",
@@ -144,6 +145,7 @@ export const gameAPIs = [
 	"onCollideUpdate",
 	"conductor",
 	"addPrompt",
+	"evaluateQuadratic",
 ] as const;
 
 export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts = {}): KaplayWareCtx {
