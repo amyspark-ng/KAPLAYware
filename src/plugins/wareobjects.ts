@@ -1,7 +1,8 @@
 import { Color, KAPLAYCtx, Vec2 } from "kaplay";
 import k from "../engine";
+import { getGameInput } from "../utils";
 
-function addPrompt(prompt: string, time: number = 0.25) {
+function addPrompt(prompt: string) {
 	const promptObj = k.add([
 		k.color(k.WHITE),
 		k.fixed(),
@@ -25,9 +26,9 @@ function addPrompt(prompt: string, time: number = 0.25) {
 		},
 	]);
 
-	promptObj.tween(0, 1.2, time, (p) => promptObj.scale.x = p, k.easings.easeOutExpo);
-	promptObj.tween(0, 0.9, time, (p) => promptObj.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
-		promptObj.tween(promptObj.scale, k.vec2(1), time * 1.1, (p) => promptObj.scale = p, k.easings.easeOutElastic).onEnd(() => {
+	promptObj.tween(0, 1.2, 0.25, (p) => promptObj.scale.x = p, k.easings.easeOutExpo);
+	promptObj.tween(0, 0.9, 0.25, (p) => promptObj.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
+		promptObj.tween(promptObj.scale, k.vec2(1), 0.25 * 1.1, (p) => promptObj.scale = p, k.easings.easeOutElastic).onEnd(() => {
 			// now do the shaky letters
 
 			let magnitude = 0;
@@ -49,6 +50,18 @@ function addPrompt(prompt: string, time: number = 0.25) {
 		});
 	});
 	return promptObj;
+}
+
+function addInputPrompt(input: ReturnType<typeof getGameInput>) {
+	const inputPrompt = k.add([
+		k.sprite("inputprompt_" + input),
+		k.anchor("center"),
+		k.pos(k.center()),
+		k.scale(),
+	]);
+
+	k.tween(k.vec2(0), k.vec2(1), 0.25, (p) => inputPrompt.scale = p, k.easings.easeOutElastic);
+	return inputPrompt;
 }
 
 function addBomb() {
@@ -228,6 +241,7 @@ function makeConfetti(opt?: ConfettiOpt) {
 export function wareObjectsPlugin(k: KAPLAYCtx) {
 	return {
 		addPrompt,
+		addInputPrompt,
 		addBomb,
 		makeConfetti,
 	};

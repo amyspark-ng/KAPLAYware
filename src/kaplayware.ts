@@ -2,7 +2,7 @@ import { assets } from "@kaplayjs/crew";
 import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KAPLAYCtx, KAPLAYOpt, KEventController, Key, SoundData, SpriteCompOpt, SpriteData, Vec2 } from "kaplay";
 import k from "./engine";
 import cursor from "./plugins/cursor";
-import { loseTransition, prepTransition, speedupTransition, winTransition } from "./transitions";
+import { makeTransition } from "./transitions";
 import { Button, KaplayWareCtx, KAPLAYwareOpts, LoadCtx, Minigame, MinigameAPI, MinigameCtx } from "./types";
 import { coolPrompt, gameHidesCursor, gameUsesMouse, getByID, getGameID, getGameInput } from "./utils";
 
@@ -146,6 +146,8 @@ export const gameAPIs = [
 	"conductor",
 	"addPrompt",
 	"evaluateQuadratic",
+	"toWorld",
+	"toScreen",
 ] as const;
 
 export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts = {}): KaplayWareCtx {
@@ -180,11 +182,15 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 	let restartMinigame = false;
 	let overrideDifficulty = null as 1 | 2 | 3;
 
-	const camera = k.add([
+	/** Main object, if you want to pause everything, pause this */
+	const WareScene = k.add([]);
+
+	const camera = WareScene.add([
 		k.pos(k.center()),
 		k.anchor("center"),
 		k.scale(),
 		k.rotate(),
+		k.opacity(0),
 		{
 			shake: 0,
 		},
@@ -350,6 +356,26 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 					return k.shader(`${getGameID(g)}-${name}`, uniform);
 				};
 			}
+			// TODO: Make fixed component work with the minigame camera api
+			else if (api == "fixed") {
+				gameCtx[api] = () => {
+					let fixed = true;
+					return {
+						id: "fixed",
+						set fixed(val: boolean) {
+							fixed = val;
+							if (fixed) this.parent = WareScene;
+							else this.parent = camera;
+						},
+						get fixed() {
+							return fixed;
+						},
+						add() {
+							this.parent = WareScene;
+						},
+					};
+				};
+			}
 		}
 		function dirToKeys(button: Button): Key[] {
 			if (button == "left") return ["left", "a"];
@@ -367,6 +393,20 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			getCamScale: () => camera.scale,
 			setCamScale: (val: Vec2) => camera.scale = val,
 			shakeCam: (val: number = 12) => camera.shake += val,
+			flashCam: (flashColor: Color = k.WHITE, timeOut: number = 1) => {
+				const r = camera.add([
+					k.pos(-k.width() / 2, -k.height() / 2),
+					k.rect(k.width(), k.height()),
+					k.color(flashColor),
+					k.opacity(1),
+					k.fixed(),
+					k.z(999), // HACK: make sure is at front of everyone :skull: //
+					"flash",
+				]);
+				const f = r.fadeOut(timeOut);
+				f.onEnd(() => k.destroy(r));
+				return f;
+			},
 			getRGB: () => rgbColor,
 			setRGB: (val) => rgbColor = val,
 
@@ -428,7 +468,16 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				clearInput();
 				onTimeoutEvent.clear();
 				gameboxUpdate?.cancel();
-				k.wait(0.2, () => currentMinigameScene?.destroy());
+				k.wait(0.2, () => {
+					currentMinigameScene?.destroy();
+					WareScene.get("fixed").forEach((obj) => obj.destroy());
+					// reset camera
+					this.setCamPos(k.center());
+					this.setCamAngle(0);
+					this.setCamScale(k.vec2(1));
+					camera.get("flash").forEach((f) => f.destroy());
+					camera.shake = 0;
+				});
 				wareCtx.nextGame();
 				canPlaySounds = false;
 				if (currentBomb) currentBomb.destroy();
@@ -613,46 +662,46 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				const gameinput = getGameInput(nextGame);
 				cursor.visible = !gameHidesCursor(nextGame);
 
+				let inputPrompt: ReturnType<typeof k.addInputPrompt> = null;
 				let prompt: ReturnType<typeof k.addPrompt> = null;
 
-				const prepTrans = prepTransition(wareCtx);
-				const inputprompt = k.add([
-					k.sprite("inputprompt_" + gameinput),
-					k.anchor("center"),
-					k.pos(k.center()),
-					k.scale(),
-				]);
+				const prepTrans = makeTransition(WareScene, wareCtx, "prep");
 
-				k.tween(k.vec2(0), k.vec2(1), 0.15 / wareCtx.speed, (p) => inputprompt.scale = p, k.easings.easeOutElastic);
-				prepTrans.onHalf(() => {
-					k.tween(inputprompt.scale, k.vec2(0), 0.15 / wareCtx.speed, (p) => inputprompt.scale = p, k.easings.easeOutQuint).onEnd(() => inputprompt.destroy());
+				prepTrans.onInputPromptTime(() => {
+					inputPrompt = k.addInputPrompt(gameinput);
+					k.tween(k.vec2(0), k.vec2(1), 0.15 / wareCtx.speed, (p) => inputPrompt.scale = p, k.easings.easeOutElastic);
+				});
+
+				prepTrans.onPromptTime(() => {
+					k.tween(inputPrompt.scale, k.vec2(0), 0.15 / wareCtx.speed, (p) => inputPrompt.scale = p, k.easings.easeOutQuint).onEnd(() => inputPrompt.destroy());
 					if (typeof nextGame.prompt == "string") prompt = k.addPrompt(coolPrompt(nextGame.prompt));
 					else {
 						prompt = k.addPrompt("");
 						nextGame.prompt(currentMinigameCtx as unknown as MinigameCtx, prompt);
 					}
-				});
 
-				prepTrans.onEnd(() => {
 					k.wait(0.15 / wareCtx.speed, () => {
 						cursor.visible = !gameHidesCursor(nextGame);
 						prompt.fadeOut(0.15 / wareCtx.speed).onEnd(() => prompt.destroy());
 					});
-					wareCtx.inputEnabled = true;
+				});
+
+				prepTrans.onEnd(() => {
 					wareCtx.gameRunning = true;
+					wareCtx.inputEnabled = true;
 				});
 			}
 
 			if (wonLastGame != null) {
-				let transition: ReturnType<typeof prepTransition> = null;
-				if (wonLastGame) transition = winTransition(wareCtx);
-				else transition = loseTransition(wareCtx);
+				let transition: ReturnType<typeof makeTransition> = null;
+				if (wonLastGame) transition = makeTransition(WareScene, wareCtx, "win");
+				else transition = makeTransition(WareScene, wareCtx, "lose");
 				wonLastGame = null;
 
 				if (gameUsesMouse(nextGame)) cursor.visible = true;
 
 				transition.onEnd(() => {
-					if (!wonLastGame && wareCtx.lives == 0) {
+					if (wonLastGame == false && wareCtx.lives == 0) {
 						k.go("gameover", wareCtx.score);
 						return;
 					}
@@ -662,10 +711,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 						if (forceSpeed == true) forceSpeed = false;
 						wareCtx.timesSpeed++;
 						wareCtx.speedUp();
-						speedupTransition(wareCtx).onEnd(() => {
-							k.tween(k.getCamPos(), k.center(), 0.5 / wareCtx.speed, (p) => k.setCamPos(p), k.easings.easeOutQuint);
-							prep();
-						});
+						makeTransition(WareScene, wareCtx, "speed").onEnd(() => prep());
 					}
 					else prep();
 				});

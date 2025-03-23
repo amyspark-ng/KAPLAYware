@@ -7,7 +7,7 @@
 	},
 	"dependencies": {
 		"@kaplayjs/crew": "^1.7.1",
-		"kaplay": "^3001.0.9"
+		"kaplay": "4000.0.0-alpha.17"
 	},
 	"devDependencies": {
 		"terser": "^5.32.0",

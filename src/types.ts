@@ -46,6 +46,11 @@ export type MinigameAPI = {
 	setCamPos(val: Vec2): Vec2;
 	getCamPos(): Vec2;
 	shakeCam(val?: number): void;
+	/** Flashes the screen
+	 * @param flashColor The color the flash will be
+	 * @param time How long the flash will be on screen
+	 */
+	flashCam(flashColor?: Color, time?: number): KEventController;
 	/** Gets the current RGB of the background of your minigame */
 	getRGB(): Color;
 	/** Sets the RGB to the background of your minigame */
