@@ -15,7 +15,6 @@ k.loadSound("@loseJingle", "sounds/loseJingle.ogg");
 k.loadSound("@speedJingle", "sounds/speedJingle.ogg");
 k.loadSound("@tick", "sounds/bombtick.mp3");
 k.loadSound("@explosion", "sounds/explosion.mp3");
-k.loadSound("@burp", "sounds/burp.mp3");
 
 k.loadSprite("@bomb", "sprites/bomb.png");
 k.loadSprite("@bomb_cord_start", "sprites/bomb_cord_start.png");

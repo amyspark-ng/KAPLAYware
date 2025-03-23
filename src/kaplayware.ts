@@ -1,5 +1,5 @@
 import { assets } from "@kaplayjs/crew";
-import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KAPLAYCtx, KAPLAYOpt, KEventController, Key, SpriteCompOpt, SpriteData, Vec2 } from "kaplay";
+import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KAPLAYCtx, KAPLAYOpt, KEventController, Key, SoundData, SpriteCompOpt, SpriteData, Vec2 } from "kaplay";
 import k from "./engine";
 import cursor from "./plugins/cursor";
 import { loseTransition, prepTransition, speedupTransition, winTransition } from "./transitions";
@@ -162,7 +162,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 	let gameboxUpdate: KEventController = null;
 	let timerEvents: KEventController[] = [];
 	let inputEvents: KEventController[] = [];
-	let canPlaySounds = true; // TODO: FIX THIS!! the click minigame can play music before the game actually starts (bad)
+	let canPlaySounds = false;
 	let queuedSounds: AudioPlay[] = [];
 	let sounds: AudioPlay[] = [];
 	let rgbColor: Color = k.WHITE;
@@ -178,12 +178,24 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 	let restartMinigame = false;
 	let overrideDifficulty = null as 1 | 2 | 3;
 
-	/** The container for minigames, if you want to pause the minigame you should pause this */
-	const gameBox = k.add([
-		k.pos(),
+	const camera = k.add([
+		k.pos(k.center()),
+		k.anchor("center"),
 		k.scale(),
 		k.rotate(),
+		{
+			shake: 0,
+		},
 	]);
+
+	camera.onUpdate(() => {
+		camera.shake = k.lerp(camera.shake, 0, 5 * k.dt());
+		let posShake = k.Vec2.fromAngle(k.rand(0, 360)).scale(camera.shake);
+		// TODO: Make shakes work
+	});
+
+	/** The container for minigames, if you want to pause the minigame you should pause this */
+	const gameBox = camera.add([k.pos(-k.width() / 2, -k.height() / 2)]);
 
 	function clearInput() {
 		for (let i = inputEvents.length - 1; i >= 0; i--) {
@@ -274,7 +286,8 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			}
 			else if (api == "play") {
 				gameCtx[api] = (soundName: any, opts: AudioPlayOpt) => {
-					const sound = k.play(soundName.startsWith("@") ? soundName : `${getGameID(g)}-${soundName}`, opts);
+					// if sound name is string, check for @, else just send it
+					const sound = k.play(typeof soundName == "string" ? (soundName.startsWith("@") ? soundName : `${getGameID(g)}-${soundName}`) : soundName, opts);
 
 					const newSound = {
 						...sound,
@@ -304,7 +317,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 
 					// if can't play sounds and the user intended to play it at start, pause it
 					if (!canPlaySounds) {
-						if (!opts?.paused) {
+						if (!sound.paused) {
 							queuedSounds.push(sound);
 							sound.paused = true;
 						}
@@ -316,7 +329,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			}
 			else if (api == "burp") {
 				gameCtx[api] = (opts: AudioPlayOpt) => {
-					return gameCtx["play"]("@burp", opts);
+					return gameCtx["play"](k._k.audio.burpSnd, opts);
 				};
 			}
 			else if (api == "drawSprite") {
@@ -345,13 +358,13 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 		}
 
 		const gameAPI: MinigameAPI = {
-			getCamAngle: () => gameBox.angle,
-			setCamAngle: (val: number) => gameBox.angle = val,
-			getCamPos: () => gameBox.pos,
-			setCamPos: (val: Vec2) => gameBox.pos = val,
-			getCamScale: () => gameBox.scale,
-			setCamScale: (val: Vec2) => gameBox.scale = val,
-			shakeCam: (val?: number) => k.shake(val),
+			getCamAngle: () => camera.angle,
+			setCamAngle: (val: number) => camera.angle = val,
+			getCamPos: () => camera.pos,
+			setCamPos: (val: Vec2) => camera.pos = val,
+			getCamScale: () => camera.scale,
+			setCamScale: (val: Vec2) => camera.scale = val,
+			shakeCam: (val: number = 12) => camera.shake += val,
 			getRGB: () => rgbColor,
 			setRGB: (val) => rgbColor = val,
 

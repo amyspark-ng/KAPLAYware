@@ -204,10 +204,11 @@ const clickGame: Minigame = {
 				ctx.play("fullcombo", { detune: ctx.rand(-50, 50) });
 				ctx.win();
 				addComboText(ctx, game);
-				ctx.addConfetti();
-				// TODO: Do the classic spin speed to the left (camera api stuff)
+				ctx.addConfetti({ pos: ctx.mousePos() });
+				ctx.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamAngle(p), ctx.easings.easeOutQuint);
 			}
 			else {
+				ctx.shakeCam();
 				ctx.lose();
 				ctx.tween(hexagon.pos.y, ctx.height() * 1.5, 1 / ctx.speed, (p) => hexagon.pos.y = p, ctx.easings.easeOutExpo);
 				ctx.tween(spinspeed, spinspeed * 2, 1 / ctx.speed, (p) => spinspeed = p, ctx.easings.easeOutExpo);
@@ -215,7 +216,7 @@ const clickGame: Minigame = {
 				hexagon.fadeOut(1 / ctx.speed, ctx.easings.easeOutQuint);
 			}
 
-			ctx.wait(1 / ctx.speed, () => {
+			ctx.wait(1.5 / ctx.speed, () => {
 				ctx.finish();
 			});
 		});

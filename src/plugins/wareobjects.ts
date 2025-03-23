@@ -196,6 +196,7 @@ function makeConfetti(opt?: ConfettiOpt) {
 			k.lifespan(4),
 			k.scale(1),
 			k.anchor("center"),
+			k.z(999),
 			k.rotate(k.rand(0, 360)),
 		]);
 		const spin = k.rand(DEF_SPIN[0], DEF_SPIN[1]);
