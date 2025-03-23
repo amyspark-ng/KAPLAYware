@@ -46,6 +46,7 @@ export type MinigameAPI = {
 	setCamPos(val: Vec2): Vec2;
 	getCamPos(): Vec2;
 	shakeCam(val?: number): void;
+	flashCam(flashColor: Color, time: number): void;
 	/** Gets the current RGB of the background of your minigame */
 	getRGB(): Color;
 	/** Sets the RGB to the background of your minigame */

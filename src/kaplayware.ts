@@ -183,6 +183,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 		k.anchor("center"),
 		k.scale(),
 		k.rotate(),
+		k.opacity(0),
 		{
 			shake: 0,
 		},
@@ -365,6 +366,18 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			getCamScale: () => camera.scale,
 			setCamScale: (val: Vec2) => camera.scale = val,
 			shakeCam: (val: number = 12) => camera.shake += val,
+			flashCam: (flashColor: Color = k.WHITE, timeOut: number = 1) => { 
+				const r = camera.add([
+					k.pos(-k.width() / 2, -k.height() / 2),
+					k.rect(k.width(), k.height()),
+					k.color(flashColor),
+					k.opacity(1),
+					k.fixed(),
+					k.z(999)	// HACK: make sure is at front of everyone :skull: //
+				]);
+				const f = r.fadeOut(timeOut);
+				f.onEnd(() => k.destroy(r));
+			},
 			getRGB: () => rgbColor,
 			setRGB: (val) => rgbColor = val,
 
