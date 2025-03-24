@@ -20,7 +20,7 @@ const transformGame: Minigame = {
     // game options start
     const PIXEL_VEL = ctx.width() * 0.5 * ctx.speed;
     const BEAN_TARGET_SCALE = 3;
-    const COMMAND_LENGTH = 4
+    const COMMAND_LENGTH = 4;
     // game options end
     enum DIRECTION {
       LEFT,
@@ -192,24 +192,6 @@ const transformGame: Minigame = {
 
     function updateBothCommands() {
       currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
-      // go to the win condition screen.
-      if (currIdx > orders.length - 1) {
-        ctx.play("jump", {
-          volume: 1.0,
-        });
-        goToGameOver(true);
-        return;
-      }
-
-      const next_comm = orders[currIdx];
-      updateCommandSprite(left_com, next_comm);
-      left_com.command_dir = next_comm;
-      left_com.pos = spawnPointLeft;
-
-      let _playVol = 0.5 + 0.25 * (currIdx - 1);
-      ctx.play("jump", {
-        volume: _playVol,
-      });
 
       const tScale = ctx.lerp(1, BEAN_TARGET_SCALE, currIdx / orders.length);
       // use animate instead
@@ -217,6 +199,23 @@ const transformGame: Minigame = {
         duration: 1 / ctx.speed,
         loops: 1,
       });
+
+      let _playVol = 0.5 + 0.25 * (currIdx - 1);
+      ctx.play("jump", {
+        volume: _playVol,
+      });
+
+      // go to the win condition screen.
+      if (currIdx > orders.length - 1) {
+        goToGameOver(true);
+        return;
+      } else {
+        const next_comm = orders[currIdx];
+        updateCommandSprite(left_com, next_comm);
+        left_com.command_dir = next_comm;
+        left_com.pos = spawnPointLeft;
+        return;
+      }
     }
 
     const bean = game.add([
