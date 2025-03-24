@@ -14,10 +14,14 @@ const transformGame: Minigame = {
     ctx.loadSprite("right", "/right.png");
     ctx.loadSprite("up", "/up.png");
     ctx.loadSprite("down", "/down.png");
-    ctx.loadSprite("strong", "/strong.png")
+    ctx.loadSprite("strong", "/strong.png");
   },
   start(ctx) {
+    // game options start
     const PIXEL_VEL = ctx.width() * 0.5 * ctx.speed;
+    const BEAN_TARGET_SCALE = 3;
+    const COMMAND_LENGTH = 4
+    // game options end
     enum DIRECTION {
       LEFT,
       RIGHT,
@@ -26,14 +30,14 @@ const transformGame: Minigame = {
     }
 
     const orders: number[] = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < COMMAND_LENGTH; i++) {
       orders.push(ctx.randi(3));
     }
 
     let currIdx = 0;
     const game = ctx.make();
 
-    function updateCommandSprite(_obj: GameObjRaw, _dir: DIRECTION) {
+    function updateCommandSprite(_obj: any, _dir: DIRECTION) {
       switch (_dir) {
         case DIRECTION.RIGHT: {
           _obj.angle = 0;
@@ -78,7 +82,7 @@ const transformGame: Minigame = {
 
       _obj.pos = spawnPointLeft;
 
-      updateCommandSprite(_obj, dir)
+      updateCommandSprite(_obj, dir);
 
       return _obj;
     }
@@ -198,9 +202,8 @@ const transformGame: Minigame = {
       }
 
       const next_comm = orders[currIdx];
-      updateCommandSprite(left_com, next_comm)
-      //left_com.command_dir = next_comm;
-      //left_com.sprite = dir_sprites[next_comm];
+      updateCommandSprite(left_com, next_comm);
+      left_com.command_dir = next_comm;
       left_com.pos = spawnPointLeft;
 
       let _playVol = 0.5 + 0.25 * (currIdx - 1);
@@ -208,7 +211,7 @@ const transformGame: Minigame = {
         volume: _playVol,
       });
 
-      const tScale = ctx.lerp(1, 4, currIdx + 1 / orders.length);
+      const tScale = ctx.lerp(1, BEAN_TARGET_SCALE, currIdx / orders.length);
       // use animate instead
       bean.animate("scale", [bean.scale, ctx.vec2(tScale)], {
         duration: 1 / ctx.speed,
@@ -276,8 +279,7 @@ const transformGame: Minigame = {
           goToGameOver(false);
         });
       }
-    })
-
+    });
 
     // game is lost when the command icons clashes ( needs rewrite )
     // left_com.onCollide("command", () => {
