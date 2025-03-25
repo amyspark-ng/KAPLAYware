@@ -10,11 +10,8 @@ const transformGame: Minigame = {
   load(ctx) {
     ctx.loadSound("jump", "/jump_37.wav");
     ctx.loadSprite("chad", "/chadbean-amy.png");
-    ctx.loadSprite("left", "/left.png");
-    ctx.loadSprite("right", "/right.png");
-    ctx.loadSprite("up", "/up.png");
-    ctx.loadSprite("down", "/down.png");
     ctx.loadSprite("strong", "/strong.png")
+    ctx.loadSprite("bg", "/gym_room_bg.png")
   },
   start(ctx) {
     const PIXEL_VEL = ctx.width() * 0.5 * ctx.speed;
@@ -32,6 +29,10 @@ const transformGame: Minigame = {
 
     let currIdx = 0;
     const game = ctx.make();
+    game.add([
+      ctx.pos(0, 0),
+      ctx.sprite("bg")
+    ])
 
     function updateCommandSprite(_obj: GameObjRaw, _dir: DIRECTION) {
       switch (_dir) {
@@ -219,7 +220,7 @@ const transformGame: Minigame = {
     const bean = game.add([
       ctx.sprite("@bean"),
       ctx.anchor("bot"),
-      ctx.pos(ctx.width() / 2, ctx.height() * 0.8),
+      ctx.pos(ctx.width() * 0.3, ctx.height() * 0.65),
       ctx.scale(1),
       ctx.animate(),
     ]);
