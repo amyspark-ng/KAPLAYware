@@ -1,7 +1,8 @@
 import { Color, KAPLAYCtx, Vec2 } from "kaplay";
 import k from "../engine";
+import { getGameInput } from "../game/utils";
 
-function addPrompt(prompt: string, time: number = 0.25) {
+function addPrompt(prompt: string) {
 	const promptObj = k.add([
 		k.color(k.WHITE),
 		k.fixed(),
@@ -25,9 +26,9 @@ function addPrompt(prompt: string, time: number = 0.25) {
 		},
 	]);
 
-	promptObj.tween(0, 1.2, time, (p) => promptObj.scale.x = p, k.easings.easeOutExpo);
-	promptObj.tween(0, 0.9, time, (p) => promptObj.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
-		promptObj.tween(promptObj.scale, k.vec2(1), time * 1.1, (p) => promptObj.scale = p, k.easings.easeOutElastic).onEnd(() => {
+	promptObj.tween(0, 1.2, 0.25, (p) => promptObj.scale.x = p, k.easings.easeOutExpo);
+	promptObj.tween(0, 0.9, 0.25, (p) => promptObj.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
+		promptObj.tween(promptObj.scale, k.vec2(1), 0.25 * 1.1, (p) => promptObj.scale = p, k.easings.easeOutElastic).onEnd(() => {
 			// now do the shaky letters
 
 			let magnitude = 0;
@@ -37,7 +38,7 @@ function addPrompt(prompt: string, time: number = 0.25) {
 					magnitude = k.lerp(magnitude, k.randi(2, 8), 0.1);
 					angle = k.lerp(angle, angle + 1, 0.1) % 360;
 					promptObj.textTransform = (idx, ch) => ({
-						pos: k.vec2(magnitude * Math.cos(angle * idx + 1), magnitude * Math.sin(angle * idx + 1)),
+						pos: k.vec2(magnitude * Math.cos(angle * ((idx % 2) + 1) + 1), magnitude * Math.sin(angle * ((idx % 2) + 1) + 1)),
 					});
 				}
 				else {
@@ -49,6 +50,18 @@ function addPrompt(prompt: string, time: number = 0.25) {
 		});
 	});
 	return promptObj;
+}
+
+function addInputPrompt(input: ReturnType<typeof getGameInput>) {
+	const inputPrompt = k.add([
+		k.sprite("inputprompt_" + input),
+		k.anchor("center"),
+		k.pos(k.center()),
+		k.scale(),
+	]);
+
+	k.tween(k.vec2(0), k.vec2(1), 0.25, (p) => inputPrompt.scale = p, k.easings.easeOutElastic);
+	return inputPrompt;
 }
 
 function addBomb() {
@@ -196,6 +209,7 @@ function makeConfetti(opt?: ConfettiOpt) {
 			k.lifespan(4),
 			k.scale(1),
 			k.anchor("center"),
+			k.z(999),
 			k.rotate(k.rand(0, 360)),
 		]);
 		const spin = k.rand(DEF_SPIN[0], DEF_SPIN[1]);
@@ -227,6 +241,7 @@ function makeConfetti(opt?: ConfettiOpt) {
 export function wareObjectsPlugin(k: KAPLAYCtx) {
 	return {
 		addPrompt,
+		addInputPrompt,
 		addBomb,
 		makeConfetti,
 	};

@@ -1,151 +1,15 @@
 import { assets } from "@kaplayjs/crew";
-import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KAPLAYCtx, KAPLAYOpt, KEventController, Key, SpriteCompOpt, SpriteData, Vec2 } from "kaplay";
-import k from "./engine";
-import cursor from "./plugins/cursor";
-import { loseTransition, prepTransition, speedupTransition, winTransition } from "./transitions";
+import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KAPLAYCtx, KAPLAYOpt, KEventController, Key, SoundData, SpriteCompOpt, SpriteData, Vec2 } from "kaplay";
+import k from "../engine";
+import cursor from "../plugins/cursor";
+import { gameAPIs } from "./api";
+import { makeTransition } from "./transitions";
 import { Button, KaplayWareCtx, KAPLAYwareOpts, LoadCtx, Minigame, MinigameAPI, MinigameCtx } from "./types";
 import { coolPrompt, gameHidesCursor, gameUsesMouse, getByID, getGameID, getGameInput } from "./utils";
 
 type Friend = keyof typeof assets | `${keyof typeof assets}-o`;
 type AtFriend = `@${Friend}`;
 export type CustomSprite<T extends string> = T extends AtFriend | string & {} ? AtFriend | string & {} : string;
-
-export const loadAPIs = [
-	"loadRoot",
-	"loadSprite",
-	"loadSpriteAtlas",
-	"loadAseprite",
-	"loadPedit",
-	"loadBean",
-	"loadJSON",
-	"loadSound",
-	"loadFont",
-	"loadBitmapFont",
-	"loadShader",
-	"loadShaderURL",
-	"load",
-	"loadProgress",
-] as const;
-
-export const gameAPIs = [
-	"make",
-	"animate",
-	"pos",
-	"scale",
-	"rotate",
-	"color",
-	"opacity",
-	"text",
-	"rect",
-	"circle",
-	"uvquad",
-	"area",
-	"anchor",
-	"z",
-	"outline",
-	"body",
-	"doubleJump",
-	"move",
-	"offscreen",
-	"follow",
-	"shader",
-	"timer",
-	"fixed",
-	"stay",
-	"health",
-	"lifespan",
-	"state",
-	"fadeIn",
-	"play",
-	"rand",
-	"randi",
-	"dt",
-	"time",
-	"vec2",
-	"rgb",
-	"hsl2rgb",
-	"choose",
-	"chooseMultiple",
-	"shuffle",
-	"chance",
-	"easings",
-	"map",
-	"mapc",
-	"wave",
-	"lerp",
-	"deg2rad",
-	"rad2deg",
-	"clamp",
-	"width",
-	"height",
-	"mousePos",
-	"mouseDeltaPos",
-	"camPos",
-	"camScale",
-	"camRot",
-	"center",
-	"isFocused",
-	"isTouchscreen",
-	"drawSprite",
-	"drawText",
-	"formatText",
-	"drawRect",
-	"drawLine",
-	"drawLines",
-	"drawTriangle",
-	"drawCircle",
-	"drawEllipse",
-	"drawUVQuad",
-	"drawPolygon",
-	"drawFormattedText",
-	"drawMasked",
-	"drawSubtracted",
-	"pushTransform",
-	"popTransform",
-	"pushTranslate",
-	"pushScale",
-	"pushRotate",
-	"pushMatrix",
-	"LEFT",
-	"RIGHT",
-	"UP",
-	"DOWN",
-	"addKaboom",
-	"debug",
-	"Line",
-	"Rect",
-	"Circle",
-	"Polygon",
-	"Vec2",
-	"Color",
-	"Mat4",
-	"Quad",
-	"RNG",
-	"burp",
-	"onClick",
-	"loop",
-	"wait",
-	"tween",
-	"addLevel",
-	"BLACK",
-	"RED",
-	"GREEN",
-	"BLUE",
-	"YELLOW",
-	"WHITE",
-	"setGravity",
-	"drag",
-	"isMouseMoved",
-	"isMouseReleased",
-	"animate",
-	"particles",
-	"getSprite",
-	"onCollide",
-	"onCollideEnd",
-	"onCollideUpdate",
-	"conductor",
-	"addPrompt",
-] as const;
 
 export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts = {}): KaplayWareCtx {
 	const DEFAULT_DURATION = 4;
@@ -163,7 +27,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 	let gameboxUpdate: KEventController = null;
 	let timerEvents: KEventController[] = [];
 	let inputEvents: KEventController[] = [];
-	let canPlaySounds = true; // TODO: FIX THIS!! the click minigame can play music before the game actually starts (bad)
+	let canPlaySounds = false;
 	let queuedSounds: AudioPlay[] = [];
 	let sounds: AudioPlay[] = [];
 	let rgbColor: Color = k.WHITE;
@@ -179,12 +43,29 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 	let restartMinigame = false;
 	let overrideDifficulty = null as 1 | 2 | 3;
 
-	/** The container for minigames, if you want to pause the minigame you should pause this */
-	const gameBox = k.add([
-		k.pos(),
+	/** Main object, if you want to pause everything, pause this */
+	const WareScene = k.add([]);
+
+	const shakeCamera = WareScene.add([k.pos()]);
+	const camera = shakeCamera.add([
+		k.pos(k.center()),
+		k.anchor("center"),
 		k.scale(),
 		k.rotate(),
+		k.opacity(0),
+		{
+			shake: 0,
+		},
 	]);
+
+	camera.onUpdate(() => {
+		camera.shake = k.lerp(camera.shake, 0, 5 * k.dt());
+		let posShake = k.Vec2.fromAngle(k.rand(0, 360)).scale(camera.shake);
+		shakeCamera.pos = k.vec2().add(posShake);
+	});
+
+	/** The container for minigames, if you want to pause the minigame you should pause this */
+	const gameBox = camera.add([k.pos(-k.width() / 2, -k.height() / 2)]);
 
 	function clearInput() {
 		for (let i = inputEvents.length - 1; i >= 0; i--) {
@@ -275,7 +156,8 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			}
 			else if (api == "play") {
 				gameCtx[api] = (soundName: any, opts: AudioPlayOpt) => {
-					const sound = k.play(soundName.startsWith("@") ? soundName : `${getGameID(g)}-${soundName}`, opts);
+					// if sound name is string, check for @, else just send it
+					const sound = k.play(typeof soundName == "string" ? (soundName.startsWith("@") ? soundName : `${getGameID(g)}-${soundName}`) : soundName, opts);
 
 					const newSound = {
 						...sound,
@@ -305,7 +187,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 
 					// if can't play sounds and the user intended to play it at start, pause it
 					if (!canPlaySounds) {
-						if (!opts?.paused) {
+						if (!sound.paused) {
 							queuedSounds.push(sound);
 							sound.paused = true;
 						}
@@ -317,7 +199,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			}
 			else if (api == "burp") {
 				gameCtx[api] = (opts: AudioPlayOpt) => {
-					return gameCtx["play"]("@burp", opts);
+					return gameCtx["play"](k._k.audio.burpSnd, opts);
 				};
 			}
 			else if (api == "drawSprite") {
@@ -336,6 +218,25 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 					return k.shader(`${getGameID(g)}-${name}`, uniform);
 				};
 			}
+			// TODO: Make fixed component work with the minigame camera api
+			else if (api == "fixed") {
+				gameCtx[api] = () => {
+					let fixed = true;
+
+					return {
+						id: "fixed",
+						set fixed(val: boolean) {
+							fixed = val;
+						},
+						get fixed() {
+							return fixed;
+						},
+						update() {
+							this.pos = this.toScreen(this.pos);
+						},
+					};
+				};
+			}
 		}
 		function dirToKeys(button: Button): Key[] {
 			if (button == "left") return ["left", "a"];
@@ -346,13 +247,28 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 		}
 
 		const gameAPI: MinigameAPI = {
-			getCamAngle: () => gameBox.angle,
-			setCamAngle: (val: number) => gameBox.angle = val,
-			getCamPos: () => gameBox.pos,
-			setCamPos: (val: Vec2) => gameBox.pos = val,
-			getCamScale: () => gameBox.scale,
-			setCamScale: (val: Vec2) => gameBox.scale = val,
-			shakeCam: (val?: number) => k.shake(val),
+			getCamAngle: () => camera.angle,
+			setCamAngle: (val: number) => camera.angle = val,
+			getCamPos: () => camera.pos,
+			setCamPos: (val: Vec2) => camera.pos = val,
+			getCamScale: () => camera.scale,
+			setCamScale: (val: Vec2) => camera.scale = val,
+			shakeCam: (val: number = 12) => camera.shake += val,
+			flashCam: (flashColor: Color = k.WHITE, timeOut: number = 1, opacity: number) => {
+				const r = shakeCamera.add([
+					k.pos(k.center()),
+					k.rect(k.width() * 2, k.height() * 2),
+					k.color(flashColor),
+					k.anchor("center"),
+					k.opacity(opacity),
+					k.fixed(),
+					k.z(999), // HACK: make sure is at front of everyone :skull: //
+					"flash",
+				]);
+				const f = r.fadeOut(timeOut);
+				f.onEnd(() => k.destroy(r));
+				return f;
+			},
 			getRGB: () => rgbColor,
 			setRGB: (val) => rgbColor = val,
 
@@ -363,15 +279,6 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				inputEvents.push(ev);
 				return ev;
 			},
-			isButtonPressed: (btn) => k.isKeyPressed(dirToKeys(btn)),
-			onButtonRelease: (btn, action) => {
-				let ev: KEventController = null;
-				if (btn == "click") ev = gameBox.onMouseRelease("left", action);
-				else ev = gameBox.onKeyRelease(dirToKeys(btn), action);
-				inputEvents.push(ev);
-				return ev;
-			},
-			isButtonReleased: (btn) => k.isKeyReleased(dirToKeys(btn)),
 			onButtonDown: (btn, action) => {
 				let ev: KEventController = null;
 				if (btn == "click") ev = gameBox.onMouseDown("left", action);
@@ -379,8 +286,23 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				inputEvents.push(ev);
 				return ev;
 			},
+			onButtonRelease: (btn, action) => {
+				let ev: KEventController = null;
+				if (btn == "click") ev = gameBox.onMouseRelease("left", action);
+				else ev = gameBox.onKeyRelease(dirToKeys(btn), action);
+				inputEvents.push(ev);
+				return ev;
+			},
+			isButtonPressed: (btn) => {
+				if (btn == "click") return k.isMousePressed("left");
+				else return k.isKeyPressed(dirToKeys(btn));
+			},
 			isButtonDown: (btn) => {
 				if (btn == "click") return k.isMouseDown("left");
+				else return k.isKeyDown(dirToKeys(btn));
+			},
+			isButtonReleased: (btn) => {
+				if (btn == "click") return k.isMouseReleased("left");
 				else return k.isKeyDown(dirToKeys(btn));
 			},
 			onMouseMove(action) {
@@ -414,7 +336,16 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				clearInput();
 				onTimeoutEvent.clear();
 				gameboxUpdate?.cancel();
-				k.wait(0.2, () => currentMinigameScene?.destroy());
+				k.wait(0.2, () => {
+					currentMinigameScene?.destroy();
+					WareScene.get("fixed").forEach((obj) => obj.destroy());
+					// reset camera
+					this.setCamPos(k.center());
+					this.setCamAngle(0);
+					this.setCamScale(k.vec2(1));
+					camera.get("flash").forEach((f) => f.destroy());
+					camera.shake = 0;
+				});
 				wareCtx.nextGame();
 				canPlaySounds = false;
 				if (currentBomb) currentBomb.destroy();
@@ -592,6 +523,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				clearSounds(); // hit minigame has an issue with causes queuedSounds to stay
 				wareCtx.runGame(nextGame);
 				minigameHistory[wareCtx.score - 1] = getGameID(nextGame);
+				wonLastGame = null;
 
 				restartMinigame = false;
 				skipMinigame = false;
@@ -599,57 +531,61 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				const gameinput = getGameInput(nextGame);
 				cursor.visible = !gameHidesCursor(nextGame);
 
+				let inputPrompt: ReturnType<typeof k.addInputPrompt> = null;
 				let prompt: ReturnType<typeof k.addPrompt> = null;
 
-				const prepTrans = prepTransition(wareCtx);
-				const inputprompt = k.add([
-					k.sprite("inputprompt_" + gameinput),
-					k.anchor("center"),
-					k.pos(k.center()),
-					k.scale(),
-				]);
+				const prepTrans = makeTransition(WareScene, wareCtx, "prep");
 
-				k.tween(k.vec2(0), k.vec2(1), 0.15 / wareCtx.speed, (p) => inputprompt.scale = p, k.easings.easeOutElastic);
-				prepTrans.onHalf(() => {
-					k.tween(inputprompt.scale, k.vec2(0), 0.15 / wareCtx.speed, (p) => inputprompt.scale = p, k.easings.easeOutQuint).onEnd(() => inputprompt.destroy());
+				prepTrans.onInputPromptTime(() => {
+					inputPrompt = k.addInputPrompt(gameinput);
+					k.tween(k.vec2(0), k.vec2(1), 0.15 / wareCtx.speed, (p) => inputPrompt.scale = p, k.easings.easeOutElastic);
+				});
+
+				prepTrans.onPromptTime(() => {
+					k.tween(inputPrompt.scale, k.vec2(0), 0.15 / wareCtx.speed, (p) => inputPrompt.scale = p, k.easings.easeOutQuint).onEnd(() => inputPrompt.destroy());
 					if (typeof nextGame.prompt == "string") prompt = k.addPrompt(coolPrompt(nextGame.prompt));
 					else {
 						prompt = k.addPrompt("");
 						nextGame.prompt(currentMinigameCtx as unknown as MinigameCtx, prompt);
 					}
-				});
 
-				prepTrans.onEnd(() => {
 					k.wait(0.15 / wareCtx.speed, () => {
 						cursor.visible = !gameHidesCursor(nextGame);
 						prompt.fadeOut(0.15 / wareCtx.speed).onEnd(() => prompt.destroy());
 					});
-					wareCtx.inputEnabled = true;
+				});
+
+				prepTrans.onEnd(() => {
+					prepTrans.destroy();
 					wareCtx.gameRunning = true;
+					wareCtx.inputEnabled = true;
 				});
 			}
 
 			if (wonLastGame != null) {
-				let transition: ReturnType<typeof prepTransition> = null;
-				if (wonLastGame) transition = winTransition(wareCtx);
-				else transition = loseTransition(wareCtx);
-				wonLastGame = null;
-
+				let transition: ReturnType<typeof makeTransition> = null;
+				if (wonLastGame) transition = makeTransition(WareScene, wareCtx, "win");
+				else transition = makeTransition(WareScene, wareCtx, "lose");
 				if (gameUsesMouse(nextGame)) cursor.visible = true;
 
 				transition.onEnd(() => {
-					if (!wonLastGame && wareCtx.lives == 0) {
-						k.go("gameover", wareCtx.score);
+					if (wonLastGame == false && wareCtx.lives == 0) {
+						k.play("@gameOverJingle").onEnd(() => {
+							k.go("gameover", wareCtx.score);
+						});
+						k.addPrompt("GAME OVER");
 						return;
 					}
+					else transition.destroy();
 
 					const timeToSpeedUP = forceSpeed || wareCtx.score % 5 == 0;
 					if (timeToSpeedUP) {
 						if (forceSpeed == true) forceSpeed = false;
 						wareCtx.timesSpeed++;
 						wareCtx.speedUp();
-						speedupTransition(wareCtx).onEnd(() => {
-							k.tween(k.getCamPos(), k.center(), 0.5 / wareCtx.speed, (p) => k.setCamPos(p), k.easings.easeOutQuint);
+						const speedTrans = makeTransition(WareScene, wareCtx, "speed");
+						speedTrans.onEnd(() => {
+							speedTrans.destroy();
 							prep();
 						});
 					}
@@ -670,7 +606,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 		game.urlPrefix = game.urlPrefix ?? "";
 		game.duration = game.duration ?? DEFAULT_DURATION;
 		game.rgb = game.rgb ?? [0, 0, 0];
-		game.input = game.input ?? { cursor: undefined, keys: true };
+		game.input = game.input ?? { keys: { use: true } };
 		if ("r" in game.rgb) game.rgb = [game.rgb.r, game.rgb.g, game.rgb.b];
 	}
 
@@ -678,6 +614,8 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 		k.drawRect({
 			width: k.width(),
 			height: k.height(),
+			anchor: "center",
+			pos: k.center().add(shakeCamera.pos),
 			color: rgbColor,
 		});
 	});

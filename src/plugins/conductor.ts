@@ -42,7 +42,7 @@ export function conductorPlug(k: KAPLAYCtx) {
 			}
 
 			if (sound) {
-				sound.onEnd(() => this.destroy());
+				sound.onEnd(() => destroy());
 			}
 
 			return {

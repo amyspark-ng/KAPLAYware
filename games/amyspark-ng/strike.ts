@@ -1,5 +1,5 @@
 import k from "../../src/engine";
-import { Minigame } from "../../src/types";
+import { Minigame } from "../../src/game/types";
 
 function mapWithKeyframes(progress: number, keyframes: Record<number, number>) {
 	const keys = Object.keys(keyframes).map(Number).sort((a, b) => a - b);

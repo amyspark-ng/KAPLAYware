@@ -1,7 +1,8 @@
 import { Asset, AudioPlay, AudioPlayOpt, Color, GameObj, KAPLAYCtx, KEvent, KEventController, SpriteComp, SpriteCompOpt, SpriteData, TimerComp, Vec2 } from "kaplay";
-import k from "./engine";
-import { CustomSprite, gameAPIs, loadAPIs } from "./kaplayware";
-import { ConfettiOpt } from "./plugins/wareobjects";
+import k from "../engine";
+import { ConfettiOpt } from "../plugins/wareobjects";
+import { gameAPIs, loadAPIs } from "./api";
+import { CustomSprite } from "./kaplayware";
 
 /** A button */
 export type Button =
@@ -11,6 +12,9 @@ export type Button =
 	| "up"
 	| "down"
 	| "click";
+
+type CursorInput = { cursor: { hide: boolean; }; keys?: never; };
+type KeyInput = { keys: { use: boolean; }; cursor?: never; };
 
 /** The allowed load functions */
 export type LoadCtx = Pick<KAPLAYCtx, typeof loadAPIs[number]>;
@@ -46,6 +50,11 @@ export type MinigameAPI = {
 	setCamPos(val: Vec2): Vec2;
 	getCamPos(): Vec2;
 	shakeCam(val?: number): void;
+	/** Flashes the screen
+	 * @param flashColor The color the flash will be
+	 * @param time How long the flash will be on screen
+	 */
+	flashCam(flashColor?: Color, time?: number, opacity?: number): KEventController;
 	/** Gets the current RGB of the background of your minigame */
 	getRGB(): Color;
 	/** Sets the RGB to the background of your minigame */
@@ -159,7 +168,7 @@ export type Minigame = {
 	 * cursor: false // the game will not use cursor in any way
 	 * ```
 	 */
-	input?: { cursor?: boolean | { hide: boolean; }; keys?: boolean; };
+	input?: KeyInput | CursorInput;
 	/** How long the minigames goes for (choose a reasonable number)
 	 *
 	 * You can also use a callback, to change it based on difficulty

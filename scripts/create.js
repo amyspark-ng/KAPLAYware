@@ -16,7 +16,7 @@ const file_path = `games/${author}/${gamePrompt}.ts`;
 const assets_dir = `${author_dir}/assets/`;
 
 const template = `
-import { Minigame } from "../../src/types";
+import { Minigame } from "../../src/game/types";
 
 const ${gamePrompt}Game: Minigame = {
 	prompt: "${gamePrompt}",

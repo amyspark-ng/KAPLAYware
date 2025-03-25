@@ -1,7 +1,7 @@
 import { Minigame } from "./types";
 import { getGameID } from "./utils";
 
-const gameModules = import.meta.glob("../games/*/*.ts", { eager: true });
+const gameModules = import.meta.glob("../../games/*/*.ts", { eager: true });
 
 const exclude = new Set(["amyspark-ng:flip"]);
 

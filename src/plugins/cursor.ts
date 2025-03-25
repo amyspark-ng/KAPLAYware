@@ -22,6 +22,10 @@ const cursor = k.add([
 		set canPoint(param: boolean) {
 			canPoint = param;
 		},
+
+		get canPoint() {
+			return canPoint;
+		},
 	},
 ]);
 

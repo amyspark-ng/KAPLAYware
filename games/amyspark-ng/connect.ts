@@ -1,7 +1,7 @@
 import { assets } from "@kaplayjs/crew";
 import kaplay, { Color, GameObj, Vec2 } from "kaplay";
+import { Minigame } from "../../src/game/types.ts";
 import mulfokColors from "../../src/plugins/colors.ts";
-import { Minigame } from "../../src/types.ts";
 
 const newGame: Minigame = {
 	prompt: "connect",
@@ -13,7 +13,7 @@ const newGame: Minigame = {
 	load(ctx) {
 		ctx.loadSprite("plug", "/sprites/connect/plug.png");
 		ctx.loadSprite("box", "/sprites/connect/box.png");
-		ctx.loadSound("plug", "/sounds/plug.ogg");
+		ctx.loadSound("plug", "/sounds/switch.ogg");
 	},
 	start(ctx) {
 		const game = ctx.make();
@@ -106,7 +106,7 @@ const newGame: Minigame = {
 					plugSocketState[plugIndex] = "connected";
 				}
 
-				if (ctx.isMouseReleased("left") && plugSocketState[plugIndex] == "wiring") {
+				if (ctx.isButtonReleased("click") && plugSocketState[plugIndex] == "wiring") {
 					if (!socketObj.isHovering()) plugSocketState[plugIndex] = "disconnected";
 				}
 			});

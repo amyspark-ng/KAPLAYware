@@ -1,5 +1,5 @@
+import { Minigame } from "../../src/game/types.ts";
 import { mulfokColors as palette } from "../../src/plugins/colors";
-import type { Minigame } from "../../src/types";
 
 const colorGame: Minigame = {
 	prompt: "choose",

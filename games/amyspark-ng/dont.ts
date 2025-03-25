@@ -1,6 +1,6 @@
 import { assets } from "@kaplayjs/crew";
+import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
-import { Minigame } from "../../src/types";
 
 const dontGame: Minigame = {
 	prompt: "don't",

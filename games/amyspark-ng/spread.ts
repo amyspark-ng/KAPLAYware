@@ -1,6 +1,6 @@
 import { Outline, Vec2 } from "kaplay";
+import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
-import { Minigame } from "../../src/types";
 
 const spreadGame: Minigame = {
 	prompt: "spread",

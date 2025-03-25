@@ -1,8 +1,5 @@
-# KAPLAYWARE
-yea
-
-## Credits
-- [STRIKE! art](/games/amyspark-ng/assets/sprites/strike): [DevkyRD](https://devkyrd.newgrounds.com)
+# Kaplayware!!!
+Kaplayware is a mini-game engine based on Kaplay, inspired by the great WarioWare series.
 
 ## How to add game????
 To make a new game do:
@@ -12,30 +9,31 @@ $ npm run create-game {yourname}:{gamename}
 $ npm run create-game wario:squeeze
 ```
 
-When you make it the urlPrefix for your game will automatically be created from your user folder, so it will look something like this
+When you make it, the urlPrefix for your game will automatically be created from your user folder, so it will look something like this
 `games/wario/assets`
 
 Then you can reference this folder in your games like
 ```ts
 {
+    urlPrefix: "wario/assets/",
     load(ctx) {
-        ctx.loadSprite("mario", "/sprites/mario.png");
+        ctx.loadSprite("hat", "sprites/hat.png");
     },
 }
 ```
 
 ## How to dev?!
-You can run dev server and play with:
-```sh
-$ npm install
-$ npm run dev
-```
-
-Or to focus only on the development of your own game, you can do:
+To focus on the development of a game, you can do
 ```sh
 $ npm run dev {yourname}:{gamename}
 # for example
 $ npm run dev wario:squeeze
+```
+
+Or if you wish to run the entire game, you can do
+```sh
+$ npm install
+$ npm run dev
 ```
 > There is a one more way to limit games, more in [Advanced testing](#advanced-testing)
 
@@ -64,7 +62,7 @@ You can also use `hidden: true` If you're going to make a game that uses a custo
 - Please refrain to use `onMousePress`!! You can use `ctx.onClick()` and `obj.onClick`, but no mouse button (mouse minigames are only allowed to be played with left click)
 ```ts
 game.onMousePress("right", () => bean.jump()) // BAD!! Don't do this :(
-obj.onClick(() => )
+obj.onClick(() => bean.jump())
 ctx.onButtonPress("click", () => bean.jump()) // GOOD!! Do this :)
 ```
 - If you're making a mouse minigame and you have an object with an area and you'd like for the cursor to not point at this object, you can tag it with with "ignorepoint"

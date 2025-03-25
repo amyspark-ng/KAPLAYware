@@ -11,6 +11,7 @@ export function setCurDragging(value: any) {
 export interface DragComp extends Comp {
 	dragging: boolean;
 	pick(): void;
+	drop(): void;
 	onDrag(action: () => void): void;
 	onDragUpdate(action: () => void): void;
 	onDragEnd(action: () => void): void;
@@ -28,6 +29,10 @@ function drag(): DragComp {
 		require: ["pos", "area"],
 		get dragging() {
 			return curDraggin == this;
+		},
+		drop() {
+			curDraggin = null;
+			this.trigger("dragEnd");
 		},
 		pick() {
 			// Set the current global dragged object to this

@@ -1,7 +1,7 @@
 import { assets } from "@kaplayjs/crew";
 import { Vec2 } from "kaplay";
+import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
-import { Minigame } from "../../src/types";
 
 const getGame: Minigame = {
 	prompt: "get",
@@ -14,6 +14,8 @@ const getGame: Minigame = {
 		ctx.loadSprite("trunk", "sprites/get/trunk.png");
 		ctx.loadSprite("bush", "sprites/get/bush.png");
 		ctx.loadSprite("badapple", "sprites/get/badapple.png"); // cool reference (not related to reference at all)
+		ctx.loadSound("crunch", "sounds/crunch.mp3");
+		ctx.loadSound("rustle", "sounds/bushrustle.mp3");
 	},
 	start(ctx) {
 		ctx.speed = 1.6;
@@ -26,7 +28,7 @@ const getGame: Minigame = {
 		let appleFinishedMoving = false;
 
 		const getApplePos = () => {
-			const randAngle = ctx.rand(0, 360);
+			const randAngle = ctx.rand(25, 230); // not greater than 270 so it doesn't fall on the tree
 			const magnitude = ctx.difficulty == 1
 				? 150
 				: ctx.difficulty == 2
@@ -58,12 +60,24 @@ const getGame: Minigame = {
 			ctx.z(1),
 		]);
 
+		let bushShake = 0;
 		const bush = game.add([
 			ctx.sprite("bush"),
 			ctx.anchor("center"),
 			ctx.scale(),
 			ctx.pos(trunk.pos.x, trunk.pos.y - trunk.height - 70),
 			ctx.z(2),
+			{
+				shake() {
+					const thePos = ctx.vec2(trunk.pos.x, trunk.pos.y - trunk.height - 70);
+					bushShake = 14;
+					this.onUpdate(() => {
+						bushShake = ctx.lerp(bushShake, 0, 5 * ctx.dt());
+						let posShake = ctx.Vec2.fromAngle(ctx.rand(0, 360)).scale(bushShake);
+						this.pos = thePos.add(posShake);
+					});
+				},
+			},
 		]);
 
 		const apple = game.add([
@@ -99,11 +113,14 @@ const getGame: Minigame = {
 		bean.onCollide("apple", () => {
 			if (!appleFinishedMoving) return;
 			apple.destroy();
-			ctx.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 			if (!ctx.hasWon()) ctx.win();
-			ctx.burp({ detune: ctx.rand(-50 / ctx.speed, 50 * ctx.speed) }).onEnd(() => {
-				ctx.wait(0.1 / ctx.speed, () => {
-					ctx.finish();
+			ctx.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+			ctx.play("crunch", { detune: ctx.rand(-50, 50) }).onEnd(() => {
+				ctx.tween(ctx.vec2(1.6), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+				ctx.burp({ detune: ctx.rand(-50 / ctx.speed, 50 * ctx.speed) }).onEnd(() => {
+					ctx.wait(0.1 / ctx.speed, () => {
+						ctx.finish();
+					});
 				});
 			});
 		});
@@ -129,6 +146,8 @@ const getGame: Minigame = {
 			});
 		});
 
+		ctx.play("rustle", { detune: ctx.rand(-50, 50) });
+		bush.shake();
 		ctx.tween(apple.pos, trunk.pos, 0.5 / ctx.speed, (p) => apple.pos = p, ctx.easings.easeOutExpo).onEnd(() => {
 			appleOnFloor = true;
 			ctx.tween(apple.pos, getApplePos(), 0.5 / ctx.speed, (p) => apple.pos = p, ctx.easings.easeOutQuint).onEnd(() => appleFinishedMoving = true);

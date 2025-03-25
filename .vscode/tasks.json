@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "SHIP to itch",
+			"type": "shell",
+			"command": "start scripts/ship.bat"
+		}
+	]
+}

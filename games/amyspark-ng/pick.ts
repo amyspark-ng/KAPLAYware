@@ -1,5 +1,5 @@
 import k from "../../src/engine";
-import { Minigame } from "../../src/types";
+import { Minigame } from "../../src/game/types";
 
 const pickGame: Minigame = {
 	prompt: "pick",
