@@ -1,6 +1,4 @@
-import { assets } from "@kaplayjs/crew";
-import { Minigame } from "../../src/types.ts";
-import { TweenController } from "kaplay";
+import { Minigame } from "../../src/game/types.ts";
 
 const transformGame: Minigame = {
   prompt: "transform",
@@ -10,14 +8,15 @@ const transformGame: Minigame = {
   load(ctx) {
     ctx.loadSound("jump", "/jump_37.wav");
     ctx.loadSprite("chad", "/chadbean-amy.png");
-    ctx.loadSprite("strong", "/strong.png")
-    ctx.loadSprite("bg", "/gym_room_bg.png")
+    ctx.loadSprite("strong", "/strong.png");
+    ctx.loadSprite("bg", "/gym_room_bg.png");
   },
   start(ctx) {
     // game options start
-    const PIXEL_VEL = ctx.width() * 0.5 * ctx.speed;
+    const PIXEL_VEL = ctx.width() * 0.8 * ctx.speed;
     const BEAN_TARGET_SCALE = 3;
     const COMMAND_LENGTH = 4;
+    const spawnPointLeft = ctx.vec2(0, ctx.height() * 0.22);
     // game options end
     enum DIRECTION {
       LEFT,
@@ -33,10 +32,16 @@ const transformGame: Minigame = {
 
     let currIdx = 0;
     const game = ctx.make();
-    game.add([
-      ctx.pos(0, 0),
-      ctx.sprite("bg")
-    ])
+    game.add([ctx.pos(0, 0), ctx.sprite("bg")]);
+
+    // checking box for the transform
+    const check = game.add([
+      ctx.rect(180, 100, { fill: false }),
+      ctx.pos(ctx.width() * 0.75, ctx.height() * 0.22),
+      ctx.anchor("center"),
+      ctx.area(),
+      // ctx.outline(2, ctx.RED),
+    ]);
 
     function updateCommandSprite(_obj: any, _dir: DIRECTION) {
       switch (_dir) {
@@ -88,17 +93,6 @@ const transformGame: Minigame = {
       return _obj;
     }
 
-    // checking box for the transform
-    const check = game.add([
-      ctx.rect(300, 100, { fill: false }),
-      ctx.pos(ctx.width() * 0.5, ctx.height() * 0.18),
-      ctx.anchor("center"),
-      ctx.area(),
-      ctx.outline(2, ctx.RED),
-    ]);
-
-    const spawnPointLeft = ctx.vec2(0, ctx.height() * 0.18);
-
     // spawn button sprites
     const left_com = createCommand(orders[currIdx]);
 
@@ -110,7 +104,7 @@ const transformGame: Minigame = {
       ctx.color(ctx.WHITE),
       ctx.opacity(0),
       ctx.z(100),
-      ctx.timer(),
+      ctx.animate(),
     ]);
 
     function clearPrevCanvas() {
@@ -125,13 +119,13 @@ const transformGame: Minigame = {
         game.add([
           ctx.sprite("@bobo"),
           ctx.anchor("center"),
-          ctx.pos(ctx.width() * 0.4, ctx.height() / 2),
+          ctx.pos(ctx.width() * 0.3, ctx.height() * 0.65),
           ctx.rotate(-95),
           ctx.scale(2.5),
         ]);
-        ctx.lose();
-        ctx.wait(1.5 / ctx.speed, () => {
-          ctx.finish();
+        ctx.wait(1.0 / ctx.speed, () => {
+          ctx.lose();
+          ctx.wait(0.5 / ctx.speed, () => ctx.finish());
         });
         return;
       }
@@ -175,29 +169,30 @@ const transformGame: Minigame = {
       // clear all previous objects
       clearPrevCanvas();
       // fade in
-      transitionScreen
-        .tween(0, 1, 0.3 / ctx.speed, (v) => {
-          transitionScreen.opacity = v;
-        })
-        .onEnd(() => {
-          // fade out
-          transitionScreen
-            .tween(1, 0, 0.3 / ctx.speed, (v) => {
-              transitionScreen.opacity = v;
-            })
-            .onEnd(() => {
-              createGameOverScreen(isWin);
-            });
-        });
+      transitionScreen.animation.seek(0);
+      transitionScreen.animate("opacity", [0, 1, 0], {
+        duration: 0.9 / ctx.speed,
+        direction: "forward",
+        loops: 1,
+      });
+      transitionScreen.onAnimateFinished(() => {
+        createGameOverScreen(isWin);
+      });
     }
 
     function updateBothCommands() {
       currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
 
-      const tScale = ctx.lerp(1, BEAN_TARGET_SCALE, currIdx / orders.length);
+      const tScale = ctx.lerp(
+        1,
+        BEAN_TARGET_SCALE,
+        currIdx / orders.length + 1
+      );
       // use animate instead
+      bean.animation.seek(0);
       bean.animate("scale", [bean.scale, ctx.vec2(tScale)], {
-        duration: 1 / ctx.speed,
+        duration: 0.2 / ctx.speed,
+        direction: "forward",
         loops: 1,
       });
 
@@ -226,6 +221,7 @@ const transformGame: Minigame = {
       ctx.scale(1),
       ctx.animate(),
     ]);
+    bean.animation.seek(0);
 
     function isInputValid(_dir: DIRECTION) {
       return (
@@ -239,24 +235,28 @@ const transformGame: Minigame = {
     ctx.onButtonPress("up", () => {
       if (isInputValid(DIRECTION.UP)) {
         updateBothCommands();
+        ctx.addKaboom(check.pos);
       }
     });
 
     ctx.onButtonPress("down", () => {
       if (isInputValid(DIRECTION.DOWN)) {
         updateBothCommands();
+        ctx.addKaboom(check.pos);
       }
     });
 
     ctx.onButtonPress("left", () => {
       if (isInputValid(DIRECTION.LEFT)) {
         updateBothCommands();
+        ctx.addKaboom(check.pos);
       }
     });
 
     ctx.onButtonPress("right", () => {
       if (isInputValid(DIRECTION.RIGHT)) {
         updateBothCommands();
+        ctx.addKaboom(check.pos);
       }
     });
 
@@ -271,29 +271,15 @@ const transformGame: Minigame = {
     game.onUpdate(() => {
       if (left_com.pos.x >= check.pos.x + check.width * 0.5 && canPress) {
         bean.sprite = "@beant";
-        ctx.wait(0.4 / ctx.speed, () => {
-          //resets
-          currIdx = 0;
-          canPress = false;
+        //resets
+        currIdx = 0;
+        canPress = false;
+        ctx.wait(0.2 / ctx.speed, () => {
           // lose screen
           goToGameOver(false);
         });
       }
     });
-
-    // game is lost when the command icons clashes ( needs rewrite )
-    // left_com.onCollide("command", () => {
-    //   bean.sprite = "@beant";
-    //   ctx.wait(0.4 / ctx.speed, () => {
-    //     //resets
-    //     currIdx = 0;
-    //     canPress = false;
-    //     // lose screen
-    //     goToGameOver(false);
-    //   });
-    //   // ctx.lose();
-    //   // ctx.wait(0.5, () => ctx.finish());
-    // });
 
     return game;
   },
