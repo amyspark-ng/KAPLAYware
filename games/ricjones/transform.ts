@@ -14,7 +14,11 @@ const transformGame: Minigame = {
     ctx.loadSprite("bg", "/gym_room_bg.png")
   },
   start(ctx) {
+    // game options start
     const PIXEL_VEL = ctx.width() * 0.5 * ctx.speed;
+    const BEAN_TARGET_SCALE = 3;
+    const COMMAND_LENGTH = 4;
+    // game options end
     enum DIRECTION {
       LEFT,
       RIGHT,
@@ -23,7 +27,7 @@ const transformGame: Minigame = {
     }
 
     const orders: number[] = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < COMMAND_LENGTH; i++) {
       orders.push(ctx.randi(3));
     }
 
@@ -34,7 +38,7 @@ const transformGame: Minigame = {
       ctx.sprite("bg")
     ])
 
-    function updateCommandSprite(_obj: GameObjRaw, _dir: DIRECTION) {
+    function updateCommandSprite(_obj: any, _dir: DIRECTION) {
       switch (_dir) {
         case DIRECTION.RIGHT: {
           _obj.angle = 0;
@@ -79,7 +83,7 @@ const transformGame: Minigame = {
 
       _obj.pos = spawnPointLeft;
 
-      updateCommandSprite(_obj, dir)
+      updateCommandSprite(_obj, dir);
 
       return _obj;
     }
@@ -189,32 +193,30 @@ const transformGame: Minigame = {
 
     function updateBothCommands() {
       currIdx = ctx.clamp(currIdx + 1, 0, orders.length);
-      // go to the win condition screen.
-      if (currIdx > orders.length - 1) {
-        ctx.play("jump", {
-          volume: 1.0,
-        });
-        goToGameOver(true);
-        return;
-      }
 
-      const next_comm = orders[currIdx];
-      updateCommandSprite(left_com, next_comm)
-      //left_com.command_dir = next_comm;
-      //left_com.sprite = dir_sprites[next_comm];
-      left_com.pos = spawnPointLeft;
+      const tScale = ctx.lerp(1, BEAN_TARGET_SCALE, currIdx / orders.length);
+      // use animate instead
+      bean.animate("scale", [bean.scale, ctx.vec2(tScale)], {
+        duration: 1 / ctx.speed,
+        loops: 1,
+      });
 
       let _playVol = 0.5 + 0.25 * (currIdx - 1);
       ctx.play("jump", {
         volume: _playVol,
       });
 
-      const tScale = ctx.lerp(1, 4, currIdx + 1 / orders.length);
-      // use animate instead
-      bean.animate("scale", [bean.scale, ctx.vec2(tScale)], {
-        duration: 1 / ctx.speed,
-        loops: 1,
-      });
+      // go to the win condition screen.
+      if (currIdx > orders.length - 1) {
+        goToGameOver(true);
+        return;
+      } else {
+        const next_comm = orders[currIdx];
+        updateCommandSprite(left_com, next_comm);
+        left_com.command_dir = next_comm;
+        left_com.pos = spawnPointLeft;
+        return;
+      }
     }
 
     const bean = game.add([
@@ -277,8 +279,7 @@ const transformGame: Minigame = {
           goToGameOver(false);
         });
       }
-    })
-
+    });
 
     // game is lost when the command icons clashes ( needs rewrite )
     // left_com.onCollide("command", () => {
