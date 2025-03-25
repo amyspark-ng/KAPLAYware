@@ -236,6 +236,7 @@ const transformGame: Minigame = {
       if (isInputValid(DIRECTION.UP)) {
         updateBothCommands();
         ctx.addKaboom(check.pos);
+        ctx.shakeCam();
       }
     });
 
@@ -243,6 +244,7 @@ const transformGame: Minigame = {
       if (isInputValid(DIRECTION.DOWN)) {
         updateBothCommands();
         ctx.addKaboom(check.pos);
+        ctx.shakeCam();
       }
     });
 
@@ -250,6 +252,7 @@ const transformGame: Minigame = {
       if (isInputValid(DIRECTION.LEFT)) {
         updateBothCommands();
         ctx.addKaboom(check.pos);
+        ctx.shakeCam();
       }
     });
 
@@ -257,6 +260,7 @@ const transformGame: Minigame = {
       if (isInputValid(DIRECTION.RIGHT)) {
         updateBothCommands();
         ctx.addKaboom(check.pos);
+        ctx.shakeCam();
       }
     });
 
