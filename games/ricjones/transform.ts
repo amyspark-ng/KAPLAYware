@@ -5,6 +5,7 @@ const transformGame: Minigame = {
   author: "ricjones",
   rgb: [74, 48, 82], // rgb for #4a3052 from mulfok32 palette
   urlPrefix: "games/ricjones/assets",
+  duration: () => undefined,
   load(ctx) {
     ctx.loadSound("jump", "/jump_37.wav");
     ctx.loadSprite("chad", "/chadbean-amy.png");
@@ -37,7 +38,12 @@ const transformGame: Minigame = {
 
     let currIdx = 0;
     const game = ctx.make();
-    game.add([ctx.pos(0, 0), ctx.sprite("bg")]);
+    game.add([
+      ctx.anchor("center"),
+      ctx.pos(ctx.center()), 
+      ctx.sprite("bg"),
+      ctx.scale(1.1)
+    ]);
 
     // checking box for the transform
     const check = game.add([
