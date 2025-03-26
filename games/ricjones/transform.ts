@@ -10,6 +10,10 @@ const transformGame: Minigame = {
     ctx.loadSprite("chad", "/chadbean-amy.png");
     ctx.loadSprite("strong", "/strong.png");
     ctx.loadSprite("bg", "/gym_room_bg.png");
+    ctx.loadSound("grunt1", "/grunt1.wav");
+    ctx.loadSound("grunt2", "/grunt2.wav");
+    ctx.loadSound("grunt3", "/grunt3.wav");
+    ctx.loadSound("grunt4", "/grunt4.wav");
   },
   start(ctx) {
     // game options start
@@ -17,6 +21,7 @@ const transformGame: Minigame = {
     const BEAN_TARGET_SCALE = 3;
     const COMMAND_LENGTH = 4;
     const spawnPointLeft = ctx.vec2(0, ctx.height() * 0.22);
+    const grunts = ["grunt1", "grunt2", "grunt3", "grunt4"]
     // game options end
     enum DIRECTION {
       LEFT,
@@ -139,8 +144,10 @@ const transformGame: Minigame = {
       ]);
 
       const dialog1 = game.add([
-        ctx.text("oh hi !"),
-        ctx.pos(ctx.width() / 2, ctx.height() * 0.3),
+        ctx.text(
+          ctx.choose(["oh hi !", "new babe..", "miss u luv~"])
+        ),
+        ctx.pos(ctx.width() / 2, ctx.height() * 0.4),
         ctx.opacity(0),
         ctx.animate(),
       ]);
@@ -195,14 +202,12 @@ const transformGame: Minigame = {
         direction: "forward",
         loops: 1,
       });
-
-      let _playVol = 0.5 + 0.25 * (currIdx - 1);
-      ctx.play("jump", {
-        volume: _playVol,
-      });
-
       // go to the win condition screen.
       if (currIdx > orders.length - 1) {
+        ctx.play("jump", {
+          volume: 1,
+        });
+
         goToGameOver(true);
         return;
       } else {
@@ -237,6 +242,7 @@ const transformGame: Minigame = {
         updateBothCommands();
         ctx.addKaboom(check.pos);
         ctx.shakeCam();
+        ctx.play(ctx.choose(grunts), { volume: 1, speed: 1 })
       }
     });
 
@@ -245,6 +251,7 @@ const transformGame: Minigame = {
         updateBothCommands();
         ctx.addKaboom(check.pos);
         ctx.shakeCam();
+        ctx.play(ctx.choose(grunts), { volume: 1, speed: 1 })
       }
     });
 
@@ -253,6 +260,7 @@ const transformGame: Minigame = {
         updateBothCommands();
         ctx.addKaboom(check.pos);
         ctx.shakeCam();
+        ctx.play(ctx.choose(grunts), { volume: 1, speed: 1 })
       }
     });
 
@@ -261,6 +269,7 @@ const transformGame: Minigame = {
         updateBothCommands();
         ctx.addKaboom(check.pos);
         ctx.shakeCam();
+        ctx.play(ctx.choose(grunts), { volume: 1, speed: 1 })
       }
     });
 
