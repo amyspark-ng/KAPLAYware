@@ -1,5 +1,5 @@
+import { Minigame } from "../../src/game/types.ts";
 import mulfokColors from "../../src/plugins/colors.ts";
-import { Minigame } from "../../src/types.ts";
 
 const hitGame: Minigame = {
 	prompt: "hit",

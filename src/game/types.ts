@@ -176,8 +176,20 @@ export type Minigame = {
 	 * ```ts
 	 * duration: (ctx) => ctx.difficulty == 3 ? 6 : 4
 	 * ```
+	 *
+	 * You can also make this callback return undefined, which would make your minigame run indefinetely, and would only be stopped once you call the `ctx.finish()` function
+	 * @example
+	 * ```ts
+	 * duration: () => undefined
+	 * start(ctx) {
+	 * 		ctx.wait(3, () => {
+	 * 			ctx.win();
+	 * 			ctx.finish();
+	 * 		})
+	 * }
+	 * ```
 	 */
-	duration?: number | ((ctx: MinigameCtx) => number);
+	duration?: number | ((ctx: MinigameCtx) => number | undefined);
 	/**
 	 * Assets URL prefix.
 	 */

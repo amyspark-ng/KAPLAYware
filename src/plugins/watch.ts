@@ -13,6 +13,10 @@ function watch<T extends unknown>(obj: T, propName: keyof T, customName?: string
 			if (k.isKeyPressed("f2")) displayInfo = !displayInfo;
 		});
 
+		k.onSceneLeave(() => {
+			watchedObjects = [];
+		});
+
 		manager.onDraw(() => {
 			if (!displayInfo) return;
 			let watchesText: string = "";

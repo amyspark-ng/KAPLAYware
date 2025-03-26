@@ -28,7 +28,7 @@ const getGame: Minigame = {
 		let appleFinishedMoving = false;
 
 		const getApplePos = () => {
-			const randAngle = ctx.rand(25, 230); // not greater than 270 so it doesn't fall on the tree
+			const randAngle = ctx.rand(2, 4); // i don't get this angle system
 			const magnitude = ctx.difficulty == 1
 				? 150
 				: ctx.difficulty == 2
@@ -115,9 +115,11 @@ const getGame: Minigame = {
 			apple.destroy();
 			if (!ctx.hasWon()) ctx.win();
 			ctx.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
-			ctx.play("crunch", { detune: ctx.rand(-50, 50) }).onEnd(() => {
-				ctx.tween(ctx.vec2(1.6), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
-				ctx.burp({ detune: ctx.rand(-50 / ctx.speed, 50 * ctx.speed) }).onEnd(() => {
+			const crunch = ctx.play("crunch", { detune: ctx.rand(-50, 50) });
+			ctx.wait(crunch.duration(), () => {
+				ctx.tween(ctx.vec2(1), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+				const burp = ctx.burp({ detune: ctx.rand(-50 / ctx.speed, 50 * ctx.speed) });
+				ctx.wait(burp.duration(), () => {
 					ctx.wait(0.1 / ctx.speed, () => {
 						ctx.finish();
 					});

@@ -1,22 +1,6 @@
 import k from "../../src/engine";
 import { Minigame } from "../../src/game/types";
 
-function mapWithKeyframes(progress: number, keyframes: Record<number, number>) {
-	const keys = Object.keys(keyframes).map(Number).sort((a, b) => a - b);
-
-	if (progress <= keys[0]) return keyframes[keys[0]];
-	if (progress >= keys[keys.length - 1]) return keyframes[keys[keys.length - 1]];
-
-	for (let i = 0; i < keys.length - 1; i++) {
-		const k1 = keys[i], k2 = keys[i + 1];
-
-		if (progress >= k1 && progress <= k2) {
-			const t = (progress - k1) / (k2 - k1);
-			return keyframes[k1] + t * (keyframes[k2] - keyframes[k1]);
-		}
-	}
-}
-
 const strikeGame: Minigame = {
 	prompt: "strike",
 	author: "amyspark-ng",

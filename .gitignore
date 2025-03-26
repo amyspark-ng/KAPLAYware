@@ -5,3 +5,4 @@ dist/
 !.env*.example
 builds
 package-lock.json
+.env.development

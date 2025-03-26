@@ -13,7 +13,7 @@ const newGame: Minigame = {
 	load(ctx) {
 		ctx.loadSprite("plug", "/sprites/connect/plug.png");
 		ctx.loadSprite("box", "/sprites/connect/box.png");
-		ctx.loadSound("plug", "/sounds/switch.ogg");
+		ctx.loadSound("plug", "/sounds/switch.mp3");
 	},
 	start(ctx) {
 		const game = ctx.make();

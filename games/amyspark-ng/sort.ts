@@ -30,7 +30,6 @@ const sortGame: Minigame = {
 		ctx.loadSound("confetti", "sounds/confetti.mp3");
 	},
 	start(ctx) {
-		ctx.difficulty = 3;
 		const game = ctx.make();
 		game.add([ctx.sprite("bg"), ctx.z(-5), ctx.pos(ctx.center()), ctx.anchor("center")]);
 		let lost = false;

@@ -447,7 +447,8 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 
 			currentMinigameCtx = getGameContext(g) as MinigameCtx;
 			const gDuration = typeof g.duration == "number" ? g.duration : g.duration(currentMinigameCtx);
-			wareCtx.time = gDuration / wareCtx.speed;
+			const durationEnabled = gDuration != undefined;
+			wareCtx.time = durationEnabled ? gDuration / wareCtx.speed : 1;
 			rgbColor = "r" in g.rgb ? g.rgb : k.rgb(g.rgb[0], g.rgb[1], g.rgb[2]);
 			const minigameScene = gameBox.add(g.start(currentMinigameCtx));
 			clockRunning = true;
@@ -471,6 +472,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 						queuedSounds.forEach((sound) => sound.paused = false);
 					}
 
+					if (!durationEnabled) return;
 					if (wareCtx.time >= 0) wareCtx.time -= k.dt();
 					wareCtx.time = k.clamp(wareCtx.time, 0, 999);
 					currentMinigameCtx.timeLeft = wareCtx.time;
