@@ -8,7 +8,7 @@ const smashGame: Minigame = {
     author: "dragoncoder047",
     rgb: mulfokColors.LIGHT_BLUE,
     input: { cursor: { hide: false } },
-    duration: (ctx) => [10, 7, 5][ctx.difficulty - 1],
+    duration: (ctx) => [10, 8, 6][ctx.difficulty - 1],
     urlPrefix: "games/dragoncoder047/assets/",
     load(ctx) {
         ctx.loadSprite("grass", assets.grass.sprite);
@@ -27,8 +27,7 @@ const smashGame: Minigame = {
             " |||||||||",
             "|         |",
             "| @  @  @ |",
-            "| %  %  % |",
-            "| %  %  % |",
+            ...(new Array(ctx.difficulty + 1).fill("| %  %  % |")),
             "|,%,,%,,%,|-",
             " #########",
         ], {
