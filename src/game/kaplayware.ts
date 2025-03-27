@@ -153,9 +153,18 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
                     const x = WareScene.onUpdate(() => {
                         level.paused = level.hidden = !wareCtx.gameRunning;
                     });
+                    const y = WareScene.onUpdate(() => {
+                        if (currentMinigameScene) {
+                            currentMinigameScene.onDestroy(() => {
+                                x.cancel();
+                                level.destroy();
+                            });
+                            y.cancel();
+                        }
+                    });
                     return level;
                 };
-            }
+			}
 			else if (api == "play") {
 				gameCtx[api] = (soundName: any, opts: AudioPlayOpt) => {
 					// if sound name is string, check for @, else just send it

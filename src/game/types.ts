@@ -1,4 +1,4 @@
-import { Asset, AudioPlay, AudioPlayOpt, Color, GameObj, KAPLAYCtx, KEvent, KEventController, SpriteComp, SpriteCompOpt, SpriteData, TimerComp, Vec2 } from "kaplay";
+import { Asset, Color, GameObj, KAPLAYCtx, KEventController, SpriteComp, SpriteCompOpt, SpriteData, TweenController, Vec2 } from "kaplay";
 import k from "../engine";
 import { ConfettiOpt } from "../plugins/wareobjects";
 import { gameAPIs, loadAPIs } from "./api";
@@ -54,7 +54,7 @@ export type MinigameAPI = {
 	 * @param flashColor The color the flash will be
 	 * @param time How long the flash will be on screen
 	 */
-	flashCam(flashColor?: Color, time?: number, opacity?: number): KEventController;
+	flashCam(flashColor?: Color, time?: number, opacity?: number): TweenController;
 	/** Gets the current RGB of the background of your minigame */
 	getRGB(): Color;
 	/** Sets the RGB to the background of your minigame */
