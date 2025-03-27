@@ -8,20 +8,15 @@ const smashGame: Minigame = {
     author: "dragoncoder047",
     rgb: mulfokColors.BLACK,
     input: { keys: { use: true } },
-    duration: 10,
+    duration: ctx => [10, 9, 8][ctx.difficulty],
     urlPrefix: "games/dragoncoder047/assets/",
     load(ctx) {
         ctx.loadSprite("steel", assets.steel.sprite);
         ctx.loadSprite("apple", assets.apple.sprite);
-        ctx.loadSound("jump", "/climb/jump.mp3");
+        ctx.loadSound("jump", "/climb/jump.wav");
     },
     start(ctx) {
-        const game2 = ctx.make([]);
-        game2.add([
-            ctx.pos(ctx.center().x, 20),
-            ctx.anchor("top"),
-            ctx.text("Get the apples!", { align: "center" }),
-        ]);
+        const game = ctx.add([]);
         const level = ctx.addLevel([
             "#############",
             "#,         ,#",
@@ -62,6 +57,7 @@ const smashGame: Minigame = {
             tileWidth: 64,
             tileHeight: 64,
         });
+        level.parent = game;
         const bean = level.get("bean")[0] as GameObj<PosComp | BodyComp | AreaComp>;
         const endgame = () => {
             z.cancel();
@@ -75,7 +71,7 @@ const smashGame: Minigame = {
             ctx.lose();
             endgame();
         });
-        const SPEED = 300;
+        const SPEED = 400;
         ctx.onButtonDown("left", () => {
             bean.move(-SPEED, 0);
         });
@@ -83,7 +79,10 @@ const smashGame: Minigame = {
             bean.move(SPEED, 0);
         });
         ctx.onButtonPress("up", () => {
-            bean.jump();
+            if (bean.isGrounded()) {
+                bean.jump(1000);
+                ctx.play("jump");
+            }
         });
         bean.onCollide("apple", apple => {
             ctx.burp();
@@ -104,8 +103,8 @@ const smashGame: Minigame = {
             apples.pop()!.destroy();
         }
         level.pos = ctx.center().sub(level.tileWidth() * (level.numColumns() - 2) / 2, level.tileHeight() * level.numRows() / 2);
-        ctx.setGravity(2000);
-        return game2;
+        ctx.setGravity(2500);
+        return game;
     },
 };
 
