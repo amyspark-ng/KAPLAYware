@@ -14,6 +14,7 @@ const smashGame: Minigame = {
         ctx.loadSprite("grass", assets.grass.sprite);
         ctx.loadSprite("steel", assets.steel.sprite);
         ctx.loadSprite("apple", assets.apple.sprite);
+        ctx.loadSound("boom", "/smash/explode.mp3");
     },
     start(ctx) {
         const game2 = ctx.make([]);
@@ -59,6 +60,9 @@ const smashGame: Minigame = {
                     ctx.area(),
                     ctx.anchor("center"),
                     ctx.z(1),
+                    {
+                        eaten: false,
+                    },
                     "bean",
                 ],
                 "-": () => [
@@ -92,6 +96,7 @@ const smashGame: Minigame = {
                     }
                 }
                 body.applyImpulse(bang);
+                ctx.play("boom", { volume: 0.1 });
             }) as any);
             ctx.addKaboom(where, { scale: 1 / 2 });
         });
@@ -104,17 +109,21 @@ const smashGame: Minigame = {
             });
         };
         const y = game2.onUpdate(() => {
-            const beans: GameObj<PosComp>[] = level.get("bean", { only: "tags" }) as any;
+            const beans: GameObj<PosComp | { eaten: boolean }>[] = level.get("bean", { only: "tags" }) as any;
             var eatingBeans = 0;
             const winY = level.get("winMarker", { only: "tags" })[0].pos.y;
-            beans.forEach((bean: GameObj<PosComp>) => {
-                if (bean.pos.y > winY) {
+            beans.forEach((bean: GameObj<PosComp | { eaten: boolean }>) => {
+                if (bean.pos.y > winY || bean.eaten) {
+                    if (!bean.eaten) {
+                        ctx.addConfetti({ pos: bean.worldPos()! })
+                        ctx.burp();
+                        bean.eaten = true;
+                    }
                     eatingBeans++;
                 }
             });
             if (eatingBeans >= beans.length) {
                 ctx.win();
-                level.get("bean", { only: "tags" }).forEach(o => ctx.addConfetti({ pos: o.worldPos() }));
                 endgame();
             }
         });
