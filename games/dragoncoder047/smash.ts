@@ -17,7 +17,7 @@ const smashGame: Minigame = {
         ctx.loadSound("boom", "/smash/explode.mp3");
     },
     start(ctx) {
-        const game2 = ctx.make([]);
+        const game2 = ctx.add([]);
         game2.add([
             ctx.pos(ctx.center().x, 20),
             ctx.anchor("top"),
