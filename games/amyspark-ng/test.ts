@@ -24,8 +24,11 @@ const testGame: Minigame = {
 		]);
 
 		ctx.onTimeout(() => {
+			bean.sprite = "@beant";
 			ctx.win();
-			ctx.finish();
+			ctx.wait(1, () => {
+				ctx.finish();
+			});
 		});
 	},
 };

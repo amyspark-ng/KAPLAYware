@@ -1,11 +1,12 @@
 import k from "../engine";
 import { assets } from "@kaplayjs/crew";
-import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KEventController, Key, SpriteCompOpt, SpriteData, TimerController, Vec2 } from "kaplay";
+import { Asset, AudioPlay, AudioPlayOpt, Color, DrawSpriteOpt, GameObj, KEventController, Key, SpriteCompOpt, SpriteData, TimerController, Uniform, Vec2 } from "kaplay";
 import cursor from "../plugins/cursor";
 import { coolPrompt, gameHidesCursor, gameUsesMouse, getGameID, getGameInput } from "./utils";
 import { gameAPIs } from "./api";
 import { makeTransition } from "./transitions";
 import { Button, KAPLAYwareOpts, Minigame, MinigameAPI, MinigameCtx } from "./types";
+import { addBomb } from "../plugins/wareobjects";
 
 type Friend = keyof typeof assets | `${keyof typeof assets}-o`;
 type AtFriend = `@${Friend}`;
@@ -36,7 +37,7 @@ export function createWareApp() {
 		currentContext: null as MinigameCtx,
 		// bomb
 		timeRunning: false, // will turn true when transition is over (not same as gameRunning)
-		currentBomb: null as ReturnType<typeof k.addBomb>,
+		currentBomb: null as ReturnType<typeof addBomb> | null,
 		conductor: k.conductor(140),
 		minigameHistory: [] as string[],
 		winState: undefined as boolean | undefined,
@@ -266,7 +267,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				};
 			}
 			else if (api == "shader") {
-				gameCtx[api] = (name, uniform) => {
+				gameCtx[api] = (name: string, uniform: Uniform | (() => Uniform)) => {
 					return k.shader(`${getGameID(minigame)}-${name}`, uniform);
 				};
 			}
@@ -371,7 +372,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				wareCtx.score++;
 				wareApp.timeRunning = false;
 				wareApp.winState = true;
-				if (wareApp.currentBomb) wareApp.currentBomb.turnOff();
+				wareApp.currentBomb?.turnOff();
 			},
 			lose() {
 				wareCtx.lives--;
@@ -390,7 +391,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				wareApp.canPlaySounds = false;
 				wareApp.currentBomb?.destroy();
 				// removes the scene
-				k.wait(0.2, () => {
+				k.wait(0.2 / wareCtx.speed, () => {
 					wareApp.currentScene.destroy();
 					// removes fixed objects too (they aren't attached to the gamebox)
 					wareApp.WareScene.get("fixed").forEach((obj) => obj.destroy());
@@ -410,7 +411,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 
 				return {
 					...spriteComp,
-					set sprite(val: string) {
+					set sprite(val: CustomSprite<string>) {
 						spriteComp.sprite = getSpriteThing(val);
 					},
 
@@ -476,6 +477,7 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			const gDuration = typeof minigame.duration == "number" ? minigame.duration : minigame.duration(wareApp.currentContext);
 			const durationEnabled = gDuration != undefined;
 			wareCtx.time = durationEnabled ? gDuration / wareCtx.speed : 1;
+			wareApp.currentContext.timeLeft = wareCtx.time;
 			wareApp.currentColor = "r" in minigame.rgb ? minigame.rgb : k.Color.fromArray(minigame.rgb);
 			wareApp.currentScene?.destroy();
 			wareApp.currentScene = gameBox.add([]);
@@ -483,52 +485,91 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 			wareApp.timeRunning = false;
 			wareApp.canPlaySounds = false;
 			wareApp.currentBomb?.destroy();
+			wareApp.currentBomb = null;
 			wareCtx.curGame = minigame;
 			minigame.start(wareApp.currentContext);
 
-			wareApp.onTimeOutEvents.add(() => {
-				wareApp.inputEnabled = false;
-				k.debug.log("time out time out");
-				gameBox.clearEvents(); // disables the event that is about to be called
-			});
+			let hasStartedRunning = false;
+			const totalBeats = wareCtx.time / wareApp.conductor.beatInterval;
 
-			gameBox.onUpdate(() => {
-				if (restartMinigame) {
-					wareApp.currentContext.win();
-					wareApp.currentContext.finish();
-				}
+			// wareApp.currentBomb = addBomb();
+			// wareApp.conductor.onBeat(() => {
+			// 	wareApp.currentBomb.tick();
+			// });
 
-				if (wareApp.gameRunning) {
+			const gameBoxUpdate = gameBox.onUpdate(() => {
+				if (!wareApp.gameRunning) return;
+
+				if (!hasStartedRunning) {
+					hasStartedRunning = true;
 					if (!wareApp.canPlaySounds) {
 						wareApp.canPlaySounds = true;
 						wareApp.queuedSounds.forEach((sound) => sound.paused = false);
 					}
+
+					const bombConductor = k.conductor(140 * wareCtx.speed);
+					bombConductor.onBeat((beat, beatTime) => {
+						if (beatTime >= totalBeats) {
+							bombConductor.destroy();
+							wareApp.onTimeOutEvents.trigger();
+						}
+
+						if (beat >= totalBeats - 4) {
+							if (!wareApp.currentBomb) wareApp.currentBomb = addBomb();
+							wareApp.currentBomb.tick();
+						}
+					});
 				}
 
-				if (wareApp.timeRunning) {
-					if (!durationEnabled) return;
+				if (!wareApp.timeRunning) return;
+				if (!durationEnabled) return;
 
-					// TODO: Figure out why the clock is broken (sometimes time will go negative without calling timeOut)
-					if (wareCtx.time >= 0) wareCtx.time -= k.dt();
-					wareApp.currentContext.timeLeft = wareCtx.time;
-					if (wareCtx.time <= 0 && wareApp.timeRunning) {
-						wareApp.timeRunning = false;
-					}
-
-					// if there's 3 beats left, add the bomb
-					if (wareCtx.time / wareCtx.speed <= wareApp.conductor.beatInterval * 3 && !wareApp.currentBomb) {
-						wareApp.currentBomb = k.addBomb();
-						wareApp.currentBomb.bomb.parent = wareApp.WareScene;
-						const beatEv = wareApp.conductor.onBeat(() => {
-							if (wareApp.currentBomb.hasExploded || !wareApp.timeRunning) beatEv.cancel();
-							if (wareApp.currentBomb.hasExploded) {
-								wareApp.onTimeOutEvents.trigger();
-								wareApp.currentBomb.tick(); // missing tick for the bomb to explode
-							}
-							if (wareApp.timeRunning) wareApp.currentBomb.tick();
-						});
-					}
+				if (wareCtx.time > 0) wareCtx.time -= k.dt();
+				wareCtx.time = k.clamp(wareCtx.time, 0, 20);
+				wareApp.currentContext.timeLeft = wareCtx.time;
+				if (wareCtx.time <= 0 && wareApp.timeRunning) {
+					wareApp.timeRunning = false;
 				}
+
+				// const beatsLeft = wareCtx.time / wareApp.conductor.beatInterval;
+				// if (beatsLeft <= 4 && !wareApp.currentBomb) {
+				// wareApp.currentBomb = addBomb();
+				// const onBeat = wareApp.conductor.onBeat((beat) => {
+				// 	wareApp.currentBomb.tick();
+				// 	if (wareApp.currentBomb.hasExploded) {
+				// 		wareApp.currentBomb.tick(); // missing tick to explode
+				// 		onBeat.cancel();
+				// 		k.debug.log("ok time to go");
+				// 	}
+				// });
+				// }
+
+				// TODO: Figure out why the clock is broken (sometimes time will go negative without calling timeOut)
+				// if (wareCtx.time >= 0) wareCtx.time -= k.dt();
+				// wareCtx.time = k.clamp(wareCtx.time, 0, 20);
+				// wareApp.currentContext.timeLeft = wareCtx.time;
+				// if (wareCtx.time <= 0 && wareApp.timeRunning) {
+				// 	wareApp.timeRunning = false;
+				// }
+
+				// // if there's 3 beats left, add the bomb
+				// if (wareCtx.time / wareCtx.speed <= wareApp.conductor.beatInterval * 3 && !wareApp.currentBomb) {
+				// 	wareApp.currentBomb = addBomb();
+				// 	wareApp.currentBomb.bomb.parent = wareApp.WareScene;
+				// 	const beatEv = wareApp.conductor.onBeat(() => {
+				// 		wareApp.currentBomb.tick();
+				// 		if (wareApp.currentBomb.hasExploded) {
+				// 			beatEv.cancel();
+				// 			wareApp.currentBomb.tick(); // missing tick for the bomb to explode
+				// 			wareApp.onTimeOutEvents.trigger();
+				// 		}
+				// 	});
+				// }
+			});
+
+			wareApp.onTimeOutEvents.add(() => {
+				wareApp.inputEnabled = false;
+				gameBoxUpdate.cancel();
 			});
 		},
 		nextGame() {

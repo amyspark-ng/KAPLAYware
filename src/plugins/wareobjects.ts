@@ -1,6 +1,7 @@
 import { Color, KAPLAYCtx, Vec2 } from "kaplay";
 import k from "../engine";
 import { getGameInput } from "../game/utils";
+import { createTransitionContext } from "../game/transitions";
 
 function addPrompt(prompt: string) {
 	const promptObj = k.add([
@@ -64,7 +65,7 @@ function addInputPrompt(input: ReturnType<typeof getGameInput>) {
 	return inputPrompt;
 }
 
-function addBomb() {
+export function addBomb() {
 	const BOMB_POS = k.vec2(40, k.height() - 40);
 
 	const bomb = k.add([k.timer()]);
@@ -245,7 +246,6 @@ export function wareObjectsPlugin(k: KAPLAYCtx) {
 	return {
 		addPrompt,
 		addInputPrompt,
-		addBomb,
 		makeConfetti,
 	};
 }

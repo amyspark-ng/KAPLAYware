@@ -93,7 +93,10 @@ export type MinigameAPI = {
 	 * @since v2000.0
 	 * @group Components
 	 */
-	sprite(spr: CustomSprite<string> | SpriteData | Asset<SpriteData>, opt?: SpriteCompOpt): SpriteComp;
+	sprite(spr: CustomSprite<string> | SpriteData | Asset<SpriteData>, opt?: SpriteCompOpt): SpriteComp & {
+		// TODO: Find a way to override the typing of return
+		sprite: string;
+	};
 	/** Register an event that runs once when timer runs out. */
 	onTimeout: (action: () => void) => KEventController;
 	/** Run this when player succeeded in completing the game. */
