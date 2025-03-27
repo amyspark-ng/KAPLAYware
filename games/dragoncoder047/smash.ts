@@ -38,7 +38,7 @@ const smashGame: Minigame = {
                 ],
                 "%": () => [
                     ctx.sprite("@steel"),
-                    ctx.body({ damping: 10 }),
+                    ctx.body({ damping: 1 }),
                     ctx.area(),
                     ctx.opacity(1),
                     ctx.anchor("center"),
@@ -55,7 +55,7 @@ const smashGame: Minigame = {
                 ],
                 "@": () => [
                     ctx.sprite("@bean"),
-                    ctx.body({ damping: 10 }),
+                    ctx.body({ damping: 1 }),
                     ctx.area(),
                     ctx.anchor("center"),
                     ctx.z(1),
