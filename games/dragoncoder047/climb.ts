@@ -1,4 +1,3 @@
-import { assets } from "@kaplayjs/crew";
 import { AreaComp, BodyComp, GameObj, PosComp } from "kaplay";
 import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
@@ -11,8 +10,6 @@ const smashGame: Minigame = {
     duration: ctx => [10, 9, 8][ctx.difficulty],
     urlPrefix: "games/dragoncoder047/assets/",
     load(ctx) {
-        ctx.loadSprite("steel", assets.steel.sprite);
-        ctx.loadSprite("apple", assets.apple.sprite);
         ctx.loadSound("jump", "/climb/jump.wav");
     },
     start(ctx) {
@@ -28,7 +25,7 @@ const smashGame: Minigame = {
         ], {
             tiles: {
                 "#": () => [
-                    ctx.sprite("steel"),
+                    ctx.sprite("@steel"),
                     ctx.body({ isStatic: true }),
                     ctx.area(),
                     ctx.anchor("center"),
@@ -36,7 +33,7 @@ const smashGame: Minigame = {
                     "grass",
                 ],
                 ",": () => [
-                    ctx.sprite("apple"),
+                    ctx.sprite("@apple"),
                     ctx.anchor("center"),
                     ctx.body({ isStatic: true }),
                     ctx.area(),
