@@ -67,26 +67,28 @@ function addInputPrompt(input: ReturnType<typeof getGameInput>) {
 function addBomb() {
 	const BOMB_POS = k.vec2(40, k.height() - 40);
 
-	const cord = k.add([
+	const bomb = k.add([k.timer()]);
+
+	const cord = bomb.add([
 		k.sprite("@bomb_cord", { tiled: true }),
 		k.pos(69, 527),
 		k.anchor("left"),
 		k.fixed(),
 	]);
 
-	const cordstart = k.add([
+	const cordstart = bomb.add([
 		k.sprite("@bomb_cord_start"),
 		k.pos(29, 528),
 		k.fixed(),
 	]);
 
-	const cordtip = k.add([
+	const cordtip = bomb.add([
 		k.sprite("@bomb_cord_tip"),
 		k.pos(29, 528),
 		k.fixed(),
 	]);
 
-	const fuse = k.add([
+	const fuse = bomb.add([
 		k.sprite("@bomb_fuse"),
 		k.pos(),
 		k.anchor("center"),
@@ -95,7 +97,7 @@ function addBomb() {
 		k.fixed(),
 	]);
 
-	const bomb = k.add([
+	const bombSpr = bomb.add([
 		k.sprite("@bomb"),
 		k.pos(BOMB_POS),
 		k.anchor("center"),
@@ -136,24 +138,25 @@ function addBomb() {
 	});
 
 	return {
+		bomb,
 		destroy,
 		turnOff: () => {
 			fuse.fadeOut(0.5 / 3).onEnd(() => fuse.destroy());
 		},
 		tick: () => {
-			if (!bomb.exists()) return;
+			if (!bombSpr.exists()) return;
 			if (beatsLeft > 0) {
 				beatsLeft--;
 				const tweenMult = 2 - beatsLeft + 1; // goes from 1 to 3;
-				k.tween(k.vec2(1).add(0.33 * tweenMult), k.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bomb.scale = p, k.easings.easeOutQuint);
+				k.tween(k.vec2(1).add(0.33 * tweenMult), k.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, k.easings.easeOutQuint);
 				k.play("@tick", { detune: 25 * 2 - beatsLeft });
-				if (beatsLeft == 2) bomb.color = k.YELLOW;
-				else if (beatsLeft == 1) bomb.color = k.RED.lerp(k.YELLOW, 0.5);
-				else if (beatsLeft == 0) bomb.color = k.RED;
+				if (beatsLeft == 2) bombSpr.color = k.YELLOW;
+				else if (beatsLeft == 1) bombSpr.color = k.RED.lerp(k.YELLOW, 0.5);
+				else if (beatsLeft == 0) bombSpr.color = k.RED;
 			}
 			else {
 				destroy();
-				k.addKaboom(bomb.pos);
+				const kaboom = k.addKaboom(bombSpr.pos);
 				k.play("@explosion");
 			}
 		},

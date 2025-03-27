@@ -8,7 +8,7 @@ export const getGameID = (g: Minigame) => {
 	const filename = gamePath.split("/")[gamePath.split("/").length - 1].replace(".ts", "");
 	return `${g.author}:${filename}`;
 };
-export const getByID = (id: string) => games.find((minigame) => `${minigame.author}:${minigame.prompt}` == id);
+export const getGameByID = (id: string) => games.find((minigame) => `${minigame.author}:${minigame.prompt}` == id);
 
 export const gameUsesMouse = (g: Minigame) => {
 	if (!g.input.cursor) return false;

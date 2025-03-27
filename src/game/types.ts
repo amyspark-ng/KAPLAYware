@@ -102,8 +102,14 @@ export type MinigameAPI = {
 	lose: () => void;
 	/** Run this when your minigame has 100% finished all win/lose animations etc */
 	finish: () => void;
-	/** Wheter ctx.win() has been called */
-	hasWon(): boolean;
+	/** The win/lose state of the current minigame
+	 * If ctx.win() has been called, it will return true
+	 *
+	 * If ctx.lose() was called, it will return false
+	 *
+	 * If nor ctx.win() or ctx.lose() has been called, it will return undefined
+	 */
+	winState(): boolean | undefined;
 	/** The current difficulty of the game */
 	difficulty: 1 | 2 | 3;
 	/** The speed multiplier */
@@ -202,57 +208,28 @@ export type Minigame = {
 	 * @example
 	 * ```js
 	 * load(ctx) {
-	 * 	ctx.loadSprite("bean", "sprites/bean.png")
+	 * 	ctx.loadSprite("hand", "sprites/hand.png")
 	 * }
 	 * ```
 	 */
 	load?: (ctx: LoadCtx) => void;
 	/**
-	 * Main entry of the game code. Should return a game object made by `k.make()` that contains the whole game.
+	 * Main entry of the game code.
 	 *
 	 * @example
 	 * ```js
 	 * start(ctx) {
-	 * 	const game = ctx.make();
-	 * 	// (Your game code will be here...)
-	 * 	return game;
+	 * 		const bean = ctx.add([
+	 * 			ctx.sprite("@bean"),
+	 * 		])
 	 * }
 	 * ```
 	 */
-	start: (ctx: MinigameCtx) => GameObj;
+	start: (ctx: MinigameCtx) => void;
 };
 
 export type KAPLAYwareOpts = {
 	debug?: boolean;
 	onlyMouse?: boolean;
 	inOrder?: boolean;
-};
-
-export type KaplayWareCtx = {
-	/** Wheter input is enabled */
-	inputEnabled: boolean;
-	/** Wheter the current game is running */
-	gameRunning: boolean;
-	/** The speed of the game */
-	speed: number;
-	/** The difficulty */
-	difficulty: 1 | 2 | 3;
-	/** The time left for a minigame to finish */
-	time: number;
-	/** The current score for the player */
-	score: number;
-	/** The lives left */
-	lives: number;
-	/** The index of the game in the games array */
-	gameIdx: number;
-	/** The amount of times the game has sped up */
-	timesSpeed: number;
-	/** Transition to the next game */
-	nextGame: () => void;
-	/** Returns the current minigame */
-	curGame: () => Minigame;
-	/** Runs a minigame */
-	runGame: (g: Minigame) => GameObj;
-	/** Speeds up the game */
-	speedUp: () => void;
 };

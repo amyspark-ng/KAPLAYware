@@ -1,3 +1,8 @@
+import { AudioPlayOpt, DrawSpriteOpt, KAPLAYCtx } from "kaplay";
+import { createWareApp } from "./kaplayware";
+import { Minigame } from "./types";
+import { getGameID } from "./utils";
+
 export const loadAPIs = [
 	"loadRoot",
 	"loadSprite",
@@ -136,4 +141,8 @@ export const gameAPIs = [
 	"toWorld",
 	"toScreen",
 	"posSetter",
+	"add",
+	"onDraw",
+	"onUpdate",
+	"get",
 ] as const;

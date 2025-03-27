@@ -5,6 +5,7 @@ const gameModules = import.meta.glob("../../games/*/*.ts", { eager: true });
 
 const exclude = new Set(["amyspark-ng:flip", "amyspark-ng:upload"]);
 
+/** The imported games */
 const games = Object.values(gameModules)
 	.map((module: any) => module.default)
 	.filter((game) => !exclude.has(getGameID(game))) as Minigame[];
