@@ -147,13 +147,15 @@ export default function kaplayware(games: Minigame[] = [], opts: KAPLAYwareOpts 
 				};
 			}
 			else if (api == "addLevel") {
-				gameCtx[api] = (...args: any[]) => {
-					// @ts-ignore
-					const level = k.addLevel(...args);
-					level.onUpdate(() => level.paused = !wareCtx.gameRunning);
-					return level;
-				};
-			}
+                gameCtx[api] = (...args: any[]) => {
+                    // @ts-ignore
+                    const level = k.addLevel(...args);
+                    const x = WareScene.onUpdate(() => {
+                        level.paused = level.hidden = !wareCtx.gameRunning;
+                    });
+                    return level;
+                };
+            }
 			else if (api == "play") {
 				gameCtx[api] = (soundName: any, opts: AudioPlayOpt) => {
 					// if sound name is string, check for @, else just send it

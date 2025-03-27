@@ -14,5 +14,13 @@
 		"typescript": "^5.6.2",
 		"vite": "^5.4.5",
 		"vite-plugin-singlefile": "^2.0.2"
+	},
+	"pnpm": {
+		"ignoredBuiltDependencies": [
+			"esbuild"
+		],
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	}
 }
