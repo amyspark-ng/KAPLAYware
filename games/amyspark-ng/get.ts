@@ -20,9 +20,8 @@ const getGame: Minigame = {
 	start(ctx) {
 		ctx.speed = 1.6;
 		ctx.difficulty = 3;
-		const game = ctx.make();
 		const SPEED = 300 * ctx.speed;
-		game.add([ctx.sprite("grass")]);
+		ctx.add([ctx.sprite("grass")]);
 
 		let appleOnFloor = false;
 		let appleFinishedMoving = false;
@@ -42,7 +41,7 @@ const getGame: Minigame = {
 			return ctx.vec2(X, Y);
 		};
 
-		const bean = game.add([
+		const bean = ctx.add([
 			ctx.sprite("@bean"),
 			ctx.pos(getApplePos()),
 			ctx.area(),
@@ -52,7 +51,7 @@ const getGame: Minigame = {
 			ctx.z(5),
 		]);
 
-		const trunk = game.add([
+		const trunk = ctx.add([
 			ctx.sprite("trunk"),
 			ctx.anchor("bot"),
 			ctx.scale(),
@@ -61,7 +60,7 @@ const getGame: Minigame = {
 		]);
 
 		let bushShake = 0;
-		const bush = game.add([
+		const bush = ctx.add([
 			ctx.sprite("bush"),
 			ctx.anchor("center"),
 			ctx.scale(),
@@ -80,7 +79,7 @@ const getGame: Minigame = {
 			},
 		]);
 
-		const apple = game.add([
+		const apple = ctx.add([
 			ctx.sprite("@apple"),
 			ctx.pos(bush.screenPos() as Vec2),
 			ctx.area({ scale: ctx.vec2(0.5) }),
@@ -113,7 +112,7 @@ const getGame: Minigame = {
 		bean.onCollide("apple", () => {
 			if (!appleFinishedMoving) return;
 			apple.destroy();
-			if (!ctx.hasWon()) ctx.win();
+			ctx.win();
 			ctx.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 			const crunch = ctx.play("crunch", { detune: ctx.rand(-50, 50) });
 			ctx.wait(crunch.duration(), () => {
@@ -127,8 +126,8 @@ const getGame: Minigame = {
 			});
 		});
 
-		game.onDraw(() => {
-			if (appleOnFloor && !ctx.hasWon()) {
+		ctx.onDraw(() => {
+			if (appleOnFloor && !ctx.winState()) {
 				ctx.drawCircle({
 					radius: 10,
 					scale: ctx.vec2(2, 1),
@@ -160,14 +159,12 @@ const getGame: Minigame = {
 			if (apple.exists()) {
 				bean.sprite = "@beant";
 				apple.destroy();
-				const badapple = game.add([ctx.sprite("badapple"), ctx.scale(), ctx.pos(apple.pos.sub(15, 0)), ctx.anchor("center")]);
+				const badapple = ctx.add([ctx.sprite("badapple"), ctx.scale(), ctx.pos(apple.pos.sub(15, 0)), ctx.anchor("center")]);
 				ctx.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => badapple.scale = p, ctx.easings.easeOutQuint);
 				ctx.lose();
 				ctx.wait(0.5 / ctx.speed, () => ctx.finish());
 			}
 		});
-
-		return game;
 	},
 };
 

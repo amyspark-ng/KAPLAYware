@@ -6,7 +6,7 @@ let watchedObjects: { obj: any; propName: string | number | symbol; customName?:
 let displayInfo = false;
 let manager: GameObj = null;
 
-function watch<T extends unknown>(obj: T, propName: keyof T, customName?: string) {
+function watch<T extends unknown>(obj: T, propName: keyof T, customName?: string, customReturn?: (value: any) => any) {
 	if (!manager) {
 		manager = k.add([k.stay(), k.z(100)]);
 		manager.onUpdate(() => {

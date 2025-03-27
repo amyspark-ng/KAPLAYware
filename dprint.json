@@ -6,7 +6,8 @@
 		"useTabs": true,
 		"semiColons": "always",
 		"quoteStyle": "preferDouble",
-		"nextControlFlowPosition": "nextLine"
+		"nextControlFlowPosition": "nextLine",
+		"module.sortImportDeclarations": "maintain"
 	},
 	"json": {
 		"indentWidth": 4,
