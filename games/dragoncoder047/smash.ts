@@ -1,6 +1,6 @@
-import { BodyComp, GameObj, OpacityComp, PosComp } from "kaplay";
-import { Minigame } from "../../src/game/types";
 import { assets } from "@kaplayjs/crew";
+import { BodyComp, GameObj, OpacityComp, PosComp, RotateComp } from "kaplay";
+import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
 
 const smashGame: Minigame = {
@@ -38,6 +38,7 @@ const smashGame: Minigame = {
                     ctx.body({ isStatic: true }),
                     ctx.area(),
                     ctx.anchor("center"),
+                    ctx.z(-1),
                     "grass",
                 ],
                 "%": () => [
@@ -52,6 +53,9 @@ const smashGame: Minigame = {
                     ctx.sprite("apple"),
                     ctx.anchor("center"),
                     ctx.z(0),
+                    ctx.opacity(1),
+                    ctx.rotate(0),
+                    ctx.body({ isStatic: true }),
                     "apple",
                 ],
                 "@": () => [
@@ -82,7 +86,7 @@ const smashGame: Minigame = {
         ctx.onClick(() => {
             const where = ctx.mousePos();
             level.get("body", { only: "comps" }).forEach(((body: GameObj<BodyComp | PosComp | OpacityComp>) => {
-                if (body.isStatic) return;
+                if (body.is("apple") || body.isStatic) return;
                 const diff = body.worldPos()!.sub(where);
                 const dist = diff.len();
                 var bang = diff.unit().scale(10000 / dist);
@@ -115,9 +119,17 @@ const smashGame: Minigame = {
             beans.forEach((bean: GameObj<PosComp | { eaten: boolean }>) => {
                 if (bean.pos.y > winY || bean.eaten) {
                     if (!bean.eaten) {
-                        ctx.addConfetti({ pos: bean.worldPos()! })
                         ctx.burp();
                         bean.eaten = true;
+                        for (var i = 0; i < 2; i++) {
+                            const apple = level.get("apple", { only: "tags" }).filter(apple => apple.isStatic).sort((a, b) => a.pos.dist(bean.pos) - b.pos.dist(bean.pos))[0];
+                            apple.isStatic = false;
+                            apple.jump(ctx.rand(200, 400));
+                            apple.vel.x = ctx.rand(-100, 100);
+                            const speed = ctx.rand(-30, 30);
+                            apple.onUpdate(() => apple.angle += speed * ctx.dt());
+                            apple.fadeOut(1).then(() => apple.destroy());
+                        }
                     }
                     eatingBeans++;
                 }
