@@ -105,6 +105,7 @@ const smashGame: Minigame = {
         });
         const endgame = () => {
             y.cancel();
+            z.cancel();
             ctx.wait(2, () => {
                 ctx.finish();
                 level.children.forEach(x => x.paused = x.hidden = true);
@@ -138,7 +139,7 @@ const smashGame: Minigame = {
                 endgame();
             }
         });
-        ctx.onTimeout(() => {
+        const z = ctx.onTimeout(() => {
             ctx.lose();
             level.get("area", { only: "comps" }).forEach(o => o.collisionIgnore.push("*"));
             endgame();
