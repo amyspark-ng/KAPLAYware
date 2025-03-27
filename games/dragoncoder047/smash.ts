@@ -1,4 +1,3 @@
-import { assets } from "@kaplayjs/crew";
 import { BodyComp, GameObj, OpacityComp, PosComp, RotateComp } from "kaplay";
 import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
@@ -11,9 +10,6 @@ const smashGame: Minigame = {
     duration: (ctx) => [10, 8, 6][ctx.difficulty - 1],
     urlPrefix: "games/dragoncoder047/assets/",
     load(ctx) {
-        ctx.loadSprite("grass", assets.grass.sprite);
-        ctx.loadSprite("steel", assets.steel.sprite);
-        ctx.loadSprite("apple", assets.apple.sprite);
         ctx.loadSound("boom", "/smash/explode.mp3");
     },
     start(ctx) {
@@ -33,7 +29,7 @@ const smashGame: Minigame = {
         ], {
             tiles: {
                 "#": () => [
-                    ctx.sprite("grass"),
+                    ctx.sprite("@grass"),
                     ctx.body({ isStatic: true }),
                     ctx.area(),
                     ctx.anchor("center"),
@@ -41,15 +37,15 @@ const smashGame: Minigame = {
                     "grass",
                 ],
                 "%": () => [
-                    ctx.sprite("steel"),
-                    ctx.body({ drag: 1 }),
+                    ctx.sprite("@steel"),
+                    ctx.body({ damping: 10 }),
                     ctx.area(),
                     ctx.opacity(1),
                     ctx.anchor("center"),
                     "steel",
                 ],
                 ",": () => [
-                    ctx.sprite("apple"),
+                    ctx.sprite("@apple"),
                     ctx.anchor("center"),
                     ctx.z(0),
                     ctx.opacity(1),
@@ -59,7 +55,7 @@ const smashGame: Minigame = {
                 ],
                 "@": () => [
                     ctx.sprite("@bean"),
-                    ctx.body({ drag: 1 }),
+                    ctx.body({ damping: 10 }),
                     ctx.area(),
                     ctx.anchor("center"),
                     ctx.z(1),
