@@ -2,20 +2,18 @@ import { AudioPlay, TimerController } from "kaplay";
 import { createWareApp } from "./kaplayware";
 import k from "../engine";
 
-/** Makes a small context that includes tween, wait, loop and play, these will be paused if the WareApp is paused */
-export function createTransitionContext(wareApp: ReturnType<typeof createWareApp>) {
-	const timers = [] as TimerController[];
-	const sounds = [] as AudioPlay[];
-	const transAPI = ["tween", "wait", "loop", "play"] as const;
-	const ctx = {} as Pick<typeof k, typeof transAPI[number]> & {
-		destroyContext(): void;
-	};
+const pausableAPI = ["tween", "wait", "loop", "play"] as const;
+export type PausableCtx = Pick<typeof k, typeof pausableAPI[number]> & { resetContext(): void; };
 
-	for (const api of transAPI) {
+/** Creates a small context that includes tween, wait, loop and play, these will be paused if the WareApp is paused */
+export function createPausableCtx(wareApp: ReturnType<typeof createWareApp>) {
+	const ctx = {} as PausableCtx;
+
+	for (const api of pausableAPI) {
 		if (api == "play") {
 			ctx[api] = (...args: any[]) => {
 				const sound = k.play(...args as unknown as [any]);
-				sounds.push(sound);
+				wareApp.pausableSounds.push(sound);
 				return sound;
 			};
 		}
@@ -23,36 +21,30 @@ export function createTransitionContext(wareApp: ReturnType<typeof createWareApp
 			ctx[api] = (...args: any[]) => {
 				// @ts-ignore
 				const timer = k[api](...args as unknown as [any]);
-				timers.push(timer);
+				wareApp.pausableTimers.push(timer);
 				return timer as any;
 			};
 		}
 	}
 
-	const manager = wareApp.WareScene.add([]);
-	manager.onUpdate(() => {
-		timers.forEach((timer) => timer.paused = wareApp.gamePaused);
-		sounds.forEach((sound) => sound.paused = wareApp.gamePaused);
-	});
-
-	ctx.destroyContext = () => {
-		for (let i = timers.length - 1; i >= 0; i--) {
-			timers[i].cancel();
-			timers.pop();
+	ctx.resetContext = () => {
+		for (let i = wareApp.pausableTimers.length - 1; i >= 0; i--) {
+			wareApp.pausableTimers[i].cancel();
+			wareApp.pausableTimers.pop();
 		}
 
-		for (let i = sounds.length - 1; i >= 0; i--) {
-			sounds[i].stop();
-			sounds.pop();
+		for (let i = wareApp.pausableSounds.length - 1; i >= 0; i--) {
+			wareApp.pausableSounds[i].stop();
+			wareApp.pausableSounds.pop();
 		}
-
-		manager.destroy();
 	};
 
 	return ctx;
 }
 
-export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state: "win" | "lose" | "prep" | "speed") {
+// TODO: Make this take an array of states, create all objects on start and run a forEach on the states
+// Make a onStateEnd and onEnd (prep, win, lose, speed up)
+export function runTransition(wareApp: ReturnType<typeof createWareApp>, state: "win" | "lose" | "prep" | "speed") {
 	const ware = wareApp.wareCtx;
 	const WareScene = wareApp.WareScene;
 	const conductor = k.conductor(140 * wareApp.wareCtx.speed); // have to create a new one because then some beat things don't make sense
@@ -61,7 +53,7 @@ export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state:
 	const inputPromptEvent = new k.KEvent();
 	const promptEvent = new k.KEvent();
 
-	const ctx = createTransitionContext(wareApp); // use waits and timers here so they're pausable with the pause function
+	const pausableCtx = wareApp.pausableCtx;
 
 	// woke agenda
 	// "trans" controls scale and position of the transitions, obj is just to attach, don't remove this
@@ -130,7 +122,7 @@ export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state:
 		heart.pos.x += (heart.width * 1.15) * i;
 
 		heart.kill = () => {
-			ctx.tween(heart.color, k.BLACK, 0.5 / ware.speed, (p) => heart.color = p);
+			pausableCtx.tween(heart.color, k.BLACK, 0.5 / ware.speed, (p) => heart.color = p);
 			heart.fadeOut(0.5 / ware.speed).onEnd(() => heart.destroy());
 		};
 	}
@@ -184,30 +176,30 @@ export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state:
 
 	function finishTrans() {
 		trans.destroy();
-		ctx.destroyContext();
+		pausableCtx.resetContext();
 		conductor.destroy();
 	}
 
 	conductor.onBeat((beat) => {
 		objs.get("flower").forEach((flower) => {
 			if (ware.difficulty == 1) {
-				ctx.tween(0.6, 1, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
+				pausableCtx.tween(0.6, 1, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
 			}
 			else {
 				if (beat % 2 == 0) {
 					if (flower.id % 2 == 0) {
-						ctx.tween(1, 0.6, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
+						pausableCtx.tween(1, 0.6, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
 					}
 					else {
-						ctx.tween(0.6, 1, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
+						pausableCtx.tween(0.6, 1, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
 					}
 				}
 				else {
 					if (flower.id % 2 != 0) {
-						ctx.tween(1, 0.6, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
+						pausableCtx.tween(1, 0.6, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
 					}
 					else {
-						ctx.tween(0.6, 1, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
+						pausableCtx.tween(0.6, 1, 0.15 / ware.speed, (p) => flower.scale.y = p, k.easings.easeOutQuint);
 					}
 				}
 			}
@@ -215,9 +207,9 @@ export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state:
 	});
 
 	if (state == "prep") {
-		ctx.play("@prepJingle", { speed: ware.speed });
+		pausableCtx.play("@prepJingle", { speed: ware.speed });
 
-		ctx.tween(page.scale.y, 1.8, 0.5 / ware.speed, (p) => page.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
+		pausableCtx.tween(page.scale.y, 1.8, 0.5 / ware.speed, (p) => page.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
 			page.scale.y = 0.5;
 			page.pos.y += calendar.height;
 			page.anchor = "center";
@@ -248,46 +240,46 @@ export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state:
 			});
 
 			if (beat == 3) {
-				ctx.tween(trans.pos.y, ZOOM_Y, 1 / ware.speed, (p) => trans.pos.y = p, k.easings.easeOutQuint);
-				ctx.tween(trans.scale, ZOOM_SCALE, 1 / ware.speed, (p) => trans.scale = p, k.easings.easeOutQuint).onEnd(() => {
+				pausableCtx.tween(trans.pos.y, ZOOM_Y, 1 / ware.speed, (p) => trans.pos.y = p, k.easings.easeOutQuint);
+				pausableCtx.tween(trans.scale, ZOOM_SCALE, 1 / ware.speed, (p) => trans.scale = p, k.easings.easeOutQuint).onEnd(() => {
 					finishTrans();
 				});
-				ctx.tween(1, 0, 0.5 / ware.speed, (p) => screen.opacity = p, k.easings.easeOutQuint).onEnd(() => {
+				pausableCtx.tween(1, 0, 0.5 / ware.speed, (p) => screen.opacity = p, k.easings.easeOutQuint).onEnd(() => {
 					endEvent.trigger();
 				});
 			}
 		});
 	}
 	else if (state == "lose" || state == "win") {
-		ctx.tween(ZOOM_Y, k.center().y, 0.5 / ware.speed, (p) => trans.pos.y = p, k.easings.easeOutQuint);
-		ctx.tween(ZOOM_SCALE, k.vec2(1), 0.5 / ware.speed, (p) => trans.scale = p, k.easings.easeOutQuint);
-		ctx.tween(0, 1, 0.25 / ware.speed, (p) => screen.opacity = p, k.easings.easeOutQuint);
+		pausableCtx.tween(ZOOM_Y, k.center().y, 0.5 / ware.speed, (p) => trans.pos.y = p, k.easings.easeOutQuint);
+		pausableCtx.tween(ZOOM_SCALE, k.vec2(1), 0.5 / ware.speed, (p) => trans.scale = p, k.easings.easeOutQuint);
+		pausableCtx.tween(0, 1, 0.25 / ware.speed, (p) => screen.opacity = p, k.easings.easeOutQuint);
 
 		if (state == "lose") {
-			const sound = ctx.play("@loseJingle", { speed: ware.speed });
+			const sound = pausableCtx.play("@loseJingle", { speed: ware.speed });
 			chillguy.frame = 2;
 			screen.frame = 2;
 			chillcat.frame = 2;
 			chillbutterfly.frame = 2;
 
 			objs.get("heart")[objs.get("heart").length - 1].kill();
-			ctx.wait(sound.duration() / ware.speed, () => {
+			pausableCtx.wait(sound.duration() / ware.speed, () => {
 				endEvent.trigger();
 			});
 		}
 		else if (state == "win") {
-			const sound = ctx.play("@winJingle", { speed: ware.speed });
+			const sound = pausableCtx.play("@winJingle", { speed: ware.speed });
 			chillguy.frame = 1;
 			screen.frame = 1;
 			chillcat.frame = 1;
 			chillbutterfly.frame = 1;
-			ctx.wait(sound.duration() / ware.speed, () => {
+			pausableCtx.wait(sound.duration() / ware.speed, () => {
 				endEvent.trigger();
 			});
 		}
 	}
 	else if (state == "speed") {
-		const sound = ctx.play("@speedJingle", { speed: ware.speed });
+		const sound = pausableCtx.play("@speedJingle", { speed: ware.speed });
 
 		const overlay = objs.add([
 			k.rect(k.width(), k.height()),
@@ -300,14 +292,12 @@ export function makeTransition(wareApp: ReturnType<typeof createWareApp>, state:
 			overlay.color = k.lerp(overlay.color, k.hsl2rgb(HUE, 0.7, 0.8), 0.1);
 		});
 
-		ctx.wait(sound.duration() / ware.speed, () => {
+		pausableCtx.wait(sound.duration() / ware.speed, () => {
 			endEvent.trigger();
 		});
 	}
 
 	return {
-		transitionCtx: ctx,
-
 		destroy() {
 			finishTrans();
 		},

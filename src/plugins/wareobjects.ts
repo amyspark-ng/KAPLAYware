@@ -1,7 +1,7 @@
 import { Color, KAPLAYCtx, Vec2 } from "kaplay";
 import k from "../engine";
 import { getGameInput } from "../game/utils";
-import { createTransitionContext } from "../game/transitions";
+import { createPausableCtx, PausableCtx } from "../game/transitions";
 
 function addPrompt(prompt: string) {
 	const promptObj = k.add([
@@ -65,11 +65,13 @@ function addInputPrompt(input: ReturnType<typeof getGameInput>) {
 	return inputPrompt;
 }
 
-export function addBomb() {
+function addBomb(pausableCtx: PausableCtx) {
 	const BOMB_POS = k.vec2(40, k.height() - 40);
 
-	const bomb = k.add([k.timer()]);
+	const bomb = k.add([]);
+	let conductor: ReturnType<typeof k.conductor> = null;
 
+	// TODO: Fix this position
 	const cord = bomb.add([
 		k.sprite("@bomb_cord", { tiled: true }),
 		k.pos(69, 527),
@@ -117,11 +119,14 @@ export function addBomb() {
 		cord.destroy();
 		cordtip.destroy();
 		fuse.destroy();
+		conductor?.destroy();
 	}
 
 	let fuseYThing = 0;
 	bomb.onUpdate(() => {
 		if (beatsLeft < -1) return;
+
+		if (conductor) conductor.paused = bomb.paused;
 
 		cordWidth = ((k.width() / 2) / 3) * beatsLeft;
 		if (beatsLeft != 0) {
@@ -138,28 +143,48 @@ export function addBomb() {
 		cord.width = k.lerp(cord.width, cordWidth, 0.75);
 	});
 
+	function tick() {
+		if (!bombSpr.exists()) return;
+		if (beatsLeft > 0) {
+			beatsLeft--;
+			const tweenMult = 2 - beatsLeft + 1; // goes from 1 to 3;
+			pausableCtx.tween(k.vec2(1).add(0.33 * tweenMult), k.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, k.easings.easeOutQuint);
+			pausableCtx.play("@tick", { detune: 25 * 2 - beatsLeft });
+			if (beatsLeft == 2) bombSpr.color = k.YELLOW;
+			else if (beatsLeft == 1) bombSpr.color = k.RED.lerp(k.YELLOW, 0.5);
+			else if (beatsLeft == 0) bombSpr.color = k.RED;
+		}
+		else {
+			destroy();
+			// TODO: fix this kaboom parent
+			const kaboom = k.addKaboom(bombSpr.pos);
+			pausableCtx.play("@explosion");
+		}
+	}
+
 	return {
+		set paused(val: boolean) {
+			bomb.paused = val;
+		},
+
+		get paused() {
+			return bomb.paused;
+		},
+
 		bomb,
+		/** Will start a conductor which will explode the bomb in 4 beats (tick, tick, tick, BOOM!) */
+		tick,
+		lit(bpm = 140) {
+			conductor = k.conductor(bpm);
+			conductor.onBeat((beat, beatTime) => {
+				tick();
+				if (beat == 3) conductor.destroy();
+			});
+			// TODO: THIS CONDUCTOR DOESN'T WANT TO PAUSE
+		},
 		destroy,
 		turnOff: () => {
 			fuse.fadeOut(0.5 / 3).onEnd(() => fuse.destroy());
-		},
-		tick: () => {
-			if (!bombSpr.exists()) return;
-			if (beatsLeft > 0) {
-				beatsLeft--;
-				const tweenMult = 2 - beatsLeft + 1; // goes from 1 to 3;
-				k.tween(k.vec2(1).add(0.33 * tweenMult), k.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, k.easings.easeOutQuint);
-				k.play("@tick", { detune: 25 * 2 - beatsLeft });
-				if (beatsLeft == 2) bombSpr.color = k.YELLOW;
-				else if (beatsLeft == 1) bombSpr.color = k.RED.lerp(k.YELLOW, 0.5);
-				else if (beatsLeft == 0) bombSpr.color = k.RED;
-			}
-			else {
-				destroy();
-				const kaboom = k.addKaboom(bombSpr.pos);
-				k.play("@explosion");
-			}
 		},
 		get hasExploded() {
 			return beatsLeft == 0;
@@ -184,7 +209,7 @@ export type ConfettiOpt = {
 	obj?: () => { draw: () => void; };
 };
 
-function makeConfetti(opt?: ConfettiOpt) {
+function addConfetti(opt?: ConfettiOpt) {
 	const DEF_COUNT = 80;
 	const DEF_GRAVITY = 800;
 	const DEF_AIR_DRAG = 0.9;
@@ -198,7 +223,7 @@ function makeConfetti(opt?: ConfettiOpt) {
 
 	opt = opt ?? {};
 
-	const confetti = k.make();
+	const confetti = k.add([]);
 	// @ts-ignore
 	const sample = <T>(s: Sampler<T>): T => typeof s === "function" ? s() : s;
 	for (let i = 0; i < (opt.count ?? DEF_COUNT); i++) {
@@ -239,14 +264,16 @@ function makeConfetti(opt?: ConfettiOpt) {
 			p.scale.x = k.wave(-1, 1, k.time() * spin);
 		});
 	}
+
 	return confetti;
 }
 
 export function wareObjectsPlugin(k: KAPLAYCtx) {
 	return {
+		addBomb,
 		addPrompt,
 		addInputPrompt,
-		makeConfetti,
+		addConfetti,
 	};
 }
 

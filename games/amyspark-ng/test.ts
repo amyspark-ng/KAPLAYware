@@ -23,7 +23,12 @@ const testGame: Minigame = {
 			ctx.pos(),
 		]);
 
+		ctx.onClick(() => {
+			ctx.addConfetti({ pos: ctx.mousePos() });
+		});
+
 		ctx.onTimeout(() => {
+			bean.pos = ctx.center();
 			bean.sprite = "@beant";
 			ctx.win();
 			ctx.wait(1, () => {
