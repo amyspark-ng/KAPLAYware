@@ -21,7 +21,6 @@ export const loadAPIs = [
 ] as const;
 
 export const gameAPIs = [
-	"make",
 	"pos",
 	"scale",
 	"rotate",

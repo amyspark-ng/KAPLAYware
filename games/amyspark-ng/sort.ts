@@ -29,8 +29,7 @@ const sortGame: Minigame = {
 		ctx.loadSound("confetti", "sounds/confetti.mp3");
 	},
 	start(ctx) {
-		const game = ctx.make();
-		game.add([ctx.sprite("bg"), ctx.z(-5), ctx.pos(ctx.center()), ctx.anchor("center")]);
+		ctx.add([ctx.sprite("bg"), ctx.z(-5), ctx.pos(ctx.center()), ctx.anchor("center")]);
 		let lost = false;
 
 		const getItemCategory = () => {
@@ -63,27 +62,27 @@ const sortGame: Minigame = {
 
 		const lastItemOnRight = () => {
 			// descending, which means the largest comes first
-			const itemsFromRightToLeft = game.get("item").sort((a, b) => b.pos.x - a.pos.x);
+			const itemsFromRightToLeft = ctx.get("item").sort((a, b) => b.pos.x - a.pos.x);
 			if (!itemsFromRightToLeft[0]) return true;
 			else return itemsFromRightToLeft[0].pos.x >= FINAL_ITEM_POS.x;
 		};
 
 		const getIndexRightToLeft = (item: GameObj) => {
-			const itemsFromRightToLeft = game.get("item").sort((a, b) => b.pos.x - a.pos.x);
+			const itemsFromRightToLeft = ctx.get("item").sort((a, b) => b.pos.x - a.pos.x);
 			return itemsFromRightToLeft.indexOf(item);
 		};
 
 		let machineScale = ctx.vec2(1);
-		const ground = game.add([ctx.rect(ctx.width(), 40, { fill: false }), ctx.pos(0, ctx.height()), ctx.area(), ctx.body({ isStatic: true })]);
-		const light = game.add([ctx.rect(50, 50), ctx.color(OffLight), ctx.pos(217, 157)]);
-		const machineback = game.add([ctx.sprite("machineback"), ctx.anchor("bot"), ctx.pos(140, 490), ctx.z(0), ctx.scale()]);
-		const conveyor = game.add([ctx.sprite("conveyor"), ctx.pos(189, 314), ctx.z(0), { vroom: false }]);
-		const machinefront = game.add([ctx.sprite("machinefront"), ctx.anchor("bot"), ctx.pos(machineback.pos), ctx.z(2), ctx.scale()]);
+		const ground = ctx.add([ctx.rect(ctx.width(), 40, { fill: false }), ctx.pos(0, ctx.height()), ctx.area(), ctx.body({ isStatic: true })]);
+		const light = ctx.add([ctx.rect(50, 50), ctx.color(OffLight), ctx.pos(217, 157)]);
+		const machineback = ctx.add([ctx.sprite("machineback"), ctx.anchor("bot"), ctx.pos(140, 490), ctx.z(0), ctx.scale()]);
+		const conveyor = ctx.add([ctx.sprite("conveyor"), ctx.pos(189, 314), ctx.z(0), { vroom: false }]);
+		const machinefront = ctx.add([ctx.sprite("machinefront"), ctx.anchor("bot"), ctx.pos(machineback.pos), ctx.z(2), ctx.scale()]);
 
-		const littleguy = game.add([ctx.sprite("littleguy"), ctx.pos(397, 389), ctx.z(conveyor.z - 1), ctx.anchor("bot")]);
-		const daystext = game.add([ctx.sprite("daystext"), ctx.pos(518, 102), ctx.anchor("center"), ctx.scale()]);
+		const littleguy = ctx.add([ctx.sprite("littleguy"), ctx.pos(397, 389), ctx.z(conveyor.z - 1), ctx.anchor("bot")]);
+		const daystext = ctx.add([ctx.sprite("daystext"), ctx.pos(518, 102), ctx.anchor("center"), ctx.scale()]);
 
-		function finishGame(won: boolean) {
+		function finishctx(won: boolean) {
 			if (won) ctx.win();
 			else ctx.lose();
 
@@ -106,7 +105,7 @@ const sortGame: Minigame = {
 					ctx.wait(sound.duration() / ctx.speed * 2, () => playSound());
 				}
 
-				game.onUpdate(() => {
+				ctx.onUpdate(() => {
 					machineScale.y = ctx.lerp(machineScale.y, ctx.rand(0.9, 1.1), 0.1);
 				});
 
@@ -119,7 +118,7 @@ const sortGame: Minigame = {
 		}
 
 		function addBox(spriteID: string, pos: Vec2) {
-			const box = game.add([
+			const box = ctx.add([
 				ctx.scale(),
 				ctx.rect(150, 100, { fill: false }),
 				ctx.pos(pos),
@@ -158,8 +157,8 @@ const sortGame: Minigame = {
 				itemsLeftToSort--;
 				ctx.play("box", { detune: ctx.rand(-50, 50) });
 
-				if (item.sprite != box.spriteID) finishGame(false);
-				if (itemsLeftToSort == 0 && !lost) finishGame(true);
+				if (item.sprite != box.spriteID) finishctx(false);
+				if (itemsLeftToSort == 0 && !lost) finishctx(true);
 				ctx.tween(0.6, 1, 0.35 / ctx.speed, (p) => box.scale.y = p, ctx.easings.easeOutQuint);
 
 				const boxeditem = boxback.add([
@@ -180,14 +179,14 @@ const sortGame: Minigame = {
 			ctx.tween(OnLight, OffLight, 1 / ctx.speed, (p) => light.color = p, ctx.easings.easeOutQuint);
 
 			const duration = 0.25;
-			game.get("item").sort((a, b) => b.pos.x - a.pos.x).forEach((item, index, arr) => {
+			ctx.get("item").sort((a, b) => b.pos.x - a.pos.x).forEach((item, index, arr) => {
 				if (item.pos == getItemPos(index)) return;
 				ctx.tween(ctx.rand(30, 20), 0, duration / ctx.speed, (p) => item.angle = p, ctx.easings.easeOutBack);
 				ctx.tween(item.pos, getItemPos(index), duration / ctx.speed, (p) => item.pos = p);
 			});
 
 			// there's still items left
-			if (itemsLeftToSend > 0 && game.get("item").length < 3) {
+			if (itemsLeftToSend > 0 && ctx.get("item").length < 3) {
 				const item = addItem();
 				const index = getIndexRightToLeft(item);
 				item.pos = getItemPos(index + 1); // does + 1 so it goes more into the left
@@ -202,7 +201,7 @@ const sortGame: Minigame = {
 		}
 
 		function addItem() {
-			const item = game.add([
+			const item = ctx.add([
 				ctx.sprite(ctx.choose([variant1Sprite, variant2Sprite])),
 				ctx.pos(90, 340),
 				ctx.anchor("bot"),
@@ -217,7 +216,7 @@ const sortGame: Minigame = {
 				item.destroy();
 				if (!lastItemOnRight() || itemsLeftToSend > 0) scrollConveyor();
 
-				const draggedItem = game.add([
+				const draggedItem = ctx.add([
 					ctx.sprite(item.sprite),
 					ctx.pos(item.pos.sub(0, item.height / 2)),
 					ctx.drag(),
@@ -260,14 +259,14 @@ const sortGame: Minigame = {
 			return item;
 		}
 
-		game.onUpdate(() => {
+		ctx.onUpdate(() => {
 			if (conveyor.vroom) conveyor.frame = Math.floor((ctx.time() * 5 * ctx.speed) % 2);
 			machinefront.scale = machineScale;
 			machineback.scale = machineScale;
 		});
 
 		ctx.onTimeout(() => {
-			if (itemsLeftToSort > 0 && !lost) finishGame(false);
+			if (itemsLeftToSort > 0 && !lost) finishctx(false);
 		});
 
 		const initialItemsLength = ctx.clamp(itemsLeftToSend, 0, 3);
@@ -279,8 +278,6 @@ const sortGame: Minigame = {
 
 		addBox(variant1Sprite, ctx.vec2(560, 520));
 		addBox(variant2Sprite, ctx.vec2(720, 520));
-
-		return game;
 	},
 };
 
