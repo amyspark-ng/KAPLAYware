@@ -75,12 +75,14 @@ const smashGame: Minigame = {
         ctx.onButtonDown("right", () => {
             bean.move(SPEED, 0);
         });
-        ctx.onButtonPress("up", () => {
+        const jump = () => {
             if (bean.isGrounded()) {
                 bean.jump(1000);
                 ctx.play("jump");
             }
-        });
+        }
+        ctx.onButtonPress("up", jump);
+        ctx.onButtonPress("action", jump);
         bean.onCollide("apple", apple => {
             ctx.burp();
             apple.isStatic = false;
