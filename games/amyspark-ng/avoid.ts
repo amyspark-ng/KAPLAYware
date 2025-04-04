@@ -9,34 +9,8 @@ const avoidGame: Minigame = {
 	load(ctx) {
 		ctx.loadSound("squash", "sounds/squash.mp3");
 		ctx.loadSound("stomp", "sounds/stomp.wav");
-		ctx.loadSprite("foot", "sprites/avoid/leg.png");
-		ctx.loadSprite("mark", "sprites/avoid/theMark.png", {
-			sliceX: 11,
-			anims: {
-				"idle": {
-					from: 0,
-					to: 4,
-					speed: 5,
-					loop: true,
-				},
-				"crouch": {
-					from: 5,
-					to: 6,
-					speed: 2,
-				},
-				"jump": {
-					from: 7,
-					to: 8,
-					speed: 2,
-				},
-				"walk": {
-					from: 9,
-					to: 10,
-					speed: 6,
-					loop: true,
-				},
-			},
-		});
+		ctx.loadAseprite("foot", "sprites/avoid/leg.png", "sprites/avoid/leg.json");
+		ctx.loadAseprite("marky", "sprites/avoid/marky.png", "sprites/avoid/marky.json");
 	},
 	start(ctx) {
 		let SPEED = 300 * ctx.speed;
@@ -57,7 +31,7 @@ const avoidGame: Minigame = {
 		]);
 
 		const mark = ctx.add([
-			ctx.sprite("mark", { anim: "idle" }),
+			ctx.sprite("marky", { anim: "Fwonk" }),
 			ctx.pos(ctx.center().x, ctx.center().y + 120),
 			ctx.anchor("bot"),
 			ctx.area({ scale: ctx.vec2(0.5), offset: ctx.vec2(0, -10) }),
@@ -66,7 +40,7 @@ const avoidGame: Minigame = {
 		]);
 
 		const foot = ctx.add([
-			ctx.sprite("foot"),
+			ctx.sprite("foot", { anim: "Leg" }),
 			ctx.anchor("bot"),
 			ctx.area({ scale: ctx.vec2(0.5, 0.9), offset: ctx.vec2(0, -50) }),
 			ctx.pos(ctx.center()),
@@ -80,9 +54,9 @@ const avoidGame: Minigame = {
 			SPEED = ctx.isInputButtonDown("down") ? 350 * ctx.speed : 300 * ctx.speed;
 
 			if (footInGame) {
-				if (ctx.isInputButtonDown("down")) mark.play("crouch");
-				else if (ctx.isInputButtonPressed("left") || ctx.isInputButtonPressed("right") && !ctx.isInputButtonDown("down")) mark.play("walk");
-				if (!ctx.isInputButtonDown("down") && !ctx.isInputButtonDown("left") && !ctx.isInputButtonDown("right")) mark.play("idle");
+				if (ctx.isInputButtonDown("down")) {} // mark.play("crouch")
+				else if (ctx.isInputButtonPressed("left") || ctx.isInputButtonPressed("right") && !ctx.isInputButtonDown("down")) mark.play("Walk");
+				if (!ctx.isInputButtonDown("down") && !ctx.isInputButtonDown("left") && !ctx.isInputButtonDown("right")) mark.play("Fwonk");
 
 				if (ctx.isInputButtonDown("left")) movement.x = ctx.lerp(movement.x, -SPEED, icy);
 				else if (ctx.isInputButtonDown("right")) movement.x = ctx.lerp(movement.x, SPEED, icy);
