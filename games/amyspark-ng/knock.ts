@@ -1,10 +1,8 @@
-import { assets } from "@kaplayjs/crew";
 import { Minigame } from "../../src/game/types";
-import { mulfokColors } from "../../src/plugins/colors";
 
 const knockGame: Minigame = {
-	prompt: "knock",
-	input: { cursor: { hide: false } },
+	prompt: "KNOCK!",
+	input: "mouse",
 	author: "amyspark-ng",
 	rgb: [74, 48, 82],
 	duration: (ctx) => ctx.difficulty == 3 ? 4.5 : 4,
@@ -35,7 +33,7 @@ const knockGame: Minigame = {
 				ctx.text(string, { font: "happy", align: "center" }),
 				ctx.scale(),
 				ctx.anchor("center"),
-				ctx.color(mulfokColors.VOID_VIOLET),
+				ctx.color(ctx.mulfok.VOID_VIOLET),
 			]);
 
 			ctx.tween(ctx.vec2(0), ctx.vec2(1), 0.1 / ctx.speed, (p) => t.scale = p, ctx.easings.easeOutQuint);
@@ -80,7 +78,7 @@ const knockGame: Minigame = {
 		door.onClick(() => {
 			if (!door.isHovering()) return;
 
-			if (ctx.winState() == false) {
+			if (!ctx.winState()) {
 				ctx.tween(ctx.vec2(DOOR_SCALE - 0.05 * totalKnocks - knocksLeft), ctx.vec2(DOOR_SCALE), 0.15 / ctx.speed, (p) => door.scale = p, ctx.easings.easeOutQuint);
 			}
 
@@ -107,7 +105,7 @@ const knockGame: Minigame = {
 					ctx.wait(0.5 / ctx.speed, () => {
 						ctx.burp({ speed: ctx.speed * 0.8 });
 						const heytextbox = addTextbox("HEY!", true);
-						heytextbox.use(ctx.fixed()); // TODO: this will work when fixed works
+						heytextbox.use(ctx.fixed());
 						heytextbox.pos = ctx.center().sub(200, 0);
 					});
 
@@ -124,7 +122,6 @@ const knockGame: Minigame = {
 			}
 		});
 
-		// TODO: This minigame is all busted, compltely broken for some godforsaken reason (time out running before it should, door dissapearing)
 		ctx.onTimeout(() => {
 			if (ctx.winState() == undefined) return;
 

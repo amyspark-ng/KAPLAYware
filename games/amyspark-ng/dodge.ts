@@ -1,11 +1,10 @@
 import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
 
 const dodgeGame: Minigame = {
-	prompt: "dodge",
+	prompt: "DODGE!",
 	author: "amyspark-ng",
 	duration: (ctx) => ctx.difficulty == 1 || ctx.difficulty == 2 ? 6 : 8,
-	rgb: mulfokColors.WHITE,
+	rgb: [255, 255, 255],
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
 		ctx.loadSprite("dino", "sprites/dodge/dino.png", { sliceX: 5, sliceY: 1 });
@@ -22,9 +21,9 @@ const dodgeGame: Minigame = {
 		ctx.loadSound("explosion", "sounds/explosion.wav");
 		ctx.loadSound("wifi", "sounds/explosion.wav");
 	},
+	// TODO: Touch up (add the browser overlya)
 	start(ctx) {
-		const game = ctx.make();
-		const secondgame = game.add([]);
+		const game = ctx.add([]);
 		ctx.setGravity(2500);
 
 		let timeout = false;
@@ -52,7 +51,7 @@ const dodgeGame: Minigame = {
 		function runCloudLoop() {
 			if (isDead || timeout) return;
 			ctx.wait(ctx.rand(0.35, 1) / ctx.speed, () => {
-				const cloud = secondgame.add([
+				const cloud = game.add([
 					ctx.sprite("cloud"),
 					ctx.pos(ctx.width() + 300, ctx.center().y - ctx.rand(50, 200)),
 					ctx.color(),
@@ -74,7 +73,7 @@ const dodgeGame: Minigame = {
 
 		function addCactus() {
 			if (isDead || !cactusEnabled || timeout) return;
-			const cactus = secondgame.add([
+			const cactus = game.add([
 				ctx.pos(ctx.width() + 10, GROUND_Y + ctx.rand(20, 25)),
 				ctx.sprite("cactus"),
 				ctx.anchor("bot"),
@@ -98,7 +97,7 @@ const dodgeGame: Minigame = {
 				GROUND_Y - 150,
 			]);
 
-			const ptero = secondgame.add([
+			const ptero = game.add([
 				ctx.pos(ctx.width() + 100, y),
 				ctx.sprite("ptero"),
 				ctx.color(),
@@ -118,7 +117,7 @@ const dodgeGame: Minigame = {
 		function runSandLoop() {
 			if (isDead || timeout) return;
 			ctx.wait(ctx.rand(0.5, 2) / ctx.speed, () => {
-				const sand = secondgame.add([
+				const sand = game.add([
 					ctx.sprite("sand"),
 					ctx.pos(ctx.width() + 300, GROUND_Y + ctx.rand(30, 40)),
 					ctx.color(),
@@ -136,8 +135,9 @@ const dodgeGame: Minigame = {
 			});
 		}
 
+		// TODO: Fix the ground of thi minigame
 		function addGround() {
-			const ground = secondgame.add([
+			const ground = game.add([
 				ctx.sprite("ground", { tiled: true }),
 				ctx.color(PRIMARY_COLOR),
 				ctx.pos(0, GROUND_Y),
@@ -154,6 +154,8 @@ const dodgeGame: Minigame = {
 				ctx.area({ offset: ctx.vec2(0, 30), scale: ctx.vec2(1, 5) }),
 				ctx.body({ isStatic: true }),
 			]);
+
+			ground.pos.x = -ground.width;
 			ground2.gravityScale = 0;
 			ground2.width = ctx.width();
 
@@ -168,17 +170,17 @@ const dodgeGame: Minigame = {
 			});
 		}
 
-		const dino = secondgame.add([
+		const dino = game.add([
 			ctx.sprite("dino"),
 			ctx.color(PRIMARY_COLOR),
 			ctx.anchor("bot"),
 			ctx.pos(80, GROUND_Y + 50),
-			ctx.area({ scale: ctx.vec2(0.25, 2), offset: ctx.vec2(-10, 0) }),
+			ctx.area({ scale: ctx.vec2(0.25, 1), offset: ctx.vec2(-10, 0) }),
 			ctx.body({ stickToPlatform: false }),
 			ctx.z(3),
 		]);
 
-		secondgame.onUpdate(() => {
+		ctx.onUpdate(() => {
 			PRIMARY_COLOR = DARK_COLOR.lerp(ctx.WHITE, alpha);
 			SECONDARY_COLOR = DARK_COLOR.lerp(ctx.WHITE, 1 - alpha);
 			ctx.setRGB(SECONDARY_COLOR);
@@ -187,16 +189,16 @@ const dodgeGame: Minigame = {
 			dino.paused = isDead;
 			dino.color = PRIMARY_COLOR;
 
-			dino.gravityScale = ctx.isButtonDown("down") ? 3 : 1;
+			dino.gravityScale = ctx.isInputButtonDown("down") ? 3 : 1;
 			if (isDead) {
 				dino.frame = 4;
 				return;
 			}
-			if (ctx.isButtonDown("down")) dino.frame = 2 + frame;
+			if (ctx.isInputButtonDown("down")) dino.frame = 2 + frame;
 			else if (dino.isGrounded()) dino.frame = frame;
-			dino.area.scale.y = ctx.isButtonDown("down") ? 0.25 : 1;
+			dino.area.scale.y = ctx.isInputButtonDown("down") ? 0.25 : 1;
 
-			secondgame.get("moving").forEach((obj) => {
+			ctx.get("moving").forEach((obj) => {
 				if (obj.pos.x <= -100) obj.destroy();
 			});
 
@@ -229,12 +231,12 @@ const dodgeGame: Minigame = {
 			isDead = true;
 			ctx.lose();
 
-			game.add([
+			ctx.add([
 				ctx.sprite("gameover"),
 				ctx.color(PRIMARY_COLOR),
 			]);
 
-			const comet = game.add([
+			const comet = ctx.add([
 				ctx.sprite("comet"),
 				ctx.color(PRIMARY_COLOR),
 				ctx.pos(ctx.width() + 50, -50),
@@ -244,7 +246,7 @@ const dodgeGame: Minigame = {
 
 			ctx.tween(comet.pos, dino.pos, 0.25 / ctx.speed, (p) => comet.pos = p).onEnd(() => {
 				ctx.play("explosion", { detune: ctx.rand(-50, 50) });
-				const kaboom = game.add([
+				const kaboom = ctx.add([
 					ctx.sprite("kaboom"),
 					ctx.pos(dino.pos),
 					ctx.color(PRIMARY_COLOR),
@@ -261,9 +263,9 @@ const dodgeGame: Minigame = {
 			});
 		});
 
-		ctx.onButtonPress("action", () => {
+		ctx.onInputButtonPress("action", () => {
 			if (timeout || isDead) return;
-			if (dino.isGrounded() && !isDead && !ctx.isButtonDown("down")) {
+			if (dino.isGrounded() && !isDead && !ctx.isInputButtonDown("down")) {
 				dino.jump(900);
 				ctx.play("jump", { detune: ctx.rand(-50, 50) });
 			}
@@ -271,11 +273,11 @@ const dodgeGame: Minigame = {
 
 		ctx.onTimeout(() => {
 			timeout = true;
-			secondgame.get("*").forEach((obj) => obj.destroy());
+			ctx.get("*").forEach((obj) => obj.destroy());
 
 			ctx.win();
 			ctx.play("wifi", { detune: ctx.rand(-50, 50) });
-			game.add([
+			ctx.add([
 				ctx.sprite("wifi"),
 				ctx.color(PRIMARY_COLOR),
 			]);
@@ -288,15 +290,13 @@ const dodgeGame: Minigame = {
 		if (ctx.difficulty == 3) changeColor();
 		if (ctx.difficulty == 2 || ctx.difficulty == 3) pteroAllowed = true;
 
-		game.onUpdate(() => {
-			secondgame.paused = timeout || isDead;
+		ctx.onUpdate(() => {
+			game.paused = timeout || isDead;
 		});
 
 		addGround();
 		runSandLoop();
 		runCloudLoop();
-
-		return game;
 	},
 };
 

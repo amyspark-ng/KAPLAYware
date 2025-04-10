@@ -1,6 +1,6 @@
 import k from "../engine";
 
-export function setterPlug() {
+export default function setterPlug() {
 	return {
 		/** When setting this component, the left down up and right keys will now be used to position an object
 		 * and debug.log its position

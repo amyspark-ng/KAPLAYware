@@ -11,6 +11,7 @@ const cursor = k.add([
 	k.scale(2),
 	k.opacity(),
 	k.z(999),
+	k.fixed(),
 	k.color(),
 	k.stay(),
 	{
@@ -34,9 +35,9 @@ cursor.onUpdate(() => {
 
 	if (opacity == 0) return;
 	const hovered = k.get("area", { recursive: true }).filter((obj) => obj.isHovering() && canPoint && !obj.is("ignorepoint")).length > 0;
-	if (k.isMouseDown("left")) cursor.sprite = "@cursor_knock";
-	if (hovered && !k.isMouseDown("left")) cursor.sprite = "@cursor_point";
-	else if (!hovered && !k.isMouseDown("left")) cursor.sprite = "@cursor";
+	if (k.isMouseDown("left")) cursor.sprite = "cursor-knock";
+	if (hovered && !k.isMouseDown("left")) cursor.sprite = "cursor-point";
+	else if (!hovered && !k.isMouseDown("left")) cursor.sprite = "cursor";
 });
 
 cursor.onMouseMove(() => {

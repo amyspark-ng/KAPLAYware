@@ -1,7 +1,7 @@
 import { Minigame } from "../../src/game/types";
 
 const fishGame: Minigame = {
-	prompt: "fish",
+	prompt: "FISH!",
 	author: "erik",
 	rgb: [109, 128, 250],
 	duration: (ctx) => 10 - ctx.difficulty / 2,
@@ -49,9 +49,7 @@ const fishGame: Minigame = {
 			});
 		});
 
-		const game = ctx.make();
-
-		const sea = game.add([
+		const sea = ctx.add([
 			ctx.sprite("sea"),
 			ctx.pos(ctx.width() / 2, 0),
 			ctx.anchor("center"),
@@ -62,7 +60,7 @@ const fishGame: Minigame = {
 			sea.pos = ctx.vec2(ctx.width() / 2, Math.sin(ctx.time()) * 5 + 20);
 		});
 
-		const island = game.add([
+		const island = ctx.add([
 			ctx.sprite("island"),
 			ctx.pos(ctx.width() / 2, 0),
 			ctx.anchor("center"),
@@ -71,14 +69,14 @@ const fishGame: Minigame = {
 
 		const markXOffset = -100;
 
-		const mark = game.add([
+		const mark = ctx.add([
 			ctx.sprite("mark"),
 			ctx.pos(island.pos.add(markXOffset, 160)),
 			ctx.anchor("center"),
 			ctx.scale(2),
 		]);
 
-		const rod = game.add([
+		const rod = ctx.add([
 			ctx.sprite("fishing_rod"),
 			ctx.pos(mark.pos.add(0, 25)),
 			ctx.anchor("center"),
@@ -104,7 +102,7 @@ const fishGame: Minigame = {
 		let bobberPos = island.pos.add(-markXOffset, 500);
 		const bobberScale = 1.5;
 
-		const bobber = game.add([
+		const bobber = ctx.add([
 			ctx.sprite("bobber"),
 			ctx.pos(bobberPos),
 			ctx.area({ scale: 0.4 }),
@@ -117,7 +115,7 @@ const fishGame: Minigame = {
 			bobber.pos = bobberPos.add(0, Math.sin(ctx.time() * 2) * 3);
 		});
 
-		const bobberWater = game.add([
+		const bobberWater = ctx.add([
 			ctx.sprite("watermask"),
 			ctx.pos(bobber.pos),
 			ctx.anchor("center"),
@@ -127,7 +125,7 @@ const fishGame: Minigame = {
 		function addFish() {
 			const size = ctx.choose(["small", "medium", "small"]);
 
-			const fish = game.add([
+			const fish = ctx.add([
 				ctx.sprite("fish_" + size),
 				ctx.pos(ctx.rand(20, 300), ctx.rand(ctx.height() - 50, 350)),
 				ctx.area({
@@ -221,7 +219,7 @@ const fishGame: Minigame = {
 
 			const alertPos = bobber.pos.add(0, -70);
 
-			const alert = game.add([
+			const alert = ctx.add([
 				ctx.sprite("alert"),
 				ctx.pos(alertPos),
 				ctx.anchor("center"),
@@ -244,7 +242,7 @@ const fishGame: Minigame = {
 			});
 		});
 
-		ctx.onButtonPress("action", async () => {
+		ctx.onInputButtonPress("action", async () => {
 			if (bobber.state === "reeling") {
 				return;
 			}
@@ -260,8 +258,8 @@ const fishGame: Minigame = {
 			}
 		});
 
-		const loseCheck = game.onUpdate(() => {
-			const fish = game.get("fish");
+		const loseCheck = ctx.onUpdate(() => {
+			const fish = ctx.get("fish");
 
 			if (
 				fish.every((f) => f.pos.x > bobber.pos.x + 30)
@@ -310,7 +308,7 @@ const fishGame: Minigame = {
 
 			await bobberReelAnimation();
 
-			const boomSquare = game.add([
+			const boomSquare = ctx.add([
 				ctx.sprite("boomsquare"),
 				ctx.pos(ctx.width() / 2, ctx.height() / 2),
 				ctx.anchor("center"),
@@ -337,7 +335,7 @@ const fishGame: Minigame = {
 				"@bean-o",
 			]);
 
-			const fish = game.add([
+			const fish = ctx.add([
 				ctx.sprite(fishSpr),
 				ctx.pos(ctx.width() / 2, ctx.height() / 2),
 				ctx.anchor("center"),
@@ -377,8 +375,6 @@ const fishGame: Minigame = {
 			ctx.lose();
 			ctx.finish();
 		});
-
-		return game;
 	},
 };
 

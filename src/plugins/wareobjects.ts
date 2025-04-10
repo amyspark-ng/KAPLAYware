@@ -1,13 +1,13 @@
-import { Color, KAPLAYCtx, Vec2 } from "kaplay";
+import { Color, GameObj, KAPLAYCtx, Vec2 } from "kaplay";
 import k from "../engine";
 import { getGameInput } from "../game/utils";
-import { createPausableCtx, PausableCtx } from "../game/transitions";
+import { WareApp } from "../game/kaplayware";
 
-function addPrompt(prompt: string) {
-	const promptObj = k.add([
+function addPrompt(wareApp: WareApp, promptText: string) {
+	const promptObj = wareApp.WareScene.add([
 		k.color(k.WHITE),
 		k.fixed(),
-		k.text(`[a]${prompt}[/a]`, {
+		k.text(`[a]${promptText}[/a]`, {
 			align: "center",
 			size: 100,
 			styles: {
@@ -21,177 +21,194 @@ function addPrompt(prompt: string) {
 		k.anchor("center"),
 		k.scale(),
 		k.opacity(),
-		k.timer(),
 		k.z(101),
 		{
-			shakyLetters: true,
+			/** Set this to true if you wish for the object to not use the default animation */
+			overrideAnimation: false,
+			end() {
+			},
 		},
 	]);
 
-	promptObj.tween(0, 1.2, 0.25, (p) => promptObj.scale.x = p, k.easings.easeOutExpo);
-	promptObj.tween(0, 0.9, 0.25, (p) => promptObj.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
-		promptObj.tween(promptObj.scale, k.vec2(1), 0.25 * 1.1, (p) => promptObj.scale = p, k.easings.easeOutElastic).onEnd(() => {
-			// now do the shaky letters
-
-			let magnitude = 0;
-			let angle = 0;
-			promptObj.onUpdate(() => {
-				if (promptObj.shakyLetters) {
-					magnitude = k.lerp(magnitude, k.randi(2, 8), 0.1);
-					angle = k.lerp(angle, angle + 1, 0.1) % 360;
-					promptObj.textTransform = (idx, ch) => ({
-						pos: k.vec2(magnitude * Math.cos(angle * ((idx % 2) + 1) + 1), magnitude * Math.sin(angle * ((idx % 2) + 1) + 1)),
-					});
-				}
-				else {
-					promptObj.textTransform = (idx, ch) => ({
-						pos: k.vec2(),
-					});
-				}
+	if (promptObj.overrideAnimation == false) {
+		// the shaky letters
+		let magnitude = 0;
+		let angle = 0;
+		promptObj.onUpdate(() => {
+			magnitude = k.lerp(magnitude, k.randi(2, 8), 0.1);
+			angle = k.lerp(angle, angle + 1, 0.1) % 360;
+			promptObj.textTransform = (idx, ch) => ({
+				pos: k.vec2(magnitude * Math.cos(angle * ((idx % 2) + 1) + 1), magnitude * Math.sin(angle * ((idx % 2) + 1) + 1)),
 			});
 		});
-	});
+
+		// the jumpy
+		wareApp.pausableCtx.tween(0, 1.2, 0.25 / wareApp.wareCtx.speed, (p) => promptObj.scale.x = p, k.easings.easeOutExpo);
+		wareApp.pausableCtx.tween(0, 0.9, 0.25 / wareApp.wareCtx.speed, (p) => promptObj.scale.y = p, k.easings.easeOutExpo).onEnd(() => {
+			wareApp.pausableCtx.tween(promptObj.scale, k.vec2(1), 0.25 * 1.1, (p) => promptObj.scale = p, k.easings.easeOutElastic).onEnd(() => {
+			});
+		});
+
+		promptObj.end = () => {
+			// can't use fade out because it's not paused lol
+			wareApp.pausableCtx.tween(promptObj.opacity, 0, 0.25 / wareApp.wareCtx.speed, (p) => promptObj.opacity = p).onEnd(() => promptObj.destroy());
+		};
+	}
+
 	return promptObj;
 }
 
-function addInputPrompt(input: ReturnType<typeof getGameInput>) {
-	const inputPrompt = k.add([
-		k.sprite("inputprompt_" + input),
+function addInputPrompt(wareApp: WareApp, input: ReturnType<typeof getGameInput>) {
+	const prompt = wareApp.WareScene.add([{
+		end() {},
+	}]);
+
+	const inputBg = prompt.add([
+		k.sprite("input-circle"),
+		k.scale(),
+		k.pos(k.center()),
+		k.rotate(),
+		k.anchor("center"),
+	]);
+
+	const inputPrompt = prompt.add([
+		k.sprite("input-" + input),
 		k.anchor("center"),
 		k.pos(k.center()),
 		k.scale(),
 	]);
 
-	k.tween(k.vec2(0), k.vec2(1), 0.25, (p) => inputPrompt.scale = p, k.easings.easeOutElastic);
-	return inputPrompt;
+	prompt.onUpdate(() => {
+		inputBg.angle += 0.1 * wareApp.wareCtx.speed;
+	});
+	wareApp.pausableCtx.tween(k.vec2(0), k.vec2(1), 0.25 / wareApp.wareCtx.speed, (p) => inputBg.scale = p, k.easings.easeOutExpo);
+	wareApp.pausableCtx.tween(k.vec2(0), k.vec2(1), 0.25 / wareApp.wareCtx.speed, (p) => inputPrompt.scale = p, k.easings.easeOutElastic);
+
+	prompt.end = () => {
+		const tween = wareApp.pausableCtx.tween(k.vec2(1), k.vec2(0), 0.25 / wareApp.wareCtx.speed, (p) => inputBg.scale = p, k.easings.easeOutExpo);
+		tween.onEnd(() => {
+			prompt.destroy();
+		});
+		return tween;
+	};
+	return prompt;
 }
 
-function addBomb(pausableCtx: PausableCtx) {
-	const BOMB_POS = k.vec2(40, k.height() - 40);
+export type WareBomb = GameObj<{ tick(): void; beatsLeft: number; turnOff(): void; explode(): void; hasExploded: boolean; lit(bpm?: number): void; }>;
 
-	const bomb = k.add([]);
+function addBomb(wareApp: WareApp): WareBomb {
+	const BOMB_POS = k.vec2(40, k.height() - 40);
+	let beatsLeft = 3;
+
+	const bomb = wareApp.WareScene.add([{
+		tick,
+		get hasExploded() {
+			return hasExploded;
+		},
+		get beatsLeft() {
+			return beatsLeft;
+		},
+		turnOff,
+		lit,
+		explode,
+	}]);
 	let conductor: ReturnType<typeof k.conductor> = null;
 
-	// TODO: Fix this position
-	const cord = bomb.add([
-		k.sprite("@bomb_cord", { tiled: true }),
-		k.pos(69, 527),
-		k.anchor("left"),
-		k.fixed(),
-	]);
-
-	const cordstart = bomb.add([
-		k.sprite("@bomb_cord_start"),
-		k.pos(29, 528),
-		k.fixed(),
-	]);
-
-	const cordtip = bomb.add([
-		k.sprite("@bomb_cord_tip"),
-		k.pos(29, 528),
-		k.fixed(),
-	]);
-
-	const fuse = bomb.add([
-		k.sprite("@bomb_fuse"),
-		k.pos(),
-		k.anchor("center"),
-		k.scale(),
-		k.opacity(),
-		k.fixed(),
-	]);
-
 	const bombSpr = bomb.add([
-		k.sprite("@bomb"),
+		k.sprite("bomb"),
 		k.pos(BOMB_POS),
 		k.anchor("center"),
 		k.scale(),
 		k.color(),
-		k.fixed(),
+		k.z(1),
 	]);
 
-	cord.width = k.width() - 100;
-	let beatsLeft = 3;
-	let cordWidth = k.width() / 2;
+	const cordstart = bomb.add([
+		k.sprite("bomb-cord-start"),
+		k.pos(29, 528),
+	]);
+
+	const cord = bomb.add([
+		k.sprite("bomb-cord", { tiled: true, width: k.width() / 2 }),
+		k.pos(69, 528),
+	]);
+
+	const cordtip = cord.add([
+		k.sprite("bomb-cord-tip"),
+		k.pos(cord.width, 0),
+		k.anchor("center"),
+		k.opacity(),
+	]);
+	cordtip.pos.y += cordtip.height / 2;
+
+	const fuse = cordtip.add([
+		k.sprite("bomb-fuse"),
+		k.pos(0, 22),
+		k.anchor("center"),
+		k.scale(),
+		k.opacity(),
+	]);
 
 	function destroy() {
 		bomb.destroy();
-		cordstart.destroy();
-		cord.destroy();
-		cordtip.destroy();
-		fuse.destroy();
 		conductor?.destroy();
 	}
 
-	let fuseYThing = 0;
+	let movingFuse = false;
 	bomb.onUpdate(() => {
 		if (beatsLeft < -1) return;
 
-		if (conductor) conductor.paused = bomb.paused;
+		const width = k.lerp(cord.width, ((k.width() / 2) / 3) * beatsLeft, 0.75);
+		cord.width = width;
+		cordtip.pos.x = width;
 
-		cordWidth = ((k.width() / 2) / 3) * beatsLeft;
-		if (beatsLeft != 0) {
-			fuse.pos = k.lerp(fuse.pos, cord.pos.add(cord.width, 50), 0.75);
-			cordtip.pos = fuse.pos.sub(cordtip.width / 2, 50);
-		}
-		else {
-			fuseYThing += 1.5;
-			if (cordtip.exists()) cordtip.destroy();
+		if (conductor) conductor.paused = wareApp.gamePaused;
+		if (beatsLeft == 0 && !movingFuse) {
 			if (cordstart.exists()) cordstart.destroy();
-			fuse.pos = k.lerp(fuse.pos, k.vec2(cord.pos.x + cord.width, cord.pos.y + 50 - fuseYThing), 0.75);
+			cordtip.opacity = 0;
+			movingFuse = true;
+			wareApp.pausableCtx.tween(fuse.pos.y, fuse.pos.y - 30, conductor.beatInterval, (p) => fuse.pos.y = p);
 		}
-
-		cord.width = k.lerp(cord.width, cordWidth, 0.75);
 	});
+
+	let hasExploded = false;
+	function explode() {
+		destroy();
+		const kaboom = k.addKaboom(bombSpr.pos);
+		kaboom.parent = wareApp.WareScene;
+		wareApp.pausableCtx.play("explosion");
+		hasExploded = true;
+	}
 
 	function tick() {
 		if (!bombSpr.exists()) return;
 		if (beatsLeft > 0) {
 			beatsLeft--;
 			const tweenMult = 2 - beatsLeft + 1; // goes from 1 to 3;
-			pausableCtx.tween(k.vec2(1).add(0.33 * tweenMult), k.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, k.easings.easeOutQuint);
-			pausableCtx.play("@tick", { detune: 25 * 2 - beatsLeft });
+			wareApp.pausableCtx.tween(k.vec2(1).add(0.33 * tweenMult), k.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, k.easings.easeOutQuint);
+			wareApp.pausableCtx.play("tick", { detune: 25 * 2 - beatsLeft });
 			if (beatsLeft == 2) bombSpr.color = k.YELLOW;
 			else if (beatsLeft == 1) bombSpr.color = k.RED.lerp(k.YELLOW, 0.5);
 			else if (beatsLeft == 0) bombSpr.color = k.RED;
 		}
-		else {
-			destroy();
-			// TODO: fix this kaboom parent
-			const kaboom = k.addKaboom(bombSpr.pos);
-			pausableCtx.play("@explosion");
-		}
+		else explode();
 	}
 
-	return {
-		set paused(val: boolean) {
-			bomb.paused = val;
-		},
+	/** Will start a conductor which will explode the bomb in 4 beats (tick, tick, tick, BOOM!) */
+	function lit(bpm = 140) {
+		conductor = k.conductor(bpm);
+		conductor.onBeat((beat, beatTime) => {
+			tick();
+			if (beat == 4) destroy();
+		});
+	}
 
-		get paused() {
-			return bomb.paused;
-		},
+	function turnOff() {
+		conductor.destroy();
+		fuse.fadeOut(0.5 / 3).onEnd(() => fuse.destroy());
+	}
 
-		bomb,
-		/** Will start a conductor which will explode the bomb in 4 beats (tick, tick, tick, BOOM!) */
-		tick,
-		lit(bpm = 140) {
-			conductor = k.conductor(bpm);
-			conductor.onBeat((beat, beatTime) => {
-				tick();
-				if (beat == 3) conductor.destroy();
-			});
-			// TODO: THIS CONDUCTOR DOESN'T WANT TO PAUSE
-		},
-		destroy,
-		turnOff: () => {
-			fuse.fadeOut(0.5 / 3).onEnd(() => fuse.destroy());
-		},
-		get hasExploded() {
-			return beatsLeft == 0;
-		},
-		beatsLeft,
-	};
+	return bomb;
 }
 
 type Sampler<T> = T | (() => T);

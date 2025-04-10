@@ -1,11 +1,10 @@
 import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
 
 const mineGame: Minigame = {
-	prompt: "mine",
+	prompt: "MINE!",
 	author: "amyspark-ng",
-	rgb: mulfokColors.VOID_VIOLET,
-	input: { cursor: { hide: true } },
+	rgb: (ctx) => ctx.mulfok.VOID_VIOLET,
+	input: "mouse (hidden)",
 	duration: 5,
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
@@ -28,8 +27,7 @@ const mineGame: Minigame = {
 		});
 	},
 	start(ctx) {
-		const game = ctx.make();
-		game.add([ctx.sprite("bg")]);
+		ctx.add([ctx.sprite("bg")]);
 		const getHits = () => {
 			if (ctx.difficulty == 1 || ctx.difficulty == 2) return ctx.randi(2, 3);
 			else return ctx.randi(4, 5);
@@ -40,7 +38,7 @@ const mineGame: Minigame = {
 		let insideRock = false;
 		let hasWon = false;
 
-		const rocks = game.add([
+		const rocks = ctx.add([
 			ctx.sprite("rocks"),
 			ctx.pos(ctx.center().x, ctx.height()),
 			ctx.anchor("bot"),
@@ -48,7 +46,7 @@ const mineGame: Minigame = {
 			ctx.z(2),
 		]);
 
-		const pickaxe = game.add([
+		const pickaxe = ctx.add([
 			ctx.sprite("pickaxe"),
 			ctx.anchor("center"),
 			ctx.rotate(0),
@@ -58,18 +56,19 @@ const mineGame: Minigame = {
 		]);
 
 		function hitParticles() {
-			const particleSpeed = ctx.vec2(0, 500).scale(ctx.speed);
-			const splatter = game.add([
-				ctx.pos(ctx.mousePos()),
+			const particleSpeed = ctx.vec2(ctx.rand(-10, 10), 500).scale(ctx.speed);
+			const splatter = ctx.add([
+				ctx.pos(rocks.pos.sub(0, rocks.height / 2).add(ctx.rand(-40, 50), ctx.rand(-40, 50))),
 				ctx.z(rocks.z + 1),
 				ctx.particles({
 					max: 20,
 					speed: [particleSpeed.x, particleSpeed.y],
-					acceleration: [particleSpeed.scale(2), particleSpeed.scale(2)],
+					acceleration: [particleSpeed.scale(2), particleSpeed.scale(3)],
 					lifeTime: [999, 999],
 					colors: [ctx.WHITE],
-					opacities: [1.0, 0.0],
-					angle: [0, 0],
+					opacities: [1.0],
+					angle: [0, 360],
+					angularVelocity: [0, 50 * ctx.speed],
 					// @ts-ignore
 					texture: ctx.getSprite("peddle").data.tex,
 					// @ts-ignore
@@ -79,14 +78,15 @@ const mineGame: Minigame = {
 					rate: 0,
 					direction: -90,
 					spread: 45,
+					position: ctx.vec2(),
 				}),
 			]);
 
-			splatter.emit(ctx.randi(30, 40));
+			splatter.emit(ctx.randi(10, 20));
 			splatter.onEnd(() => splatter.destroy());
 		}
 
-		game.onUpdate(() => {
+		ctx.onUpdate(() => {
 			pickaxe.pos = ctx.mousePos();
 			const angle = ctx.mousePos().x >= ctx.center().x ? -90 : 90;
 			pickaxe.angle = ctx.lerp(pickaxe.angle, ctx.map(ctx.mousePos().y, 100, ctx.height() - 50, 0, angle), 0.5);
@@ -95,7 +95,10 @@ const mineGame: Minigame = {
 				insideRock = true;
 
 				// you hit too soft
-				if (ctx.mouseDeltaPos().y < 40) return;
+				if (ctx.mouseDeltaPos().y < 40) {
+					ctx.tween(0.9, 1, 0.15 / ctx.speed, (p) => rocks.scale.y = p, ctx.easings.easeOutQuint);
+					return;
+				}
 
 				if (!timeOut && hitsLeft > 0) {
 					hitsLeft--;
@@ -109,6 +112,7 @@ const mineGame: Minigame = {
 					hasWon = true;
 					hitParticles();
 					ctx.play("rockhit", { detune: ctx.rand(-50, 50) });
+					// TODO: Figure out why frames 5 and 6 are empty
 					rocks.play("diamond", { speed: 5 * ctx.speed });
 					ctx.play("bling", { detune: ctx.rand(-50, 50), speed: ctx.speed });
 					ctx.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => rocks.scale = p, ctx.easings.easeOutQuint);
@@ -126,7 +130,7 @@ const mineGame: Minigame = {
 
 				for (let i = 0; i < 10; i++) {
 					ctx.shakeCam(5);
-					const boulder = game.add([
+					const boulder = ctx.add([
 						ctx.sprite("peddle"),
 						ctx.scale(ctx.rand(3, 5)),
 						ctx.pos(ctx.randi(0, ctx.width()), -10),
@@ -144,8 +148,6 @@ const mineGame: Minigame = {
 				ctx.wait(1 / ctx.speed, () => ctx.finish());
 			}
 		});
-
-		return game;
 	},
 };
 

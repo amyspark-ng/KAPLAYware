@@ -1,25 +1,24 @@
 import { Minigame } from "../../src/game/types.ts";
-import { mulfokColors as palette } from "../../src/plugins/colors";
 
 const colorGame: Minigame = {
-	prompt: "choose",
+	prompt: "CHOOSE!",
 	author: "luizbills",
 	rgb: [0, 0, 0],
 	urlPrefix: "games/luizbills/assets/",
-	input: { cursor: { hide: false } },
+	input: "mouse",
 	duration: 4,
+	colorDependant: true,
 	load(ctx) {
 		ctx.loadSound("correct", "sounds/applause.ogg");
 	},
+	// TODO: Do the remake
 	start(ctx) {
-		const game = ctx.make();
-
 		const possibleColors = {
-			"red": palette.RED,
-			"green": palette.BEAN_GREEN,
-			"blue": palette.DARK_BLUE,
-			"brown": palette.BROWN,
-			"pink": palette.PINK,
+			"red": ctx.mulfok.RED,
+			"green": ctx.mulfok.BEAN_GREEN,
+			"blue": ctx.mulfok.DARK_BLUE,
+			"brown": ctx.mulfok.BROWN,
+			"pink": ctx.mulfok.PINK,
 		};
 		const qty = Math.min(4, ctx.difficulty + 1);
 		const hasLabels = ctx.difficulty >= 2;
@@ -48,16 +47,17 @@ const colorGame: Minigame = {
 			const y = (250 - 50 * (ctx.difficulty - 1)) + 100 * i;
 			const h = 75;
 
-			const option = game.add([
+			const option = ctx.add([
 				ctx.pos(ctx.width() / 2, y),
 				ctx.anchor("center"),
 				ctx.rect(ctx.width() / 3, h, {
 					radius: 10,
 				}),
+				// @ts-ignore
 				ctx.color(possibleColors[color]),
 				ctx.area(),
 				ctx.opacity(),
-				ctx.outline(4, palette.WHITE),
+				ctx.outline(4, ctx.mulfok.WHITE),
 				{
 					colorName: color,
 				},
@@ -82,7 +82,7 @@ const colorGame: Minigame = {
 			});
 		}
 
-		game.add([
+		ctx.add([
 			ctx.text(`Choose the "${correctColor}" color:`, {
 				size: 30,
 			}),
@@ -96,11 +96,11 @@ const colorGame: Minigame = {
 
 		function end(victory = true) {
 			done = true;
-			for (const wrong of game.get("wrong")) {
-				wrong.color = palette.WHITE;
+			for (const wrong of ctx.get("wrong")) {
+				wrong.color = ctx.mulfok.WHITE;
 				wrong.opacity = 0.5;
 				if (hasLabels) {
-					wrong.get("label")[0].color = palette.GRAY;
+					wrong.get("label")[0].color = ctx.mulfok.GRAY;
 				}
 			}
 			if (victory) {
@@ -115,8 +115,6 @@ const colorGame: Minigame = {
 			}
 			ctx.wait(1 / ctx.speed, () => ctx.finish());
 		}
-
-		return game;
 	},
 };
 

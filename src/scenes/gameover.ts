@@ -18,6 +18,7 @@ k.scene("gameover", (score: number) => {
 		k.anchor("center"),
 	]);
 
+	// TODO: Have to figure out a way to get the old games and pass them again here, maybe make game over a substate rather than a whole new scene
 	k.onClick(() => k.go("game"));
 	k.onKeyPress("space", () => k.go("game"));
 });

@@ -1,6 +1,5 @@
 import { GameObj, Vec2 } from "kaplay";
 import { Minigame, MinigameCtx } from "../../src/game/types.ts";
-import mulfokColors from "../../src/plugins/colors";
 
 function getHexagonShape(ctx: MinigameCtx) {
 	// some cool math
@@ -14,37 +13,68 @@ function getHexagonShape(ctx: MinigameCtx) {
 	return new ctx.Polygon(pts);
 }
 
-function addBackground(ctx: MinigameCtx, game: GameObj<unknown>) {
-	const col1D = ctx.Color.fromHex("#291834");
-	const col2D = ctx.Color.fromHex("#36213f");
+function addBackground(ctx: MinigameCtx) {
+	const color = {
+		ColorPrimary: ctx.Color.fromHex("#291834"),
+		ColorSecondary: ctx.Color.fromHex("#36213f"),
+	};
 
-	const bg = game.add([
-		ctx.rect(ctx.width(), ctx.height()),
-		ctx.pos(ctx.center()),
+	const parent = ctx.add([
+		ctx.rotate(5),
 		ctx.anchor("center"),
-		ctx.scale(8),
+		ctx.scale(),
+	]);
+
+	const bg = ctx.add([
+		ctx.rect(ctx.width(), ctx.height()),
 		{
-			speed: 0.1,
+			offsetX: 0,
+			offsetY: 0,
+			cellSize: 148,
+			speed: 64 * ctx.speed,
+			set angle(val: number) {
+				parent.angle = val;
+			},
+			get angle() {
+				return parent.angle;
+			},
 		},
 	]);
 
-	bg.use(ctx.shader("background", () => ({
-		"u_time": ctx.time() / 10,
-		"u_color1": col1D,
-		"u_color2": col2D,
-		"u_speed": ctx.vec2(-1, 2).scale(bg.speed),
-		"u_angle": 5,
-		"u_scale": 2,
-		"u_aspect": ctx.width() / ctx.height(),
-	})));
+	bg.onDraw(() => {
+		for (let y = -2; y < ctx.height() / bg.cellSize; y++) {
+			for (let x = -2; x < ctx.width() / bg.cellSize; x++) {
+				ctx.drawRect({
+					pos: ctx.vec2(x * bg.cellSize + bg.offsetX, y * bg.cellSize + bg.offsetY),
+					width: bg.cellSize,
+					height: bg.cellSize,
+					color: (x + y) % 2
+						? ctx.rgb(color.ColorPrimary.r, color.ColorPrimary.g, color.ColorPrimary.b)
+						: ctx.rgb(color.ColorSecondary.r, color.ColorSecondary.g, color.ColorSecondary.b),
+				});
+			}
+		}
+	});
+
+	bg.onUpdate(() => {
+		bg.offsetX += bg.speed * ctx.dt();
+		bg.offsetY += bg.speed * ctx.dt();
+
+		if (bg.offsetX >= bg.cellSize * 2) {
+			bg.offsetX = 0;
+		}
+		if (bg.offsetY >= bg.cellSize * 2) {
+			bg.offsetY = 0;
+		}
+	});
 
 	return bg;
 }
 
-function addComboText(ctx: MinigameCtx, game: GameObj) {
+function addComboText(ctx: MinigameCtx) {
 	let blendFactor = 0;
 	let words = ["MAX COMBO", "MAX COMBO!!", "YOO-HOO!!!", "YEEEOUCH!!", "FINISH IT"];
-	let maxComboText = game.add([
+	let maxComboText = ctx.add([
 		ctx.text(`[combo]${ctx.choose(words)}[/combo]`, {
 			size: 55,
 			align: "center",
@@ -83,10 +113,10 @@ function addComboText(ctx: MinigameCtx, game: GameObj) {
 }
 
 const clickGame: Minigame = {
-	prompt: "click",
+	prompt: "CLICK!",
 	author: "amyspark-ng", // of course
 	rgb: [41, 24, 52],
-	input: { cursor: { hide: false } },
+	input: "mouse",
 	playsOwnMusic: true,
 	urlPrefix: "games/amyspark-ng/assets/",
 	duration: (ctx) => ctx.difficulty == 3 ? 6 : 4,
@@ -97,47 +127,18 @@ const clickGame: Minigame = {
 		ctx.loadSound("fullcombo", "sounds/clickeryfullcombo.ogg");
 		ctx.loadSound("explode", "sounds/explode.mp3");
 		ctx.loadSound("clickpress", "sounds/clickPress.ogg");
-		// made by MF
-		ctx.loadShader(
-			"background",
-			null,
-			`
-	uniform float u_time;
-	uniform vec3 u_color1;
-	uniform vec3 u_color2;
-	uniform vec2 u_speed;
-	uniform float u_angle;
-	uniform float u_scale;
-	uniform float u_aspect;
-	
-	#define PI 3.14159265359
-	vec4 frag(vec2 pos, vec2 uv, vec4 color, sampler2D tex) {
-		float angle = u_angle * PI / 180.0;
-		mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-		vec2 size = vec2(u_scale);
-		vec2 p = (pos + vec2(u_time) * u_speed) * vec2(u_aspect, 1.0);
-		p = p * rot;
-		float total = floor(p.x * size.x) + floor(p.y * size.y);
-		bool isEven = mod(total, 2.0) == 0.0;
-		vec4 col1 = vec4(u_color1 / 255.0, 1.0);
-		vec4 col2 = vec4(u_color2 / 255.0, 1.0);
-		return (isEven) ? col1 : col2;
-	}
-	`,
-		);
 	},
 	start(ctx) {
-		const game = ctx.make();
 		const SCORE_TO_WIN = ctx.difficulty == 1 ? ctx.randi(4, 6) : ctx.difficulty == 2 ? ctx.randi(8, 10) : ctx.difficulty == 3 ? ctx.randi(18, 20) : ctx.rand(18, 20);
 		let score = 0;
 		let spinspeed = ctx.speed;
 		let clicksInSecond = 0;
 		let secondTimer = 0;
 
-		addBackground(ctx, game);
+		addBackground(ctx);
 		ctx.play("music", { speed: ctx.speed });
 
-		const scoreText = game.add([
+		const scoreText = ctx.add([
 			ctx.text(`0/${SCORE_TO_WIN}`),
 			ctx.pos(ctx.center().x, 60),
 			ctx.anchor("center"),
@@ -152,7 +153,7 @@ const clickGame: Minigame = {
 			ctx.anchor("center"),
 		]);
 
-		const hexagon = game.add([
+		const hexagon = ctx.add([
 			ctx.sprite("hexagon"),
 			ctx.anchor("center"),
 			ctx.color(),
@@ -164,7 +165,7 @@ const clickGame: Minigame = {
 		]);
 
 		hexagon.onUpdate(() => {
-			const hexagonClicked = hexagon.isHovering() && ctx.isButtonDown("click");
+			const hexagonClicked = hexagon.isHovering() && ctx.isInputButtonDown("click");
 			hexagon.scale = ctx.lerp(hexagon.scale, hexagonClicked ? ctx.vec2(0.95) : ctx.vec2(1), 0.25);
 			hexagon.angle = ctx.lerp(hexagon.angle, hexagon.angle + 0.1 + (score / 8 * spinspeed), 0.5);
 			scoreText.angle = ctx.wave(-15, 15, ctx.time() * ctx.speed);
@@ -182,7 +183,7 @@ const clickGame: Minigame = {
 			ctx.tween(ctx.vec2(2.25), ctx.vec2(2), 0.75 / ctx.speed, (p) => scoreText.scale = p, ctx.easings.easeOutQuint);
 			ctx.play("clickpress", { detune: ctx.rand(-100, 100) });
 			scoreText.text = `${score.toString()}/${SCORE_TO_WIN}`;
-			const plusScoreText = game.add([
+			const plusScoreText = ctx.add([
 				ctx.text("+1"),
 				ctx.anchor("center"),
 				ctx.opacity(),
@@ -193,17 +194,18 @@ const clickGame: Minigame = {
 			plusScoreText.onUpdate(() => plusScoreText.move(0, ctx.rand(-80, -90) * ctx.speed));
 		});
 
-		ctx.onButtonRelease("click", () => {
+		ctx.onInputButtonRelease("click", () => {
+			if (!hexagon.isHovering()) return;
 			ctx.play("clickpress", { detune: ctx.rand(-400, -200) });
 		});
 
-		if (ctx.difficulty == 3) hexagon.color = ctx.choose(Object.values(mulfokColors)).lerp(ctx.WHITE, 0.5);
+		if (ctx.difficulty == 3) hexagon.color = ctx.choose(Object.values(ctx.mulfok)).lerp(ctx.WHITE, 0.5);
 
 		ctx.onTimeout(() => {
 			if (score >= SCORE_TO_WIN) {
 				ctx.play("fullcombo", { detune: ctx.rand(-50, 50) });
 				ctx.win();
-				addComboText(ctx, game);
+				addComboText(ctx);
 				ctx.addConfetti({ pos: ctx.mousePos() });
 				ctx.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamAngle(p), ctx.easings.easeOutQuint);
 			}
@@ -220,8 +222,6 @@ const clickGame: Minigame = {
 				ctx.finish();
 			});
 		});
-
-		return game;
 	},
 };
 

@@ -3,7 +3,7 @@ import { getGameID } from "./utils";
 
 const gameModules = import.meta.glob("../../games/*/*.ts", { eager: true });
 
-const exclude = new Set(["amyspark-ng:flip", "amyspark-ng:upload"]);
+const exclude = new Set([]);
 
 /** The imported games */
 const games = Object.values(gameModules)
