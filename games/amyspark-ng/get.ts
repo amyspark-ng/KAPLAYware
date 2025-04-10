@@ -1,12 +1,11 @@
 import { assets } from "@kaplayjs/crew";
 import { Vec2 } from "kaplay";
 import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
 
 const getGame: Minigame = {
-	prompt: "get",
+	prompt: "GET!",
 	author: "amyspark-ng",
-	rgb: mulfokColors.GREEN,
+	rgb: (ctx) => ctx.mulfok.GREEN,
 	duration: (ctx) => ctx.difficulty == 3 ? 3.5 : 4,
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
@@ -19,7 +18,6 @@ const getGame: Minigame = {
 	},
 	start(ctx) {
 		ctx.speed = 1.6;
-		ctx.difficulty = 3;
 		const SPEED = 300 * ctx.speed;
 		ctx.add([ctx.sprite("grass")]);
 
@@ -48,7 +46,8 @@ const getGame: Minigame = {
 			ctx.anchor("bot"),
 			ctx.scale(1.5),
 			ctx.rotate(),
-			ctx.z(5),
+			ctx.z(0.5),
+			ctx.body(),
 		]);
 
 		const trunk = ctx.add([
@@ -57,6 +56,8 @@ const getGame: Minigame = {
 			ctx.scale(),
 			ctx.pos(649, 584),
 			ctx.z(1),
+			ctx.area({ scale: ctx.vec2(0.5, 0.1), offset: ctx.vec2(-25, 0) }),
+			ctx.body({ isStatic: true }),
 		]);
 
 		let bushShake = 0;
@@ -94,12 +95,12 @@ const getGame: Minigame = {
 		const movement = ctx.vec2();
 		let lerpMovement = ctx.vec2();
 		bean.onUpdate(() => {
-			bean.pos.x = ctx.clamp(bean.pos.x, -bean.width / 2, ctx.width() + bean.width / 2);
-			bean.pos.y = ctx.clamp(bean.pos.y, -bean.height / 2, ctx.height() + bean.height / 2);
+			bean.pos.x = ctx.clamp(bean.pos.x, bean.width / 2, ctx.width() - bean.width / 2);
+			bean.pos.y = ctx.clamp(bean.pos.y, bean.height / 2, ctx.height() - bean.height / 2);
 
 			// this is to prevent bean going faster on diagonal movement
-			movement.x = ctx.isButtonDown("left") ? -1 : ctx.isButtonDown("right") ? 1 : 0;
-			movement.y = ctx.isButtonDown("up") ? -1 : ctx.isButtonDown("down") ? 1 : 0;
+			movement.x = ctx.isInputButtonDown("left") ? -1 : ctx.isInputButtonDown("right") ? 1 : 0;
+			movement.y = ctx.isInputButtonDown("up") ? -1 : ctx.isInputButtonDown("down") ? 1 : 0;
 
 			// this just lerps a movement to the unit, which rounds that 1.4 to 1 :thumbsup:
 			lerpMovement = ctx.lerp(lerpMovement, movement.unit().scale(SPEED), 0.75);
@@ -131,7 +132,7 @@ const getGame: Minigame = {
 				ctx.drawCircle({
 					radius: 10,
 					scale: ctx.vec2(2, 1),
-					color: mulfokColors.VOID_VIOLET,
+					color: ctx.mulfok.VOID_VIOLET,
 					opacity: 0.4,
 					pos: apple.pos.add(10, 0),
 				});
@@ -141,7 +142,7 @@ const getGame: Minigame = {
 			ctx.drawCircle({
 				radius: 20,
 				scale: ctx.vec2(2, 1),
-				color: mulfokColors.VOID_VIOLET,
+				color: ctx.mulfok.VOID_VIOLET,
 				opacity: 0.4,
 				pos: bean.pos.add(25, -20),
 			});

@@ -19,20 +19,17 @@ const template = `
 import { Minigame } from "../../src/game/types";
 
 const ${gamePrompt}Game: Minigame = {
-	prompt: "${gamePrompt}",
 	author: "${author}",
-	rgb: [0, 0, 0],
+	prompt: "${gamePrompt.toUpperCase() + "!"}",
+	input: "keys",
+	duration: 4,
 	urlPrefix: "${assets_dir}",
 	load(ctx) {},
 	start(ctx) {
-		const game = ctx.make();
-
-		const bean = game.add([
+		const bean = ctx.add([
 			ctx.sprite("@bean"),
 			ctx.pos(),
 		]);
-
-		return game;
 	},
 };
 

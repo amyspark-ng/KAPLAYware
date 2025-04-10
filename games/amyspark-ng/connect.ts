@@ -1,23 +1,21 @@
-import { assets } from "@kaplayjs/crew";
-import kaplay, { Color, GameObj, Vec2 } from "kaplay";
+import { GameObj } from "kaplay";
 import { Minigame } from "../../src/game/types.ts";
-import mulfokColors from "../../src/plugins/colors.ts";
 
 const newGame: Minigame = {
-	prompt: "connect",
+	prompt: "CONNECT!",
 	author: "amyspark-ng",
-	input: { cursor: { hide: false } },
-	rgb: mulfokColors.DARK_PURPLE,
+	input: "mouse",
+	rgb: (ctx) => ctx.mulfok.DARK_PURPLE,
 	duration: (ctx) => ctx.difficulty == 3 ? 7 : 5,
 	urlPrefix: "games/amyspark-ng/assets",
+	colorDependant: true,
 	load(ctx) {
 		ctx.loadSprite("plug", "/sprites/connect/plug.png");
 		ctx.loadSprite("box", "/sprites/connect/box.png");
 		ctx.loadSound("plug", "/sounds/switch.mp3");
 	},
+	// TODO: Do the remake
 	start(ctx) {
-		const game = ctx.make();
-
 		const allColors = [
 			ctx.Color.fromHex("#cc425e"),
 			ctx.Color.fromHex("#6bc96c"),
@@ -38,7 +36,7 @@ const newGame: Minigame = {
 		gameColors.forEach((color, plugIndex, arr) => {
 			plugSocketState[plugIndex] = "disconnected";
 
-			const socketObj = game.add([
+			const socketObj = ctx.add([
 				ctx.sprite("box"),
 				ctx.color(color),
 				ctx.pos(ctx.center().x, ctx.center().y - 200),
@@ -48,10 +46,11 @@ const newGame: Minigame = {
 				"ignorepoint",
 			]);
 
-			const sourceObj = game.add([
+			const sourceObj = ctx.add([
 				ctx.sprite("box"),
 				ctx.color(color),
 				ctx.pos(ctx.center().x, ctx.center().y + 200),
+				ctx.area(),
 				"plugbox",
 			]);
 
@@ -106,12 +105,12 @@ const newGame: Minigame = {
 					plugSocketState[plugIndex] = "connected";
 				}
 
-				if (ctx.isButtonReleased("click") && plugSocketState[plugIndex] == "wiring") {
+				if (ctx.isInputButtonReleased("click") && plugSocketState[plugIndex] == "wiring") {
 					if (!socketObj.isHovering()) plugSocketState[plugIndex] = "disconnected";
 				}
 			});
 
-			game.onDraw(() => {
+			ctx.onDraw(() => {
 				ctx.drawLine({
 					p1: ctx.vec2(sourceObj.pos.x + sourceObj.width / 2, sourceObj.pos.y),
 					p2: sourceObj.toWorld(plugObj.pos),
@@ -122,7 +121,7 @@ const newGame: Minigame = {
 		});
 
 		let hasWon = false;
-		game.onUpdate(() => {
+		ctx.onUpdate(() => {
 			if (winCondition() && !hasWon) {
 				hasWon = true;
 				ctx.win();
@@ -130,7 +129,7 @@ const newGame: Minigame = {
 			}
 		});
 
-		game.onDraw(() => {
+		ctx.onDraw(() => {
 			// draw the connected ones
 			gameColors.forEach((color, index) => {
 				if (plugSocketState[index] == "disconnected") return;
@@ -145,8 +144,6 @@ const newGame: Minigame = {
 				});
 			}
 		});
-
-		return game;
 	},
 };
 

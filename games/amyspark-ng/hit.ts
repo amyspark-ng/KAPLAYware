@@ -1,11 +1,10 @@
 import { Minigame } from "../../src/game/types.ts";
-import mulfokColors from "../../src/plugins/colors.ts";
 
 const hitGame: Minigame = {
-	prompt: "hit",
+	prompt: "HIT!",
 	author: "amyspark-ng",
-	rgb: mulfokColors.DARK_PINK,
-	input: { cursor: { hide: true } },
+	rgb: (ctx) => ctx.mulfok.DARK_PINK,
+	input: "mouse (hidden)",
 	duration: 5,
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
@@ -20,16 +19,15 @@ const hitGame: Minigame = {
 		ctx.loadSound("tvsound", "sounds/tvsound.mp3");
 	},
 	start(ctx) {
-		const game = ctx.make();
 		let hitsLeft = ctx.difficulty == 1 ? 2 : ctx.difficulty == 2 ? 3 : ctx.difficulty == 3 ? ctx.randi(3, 5) : 0;
 		let mouseInsideTV = false;
 		let canHit = true;
 
 		const staticSfx = ctx.play("static", { loop: true });
-		const table = game.add([ctx.sprite("table"), ctx.pos(10, 563)]);
-		const tv = game.add([ctx.sprite("static"), ctx.anchor("left"), ctx.pos(47, 309), ctx.scale()]);
+		const table = ctx.add([ctx.sprite("table"), ctx.pos(10, 563)]);
+		const tv = ctx.add([ctx.sprite("static"), ctx.anchor("left"), ctx.pos(47, 309), ctx.scale()]);
 
-		const hand = game.add([
+		const hand = ctx.add([
 			ctx.sprite("hand"),
 			ctx.pos(),
 			ctx.anchor("left"),
@@ -48,7 +46,6 @@ const hitGame: Minigame = {
 				// you hit too soft
 				if (ctx.mouseDeltaPos().x > -80) return;
 
-				ctx.shakeCam(0.5);
 				if (canHit == true) {
 					hitsLeft--;
 					ctx.play("hit", { detune: ctx.rand(-50, 50) });
@@ -72,7 +69,7 @@ const hitGame: Minigame = {
 			else if (ctx.mousePos().x >= WALL_X && mouseInsideTV) mouseInsideTV = false;
 		});
 
-		game.onUpdate(() => {
+		ctx.onUpdate(() => {
 			if (hitsLeft <= 0) tv.frame = Math.floor(ctx.time() * 5 % 2);
 			else tv.frame = Math.floor((ctx.time() * 10) % 2);
 		});
@@ -85,8 +82,6 @@ const hitGame: Minigame = {
 				});
 			}
 		});
-
-		return game;
 	},
 };
 

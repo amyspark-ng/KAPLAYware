@@ -1,11 +1,31 @@
 import { Asset, Color, GameObj, KAPLAYCtx, KEventController, SpriteComp, SpriteCompOpt, SpriteData, TweenController, Vec2 } from "kaplay";
 import k from "../engine";
 import { ConfettiOpt } from "../plugins/wareobjects";
-import { gameAPIs, loadAPIs } from "./api";
-import { CustomSprite } from "./kaplayware";
+import { gameAPIs } from "./api";
+import { LoadCtx, MinigameCtx } from "./context";
+import { assets } from "@kaplayjs/crew";
+
+type Friend = keyof typeof assets | `${keyof typeof assets}-o`;
+type AtFriend = `@${Friend}`;
+type CustomSprite<T extends string> = T extends AtFriend | string & {} ? AtFriend | string & {} : string;
+
+/**
+ * A modified {@link sprite `sprite()`} component to fit KAPLAYware.
+ *
+ * @group Component Types
+ */
+interface WareSpriteComp extends Omit<SpriteComp, "sprite"> {
+	/**
+	 * Name of the sprite.
+	 */
+	sprite: CustomSprite<string>;
+}
+
+/** The type of input a minigame does */
+export type MinigameInput = "mouse" | "keys" | "both";
 
 /** A button */
-export type Button =
+export type InputButton =
 	| "action"
 	| "left"
 	| "right"
@@ -13,29 +33,23 @@ export type Button =
 	| "down"
 	| "click";
 
-type CursorInput = { cursor: { hide: boolean; }; keys?: never; };
-type KeyInput = { keys: { use: boolean; }; cursor?: never; };
-
-/** The allowed load functions */
-export type LoadCtx = Pick<KAPLAYCtx, typeof loadAPIs[number]>;
-
 /** The specific API for minigames */
 export type MinigameAPI = {
 	/**
 	 * Register an event that runs once when a button is pressed.
 	 */
-	onButtonPress(btn: Button, action: () => void): KEventController;
+	onInputButtonPress(btn: InputButton, action: () => void): KEventController;
 	/**
 	 * Register an event that runs once when a button is released.
 	 */
-	onButtonRelease(btn: Button, action: () => void): KEventController;
+	onInputButtonRelease(btn: InputButton, action: () => void): KEventController;
 	/**
 	 * Register an event that runs every frame when a button is held down.
 	 */
-	onButtonDown(btn: Button, action: () => void): KEventController;
-	isButtonPressed(btn: Button): boolean;
-	isButtonDown(btn: Button): boolean;
-	isButtonReleased(btn: Button): boolean;
+	onInputButtonDown(btn: InputButton, action: () => void): KEventController;
+	isInputButtonPressed(btn: InputButton): boolean;
+	isInputButtonDown(btn: InputButton): boolean;
+	isInputButtonReleased(btn: InputButton): boolean;
 
 	onMouseMove(action: (pos: Vec2, delta: Vec2) => void): KEventController;
 	onMouseRelease(action: () => void): KEventController;
@@ -59,7 +73,7 @@ export type MinigameAPI = {
 	getRGB(): Color;
 	/** Sets the RGB to the background of your minigame */
 	setRGB(val: Color): void;
-	/** ### Custom sprite component for kaplayware that holds default assets
+	/** ### Custom sprite component for KAPLAYware that holds default assets
 	 *
 	 * Attach and render a sprite to a Game Object.
 	 *
@@ -93,10 +107,7 @@ export type MinigameAPI = {
 	 * @since v2000.0
 	 * @group Components
 	 */
-	sprite(spr: CustomSprite<string> | SpriteData | Asset<SpriteData>, opt?: SpriteCompOpt): SpriteComp & {
-		// TODO: Find a way to override the typing of return
-		sprite: string;
-	};
+	sprite(spr: CustomSprite<string> | SpriteData | Asset<SpriteData>, opt?: SpriteCompOpt): WareSpriteComp;
 	/** Register an event that runs once when timer runs out. */
 	onTimeout: (action: () => void) => KEventController;
 	/** Run this when player succeeded in completing the game. */
@@ -122,9 +133,6 @@ export type MinigameAPI = {
 	/** The time left for the minigame to finish */
 	timeLeft: number;
 };
-
-/** The context for the allowed functions in a minigame */
-export type MinigameCtx = Pick<typeof k, typeof gameAPIs[number]> & MinigameAPI;
 
 /** The type for a minigame */
 export type Minigame = {
@@ -154,16 +162,27 @@ export type Minigame = {
 	prompt: string | ((ctx: MinigameCtx, prompt: ReturnType<typeof k.addPrompt>) => void);
 	/** The author of the game */
 	author: string;
-	/** The RGB code for the game's background
+	/** The RGB (color) code for the game's background
 	 *
-	 * You can also use a regular kaplay color, you can get some from the mulfok32 palette
+	 * You can use a regular array of numbers like so:
 	 * @example
 	 * ```ts
-	 * import mulfokColors from "../../src/plugins/colors";
-	 * rgb: mulfokColors.VOID_PURPLE
+	 * rgb: [235, 38, 202]
+	 * ```
+	 *
+	 * You can also use a regular kaplay color, you can get some from the mulfok32 palette, which is exported in the context
+	 * @example
+	 * ```ts
+	 * rgb: (ctx) => ctx.mulfok.VOID_PURPLE
+	 * ```
+	 *
+	 * And if you're feeling fancy, determine the color based on context parameters with a function, like this:
+	 * @example
+	 * ```ts
+	 * rgb: (ctx) => ctx.difficulty == 3 ? ctx.Color.fromArray(237, 24, 63) : ctx.Color.fromArray(235, 38, 202)
 	 * ```
 	 */
-	rgb?: [number, number, number] | Color;
+	rgb?: [number, number, number] | Color | ((ctx: MinigameCtx) => Color);
 	/** The input the minigame uses, if both are empty will assume keys
 	 *
 	 * @cursor You can configure your game's cursor this way
@@ -177,7 +196,7 @@ export type Minigame = {
 	 * cursor: false // the game will not use cursor in any way
 	 * ```
 	 */
-	input?: KeyInput | CursorInput;
+	input?: "keys" | "mouse" | "mouse (hidden)";
 	/** How long the minigames goes for (choose a reasonable number)
 	 *
 	 * You can also use a callback, to change it based on difficulty
@@ -205,6 +224,10 @@ export type Minigame = {
 	urlPrefix?: string;
 	/** Wheter your game plays its own music or if it should play a random jingle from our selection of jingles */
 	playsOwnMusic?: boolean;
+	/** Wheter the minigame should appear on an specific difficulty */
+	difficulty?: 1 | 2 | 3 | "BOSS";
+	/** Wheter the minigame depends on colors to be played (crucial for accesability) */
+	colorDependant?: boolean;
 	/**
 	 * The function that loads the game's custom assets
 	 *
@@ -232,7 +255,8 @@ export type Minigame = {
 };
 
 export type KAPLAYwareOpts = {
+	games?: Minigame[];
 	debug?: boolean;
-	onlyMouse?: boolean;
+	input?: MinigameInput;
 	inOrder?: boolean;
 };

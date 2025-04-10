@@ -1,16 +1,14 @@
-import { DrawTextOpt, GameObj, KAPLAYCtx, KEventController } from "kaplay";
+import kaplay, { DrawTextOpt, GameObj, KAPLAYCtx, KEventController } from "kaplay";
 import k from "../engine";
 
 let watchedObjects: { obj: any; propName: string | number | symbol; customName?: string; }[] = [];
 
-let displayInfo = false;
 let manager: GameObj = null;
 
-function watch<T extends unknown>(obj: T, propName: keyof T, customName?: string, customReturn?: (value: any) => any) {
+function watch<T extends unknown>(obj: T, propName: keyof T, customName?: string) {
 	if (!manager) {
 		manager = k.add([k.stay(), k.z(100)]);
 		manager.onUpdate(() => {
-			if (k.isKeyPressed("f2")) displayInfo = !displayInfo;
 		});
 
 		k.onSceneLeave(() => {
@@ -18,7 +16,7 @@ function watch<T extends unknown>(obj: T, propName: keyof T, customName?: string
 		});
 
 		manager.onDraw(() => {
-			if (!displayInfo) return;
+			if (!k.debug.inspect) return;
 			let watchesText: string = "";
 
 			watchedObjects.forEach((watch, index) => {

@@ -1,121 +1,165 @@
+import { Vec2 } from "kaplay";
 import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
-import { curDraggin } from "../../src/plugins/drag";
 
 const uploadGame: Minigame = {
-	prompt: "upload",
+	prompt: "UPLOAD!",
 	author: "amyspark-ng",
-	rgb: mulfokColors.DARK_BEANT_BLUE,
+	rgb: (ctx) => ctx.mulfok.DARK_BLUE,
 	duration: 4,
-	input: { cursor: { hide: false } },
-	urlPrefix: "games/amyspark-ng/assets/sprites/upload/",
+	input: "mouse",
+	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
-		ctx.loadSprite("window", "window.png");
-		ctx.loadSprite("win", "win.png");
-		ctx.loadSprite("lose", "lose.png");
-		ctx.loadSprite("banned", "banned.png");
+		ctx.loadSprite("os", "sprites/upload/os.png");
+		ctx.loadSprite("window", "sprites/upload/window.png", { sliceX: 5, sliceY: 1 });
+		ctx.loadSprite("drop", "sprites/upload/drop.png");
+		ctx.loadSound("notification", "sounds/notification.mp3");
 	},
+	// TODO: Touch up file spawning
 	start(ctx) {
-		const game = ctx.make();
-		let hasUploaded = false;
+		let dragThingOp = 0;
+		let curDragging: any = null;
 
-		function addFile(spr: string) {
-			const randFilePos = () => ctx.vec2(ctx.rand(20, 50), ctx.rand(10, ctx.height() - 30));
-
-			const file = game.add([
-				ctx.sprite(`@${spr}`),
-				ctx.pos(randFilePos()),
-				ctx.scale(),
-				ctx.area(),
-				ctx.anchor("center"),
-			]);
-			file.add([
-				ctx.text(`${spr}.png`, { align: "center", size: 10, font: "happy" }),
-				ctx.opacity(0.5),
-				ctx.pos(0, file.height / 2 + 10),
-				ctx.anchor("center"),
-			]);
-
-			file.onClick(() => {
-				if (hasUploaded) return;
-
-				const ghostFile = game.add([
-					ctx.sprite(file.sprite),
-					ctx.opacity(0.5),
-					ctx.drag(),
-					ctx.pos(file.pos),
-					ctx.area(),
-					ctx.anchor("center"),
-				]);
-				ghostFile.add([
-					ctx.text(`${spr}.png`, { align: "center", size: 10, font: "happy" }),
-					ctx.opacity(0.5),
-					ctx.pos(0, ghostFile.height / 2 + 10),
-					ctx.anchor("center"),
-				]);
-				ghostFile.pick();
-
-				ctx.onMouseRelease(() => ghostFile.drop());
-				ghostFile.onDragEnd(() => {
-					if (!ghostFile.dragging || hasUploaded) return;
-
-					if (!dropArea.isHovering() && ghostFile.exists()) {
-						file.pos = ctx.mousePos();
-						ghostFile.destroy();
-					}
-					else if (dropArea.isHovering()) {
-						ghostFile.destroy();
-						hasUploaded = true;
-						if (spr == "kat") {
-							desktop.sprite = "win";
-							ctx.win();
-						}
-						else if (spr == "zombean") {
-							desktop.sprite = "lose";
-							ctx.wait(0.5 / ctx.speed, () => desktop.sprite = "banned");
-							ctx.lose();
-						}
-
-						ctx.wait(1 / ctx.speed, () => ctx.finish());
-					}
-				});
-			});
-
-			return file;
-		}
-
-		const desktop = game.add([
+		ctx.add([ctx.sprite("os")]); // taskbar
+		const window = ctx.add([
 			ctx.sprite("window"),
-		]);
-
-		const dropArea = game.add([
-			ctx.rect(415, 482),
 			ctx.area(),
-			ctx.color(ctx.BLACK),
-			ctx.pos(362, 39),
-			ctx.opacity(0),
+			ctx.anchor("center"),
+			ctx.pos(565, 270),
 			"ignorepoint",
 		]);
 
-		game.onUpdate(() => {
-			if (dropArea.isHovering() && !hasUploaded && curDraggin != null) dropArea.opacity = ctx.lerp(dropArea.opacity, 0.5, 0.5);
-			else dropArea.opacity = ctx.lerp(dropArea.opacity, 0, 0.5);
+		window.onDraw(() => {
+			if (window.isHovering() && curDragging) dragThingOp = ctx.lerp(dragThingOp, 1, 0.5);
+			else dragThingOp = ctx.lerp(dragThingOp, 0, 0.5);
+			ctx.drawSprite({
+				anchor: "center",
+				sprite: "drop",
+				opacity: dragThingOp,
+			});
 		});
 
-		addFile("kat");
-		addFile("zombean");
+		window.on("drop", (good) => {
+			if (good) ctx.win();
+			else ctx.lose();
 
-		ctx.onTimeout(() => {
-			if (!hasUploaded) {
-				desktop.sprite = "banned";
-				ctx.lose();
-				ctx.wait(0.5 / ctx.speed, () => {
-					ctx.finish();
+			ctx.wait(1 / ctx.speed, () => {
+				if (good) {
+					window.frame = ctx.randi(2, 4);
+					ctx.play("notification", { detune: ctx.rand(0, 50) });
+				}
+				else {
+					window.frame = 1;
+					ctx.play("notification", { detune: ctx.rand(-150, -50) });
+				}
+
+				ctx.wait(0.5 / ctx.speed, () => ctx.finish());
+			});
+		});
+
+		function addFile(spriteName: string, good: boolean) {
+			const file = ctx.add([
+				ctx.sprite("@" + spriteName),
+				ctx.anchor("center"),
+				ctx.area(),
+				ctx.pos(),
+				ctx.z(1),
+				"drag",
+				{
+					dragging: false,
+				},
+			]);
+
+			let hoverDraw = ctx.add([ctx.z(0)]).onDraw(() => {
+				if (file.isHovering()) {
+					ctx.drawRect({
+						width: 80,
+						height: 80,
+						pos: file.pos,
+						anchor: "center",
+						color: ctx.mulfok.BLUE,
+						opacity: 0.5,
+						outline: {
+							width: 3,
+							color: ctx.mulfok.BLUE,
+						},
+					});
+				}
+			});
+
+			function setPos(pos: Vec2 = ctx.vec2(ctx.rand(0, ctx.width()), ctx.rand(0, ctx.height()))) {
+				file.pos = pos;
+				file.pos.x = ctx.clamp(file.pos.x, 50, (ctx.width() / 2) - 100);
+				file.pos.y = ctx.clamp(file.pos.y, 50, ctx.height() - 150);
+			}
+
+			file.onMouseRelease(() => {
+				if (!file.dragging) return;
+
+				curDragging = null;
+				file.dragging = false;
+
+				if (window.isHovering()) {
+					window.add([
+						ctx.sprite("@" + spriteName),
+						ctx.pos(-25, 0),
+						ctx.scale(2),
+						ctx.anchor("center"),
+					]);
+					window.trigger("drop", good);
+				}
+				else setPos(ctx.mousePos());
+			});
+
+			file.onDraw(() => {
+				ctx.drawText({
+					text: spriteName + ".png",
+					size: 10,
+					pos: ctx.vec2(0, file.height / 2 + 10),
+					align: "center",
+					anchor: "center",
 				});
+
+				if (file.dragging) {
+					ctx.drawSprite({
+						sprite: file.sprite,
+						pos: file.fromWorld(ctx.mousePos()),
+						anchor: "center",
+						opacity: 0.5,
+					});
+
+					ctx.drawText({
+						text: spriteName + ".png",
+						size: 10,
+						pos: file.fromWorld(ctx.mousePos()).add(ctx.vec2(0, file.height / 2 + 10)),
+						align: "center",
+						anchor: "center",
+					});
+				}
+			});
+
+			setPos();
+		}
+
+		addFile("kat", true);
+		if (ctx.difficulty > 1) addFile("zombean", false);
+		if (ctx.difficulty > 2) addFile("skuller", false);
+
+		ctx.onInputButtonDown("click", () => {
+			for (const obj of ctx.get("drag").reverse()) {
+				if (obj.isHovering()) {
+					obj.dragging = true;
+					curDragging = obj;
+					break;
+				}
 			}
 		});
 
-		return game;
+		ctx.onTimeout(() => {
+			if (ctx.winState() == undefined) {
+				ctx.lose();
+				ctx.wait(0.5 / ctx.speed, () => ctx.finish());
+			}
+		});
 	},
 };
 

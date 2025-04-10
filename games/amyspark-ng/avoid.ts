@@ -1,11 +1,9 @@
-import { assets } from "@kaplayjs/crew";
 import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
 
 const avoidGame: Minigame = {
-	prompt: "avoid",
+	prompt: "AVOID!",
 	author: "amyspark-ng",
-	rgb: mulfokColors.DARK_BLUE,
+	rgb: (ctx) => ctx.mulfok.DARK_BLUE,
 	duration: 6,
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
@@ -40,8 +38,8 @@ const avoidGame: Minigame = {
 			},
 		});
 	},
+	// TODO: Do PR #18
 	start(ctx) {
-		const game = ctx.make();
 		let SPEED = 300 * ctx.speed;
 		const movement = ctx.vec2(0);
 		const icy = 0.25 * ctx.speed;
@@ -51,7 +49,7 @@ const avoidGame: Minigame = {
 
 		ctx.setGravity(1300);
 
-		const ground = game.add([
+		const ground = ctx.add([
 			ctx.rect(ctx.width(), 50),
 			ctx.outline(5, ctx.BLACK),
 			ctx.area(),
@@ -59,7 +57,7 @@ const avoidGame: Minigame = {
 			ctx.body({ isStatic: true, gravityScale: 0 }),
 		]);
 
-		const mark = game.add([
+		const mark = ctx.add([
 			ctx.sprite("mark", { anim: "idle" }),
 			ctx.pos(ctx.center().x, ctx.center().y + 120),
 			ctx.anchor("bot"),
@@ -68,7 +66,7 @@ const avoidGame: Minigame = {
 			ctx.scale(),
 		]);
 
-		const foot = game.add([
+		const foot = ctx.add([
 			ctx.sprite("foot"),
 			ctx.anchor("bot"),
 			ctx.area({ scale: ctx.vec2(0.5, 0.9), offset: ctx.vec2(0, -50) }),
@@ -76,19 +74,19 @@ const avoidGame: Minigame = {
 			"foot",
 		]);
 
-		game.onUpdate(() => {
+		ctx.onUpdate(() => {
 			if (markDead) return;
-			mark.flipX = ctx.isButtonDown("left");
-			mark.area.scale = ctx.isButtonDown("down") ? ctx.vec2(0.5, 0.25) : ctx.vec2(0.5);
-			SPEED = ctx.isButtonDown("down") ? 350 * ctx.speed : 300 * ctx.speed;
+			mark.flipX = ctx.isInputButtonDown("left");
+			mark.area.scale = ctx.isInputButtonDown("down") ? ctx.vec2(0.5, 0.25) : ctx.vec2(0.5);
+			SPEED = ctx.isInputButtonDown("down") ? 350 * ctx.speed : 300 * ctx.speed;
 
 			if (footInGame) {
-				if (ctx.isButtonDown("down")) mark.play("crouch");
-				else if (ctx.isButtonPressed("left") || ctx.isButtonPressed("right") && !ctx.isButtonDown("down")) mark.play("walk");
-				if (!ctx.isButtonDown("down") && !ctx.isButtonDown("left") && !ctx.isButtonDown("right")) mark.play("idle");
+				if (ctx.isInputButtonDown("down")) mark.play("crouch");
+				else if (ctx.isInputButtonPressed("left") || ctx.isInputButtonPressed("right") && !ctx.isInputButtonDown("down")) mark.play("walk");
+				if (!ctx.isInputButtonDown("down") && !ctx.isInputButtonDown("left") && !ctx.isInputButtonDown("right")) mark.play("idle");
 
-				if (ctx.isButtonDown("left")) movement.x = ctx.lerp(movement.x, -SPEED, icy);
-				else if (ctx.isButtonDown("right")) movement.x = ctx.lerp(movement.x, SPEED, icy);
+				if (ctx.isInputButtonDown("left")) movement.x = ctx.lerp(movement.x, -SPEED, icy);
+				else if (ctx.isInputButtonDown("right")) movement.x = ctx.lerp(movement.x, SPEED, icy);
 				else movement.x = ctx.lerp(movement.x, 0, icy);
 
 				mark.move(movement.x, 0);
@@ -133,8 +131,6 @@ const avoidGame: Minigame = {
 				ctx.finish();
 			});
 		});
-
-		return game;
 	},
 };
 

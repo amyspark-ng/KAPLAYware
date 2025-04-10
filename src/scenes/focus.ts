@@ -1,6 +1,6 @@
 import k from "../engine";
 
-k.scene("focus", () => {
+k.scene("focus", (initial_scene) => {
 	k.add([
 		k.rect(k.width(), k.height()),
 		k.color(k.BLACK),
@@ -12,5 +12,5 @@ k.scene("focus", () => {
 		k.anchor("center"),
 	]);
 
-	k.onClick(() => k.go("game"));
+	k.onClick(() => initial_scene());
 });
