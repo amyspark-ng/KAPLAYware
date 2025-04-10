@@ -15,6 +15,7 @@ function addPrompt(prompt: string) {
 					pos: k.vec2(),
 				},
 			},
+            width: k.width(),
 		}),
 		k.pos(k.center()),
 		k.anchor("center"),

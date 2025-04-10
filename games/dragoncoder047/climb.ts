@@ -3,7 +3,9 @@ import { Minigame } from "../../src/game/types";
 import mulfokColors from "../../src/plugins/colors";
 
 const smashGame: Minigame = {
-    prompt: "climb",
+    prompt(ctx, textObj) {
+        textObj.text = `GET ${ctx.difficulty} APPLES!`;
+    },
     author: "dragoncoder047",
     rgb: mulfokColors.BLACK,
     input: { keys: { use: true } },
