@@ -255,7 +255,7 @@ bean.onButtonPress("action") // DON'T, not related to KAPLAYware at all
 ctx.onInputButtonPress("action") // DO, the appropiate function to use
 ```
 
-Also DON'T USE `onMousePress` FUNCTIONS EITHER, these are not accounted for and will KAPLAYware's engine
+Also DON'T USE `onMousePress` FUNCTIONS EITHER, these are not accounted for and will crash KAPLAYware's engine
 ```ts
 bean.onMousePress("left") // DON'T, will break our game
 ctx.onInputButtonPress("click") // DO, the proper function to use 
