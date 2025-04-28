@@ -15,6 +15,7 @@ const game_dir = `games/${author}`;
 const file_path = `games/${author}/${gamePrompt}.ts`;
 const assets_dir = `${author_dir}/assets/`;
 
+// TODO: reminder to also make input not optional
 const template = `
 import { Minigame } from "../../src/game/types";
 
