@@ -67,10 +67,10 @@ const avoidGame: Minigame = {
 
 		const mark = ctx.add([
 			ctx.sprite("mark", { anim: "idle" }),
-			ctx.area({ scale: ctx.vec2(0.5, 0.65) }),
+			ctx.area({ scale: ctx.vec2(0.5, 0.75), offset: ctx.vec2(0, -2) }),
 			ctx.anchor("center"),
 			ctx.body(),
-			ctx.pos(floor.pos.x, floor.pos.y - 70),
+			ctx.pos(floor.pos.x, floor.pos.y - 60),
 			{
 				adjusting: false,
 			},
