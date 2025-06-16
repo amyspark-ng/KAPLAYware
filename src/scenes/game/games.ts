@@ -15,6 +15,20 @@ const onlyInclude = new Set([
 	...(import.meta.env?.VITE_ONLY_MINIGAMES ?? "").trim().split("\n").map((s: string) => s.trim()),
 ].filter((id) => games.some((game) => getGameID(game) === id)));
 
-export default onlyInclude.size
-	? games.filter((game) => onlyInclude.has(getGameID(game)))
-	: games;
+const fetchGames = [
+	"example-microgame"
+]
+
+// @ts-ignore
+const exampleMicrogame = await import("/assets/example-microgame/example-microgame.js");
+
+const fetchedGames = [exampleMicrogame.default]
+
+console.log("Fetched games:", fetchedGames);
+
+export default fetchedGames
+
+
+// export default onlyInclude.size
+// 	? games.filter((game) => onlyInclude.has(getGameID(game)))
+// 	: games;
