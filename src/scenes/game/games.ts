@@ -1,6 +1,8 @@
 import { Microgame } from "../../types/Microgame";
 import { getGameID } from "./utils";
 
+window.microgames = [];
+
 export const modules = import.meta.glob("../../../games/*/*.ts", { eager: true });
 
 const exclude = new Set([]);
@@ -11,14 +13,17 @@ const games = Object.values(modules)
 	.filter((game) => !exclude.has(getGameID(game))) as Microgame[];
 
 const onlyInclude = new Set([
-	DEV_MICROGAME, // Passed arg from npm run dev {yourname}:{gamename}
+	window.DEV_MICROGAME, // Passed arg from npm run dev {yourname}:{gamename}
 	...(import.meta.env?.VITE_ONLY_MICROGAME ?? "").trim().split("\n").map((s: string) => s.trim()),
 ].filter((id) => games.some((game) => getGameID(game) === id)));
 
-if (onlyInclude.size == 0 && DEV_MICROGAME) {
-	throw new Error(`Tried to run dev ${DEV_MICROGAME}, but that microgame doesn't exist!`);
+if (onlyInclude.size == 0 && window.DEV_MICROGAME) {
+	throw new Error(`Tried to run dev ${window.DEV_MICROGAME}, but that microgame doesn't exist!`);
 }
 
-export default onlyInclude.size
-	? games.filter((game) => onlyInclude.has(getGameID(game)))
-	: games;
+const filteredGames = games.filter((game) => onlyInclude.has(getGameID(game)));
+const pushGames = filteredGames.length ? filteredGames : games;
+
+window.microgames.push(...pushGames);
+
+export default window.microgames;
