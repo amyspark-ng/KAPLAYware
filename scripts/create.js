@@ -23,6 +23,7 @@ const template = `
 import { Microgame } from "../../src/types/Microgame";
 
 export const ${gamePrompt}Game: Microcode = {
+	name: "${gamePrompt}",
 	author: "${author}",
 	prompt: "${gamePrompt.toUpperCase() + "!"}",
 	input: "keys",
