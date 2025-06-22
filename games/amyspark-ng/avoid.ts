@@ -2,6 +2,7 @@ import { Minigame } from "../../src/types/Minigame";
 
 const avoidGame: Minigame = {
 	prompt: "AVOID!",
+	name: "avoid",
 	author: "amyspark-ng",
 	rgb: (ctx) => ctx.mulfok.BLUE,
 	duration: 6,

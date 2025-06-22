@@ -1,8 +1,9 @@
 import { Minigame } from "../../src/types/Minigame";
 
 const dontGame: Minigame = {
-	prompt: "DONT'T!",
+	name: "dont",
 	author: "amyspark-ng",
+	prompt: "DONT'T!",
 	rgb: (ctx) => ctx.mulfok.VOID_VIOLET,
 	duration: 3,
 	input: "keys",

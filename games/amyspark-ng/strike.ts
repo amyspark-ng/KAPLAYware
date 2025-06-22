@@ -1,8 +1,9 @@
 import { Minigame } from "../../src/types/Minigame";
 
 const strikeGame: Minigame = {
-	prompt: "STRIKE!",
+	name: "strike",
 	author: "amyspark-ng",
+	prompt: "STRIKE!",
 	rgb: (ctx) => ctx.WHITE,
 	input: "mouse (hidden)",
 	duration: 5,

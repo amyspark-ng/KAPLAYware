@@ -1,6 +1,7 @@
 import { Minigame } from "../../src/types/Minigame";
 
 const testGame: Minigame = {
+	name: "test",
 	author: "amyspark-ng",
 	prompt: "TEST!",
 	input: "keys",

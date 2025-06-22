@@ -2,8 +2,9 @@ import { GameObj } from "kaplay";
 import { Minigame } from "../../src/types/Minigame";
 
 const aimGame: Minigame = {
-	prompt: "AIM!",
+	name: "aim",
 	author: "kiwisky",
+	prompt: "AIM!",
 	rgb: [141, 183, 255],
 	urlPrefix: "games/kiwisky/assets/",
 	input: "mouse (hidden)",

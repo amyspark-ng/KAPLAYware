@@ -1,9 +1,10 @@
 import { Minigame } from "../../src/types/Minigame";
 
 const knockGame: Minigame = {
+	name: "knock",
+	author: "amyspark-ng",
 	prompt: "KNOCK!",
 	input: "mouse",
-	author: "amyspark-ng",
 	rgb: [74, 48, 82],
 	duration: (ctx) => ctx.difficulty == 3 ? 4.5 : 4,
 	urlPrefix: "games/amyspark-ng/assets/",

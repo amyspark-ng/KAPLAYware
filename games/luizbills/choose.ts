@@ -3,8 +3,9 @@ import { Minigame } from "../../src/types/Minigame";
 
 // all art made by me (amyspark-ng) hehe
 const colorGame: Minigame = {
-	prompt: "CHOOSE!",
+	name: "choose",
 	author: "luizbills",
+	prompt: "CHOOSE!",
 	rgb: (ctx) => ctx.mulfok.BLUE,
 	urlPrefix: "games/luizbills/assets/",
 	input: "mouse (hidden)",

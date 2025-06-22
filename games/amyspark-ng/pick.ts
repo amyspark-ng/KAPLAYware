@@ -2,8 +2,9 @@ import k from "../../src/engine";
 import { Minigame } from "../../src/types/Minigame";
 
 const pickGame: Minigame = {
-	prompt: "PICK!",
+	name: "pick",
 	author: "amyspark-ng",
+	prompt: "PICK!",
 	rgb: k.WHITE,
 	duration: 6,
 	input: "keys",

@@ -103,8 +103,9 @@ function addComboText(ctx: MinigameCtx) {
 }
 
 const clickGame: Minigame = {
-	prompt: "CLICK!",
+	name: "click",
 	author: "amyspark-ng", // of course
+	prompt: "CLICK!",
 	rgb: [41, 24, 52],
 	input: "mouse",
 	playsOwnMusic: true,

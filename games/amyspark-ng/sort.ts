@@ -3,6 +3,7 @@ import { Minigame } from "../../src/types/Minigame";
 
 // almost 300 lines of pure unadultered pain that took me a whole day to write
 const sortGame: Minigame = {
+	name: "sort",
 	prompt: "SORT!",
 	author: "amyspark-ng",
 	duration: (ctx) => ctx.difficulty == 3 ? 7 : 6,

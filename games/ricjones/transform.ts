@@ -1,8 +1,9 @@
 import { Minigame } from "../../src/types/Minigame";
 
 const transformGame: Minigame = {
-	prompt: "TRANSFORM!",
+	name: "transform",
 	author: "ricjones",
+	prompt: "TRANSFORM!",
 	input: "keys",
 	rgb: (ctx) => ctx.mulfok.DARK_VIOLET,
 	urlPrefix: "games/ricjones/assets/",

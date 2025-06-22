@@ -30,6 +30,8 @@ interface BaseMinigame {
 	prompt: string | ((ctx: MinigameCtx, prompt: ReturnType<typeof addTextPrompt>) => void);
 	/** The author of the game */
 	author: string;
+	/** The name of the minigame, used for identification.  */
+	name: string;
 	/** The RGB (color) code for the game's background
 	 *
 	 * You can use a regular array of numbers like so:

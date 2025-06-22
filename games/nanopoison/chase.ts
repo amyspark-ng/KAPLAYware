@@ -1,10 +1,10 @@
-import { assets } from "@kaplayjs/crew";
 import { Minigame } from "../../src/types/Minigame";
 import { GameObj, Vec2 } from "kaplay";
 
 const newGame: Minigame = {
-	prompt: "CHASE!",
+	name: "chase",
 	author: "nanopoison",
+	prompt: "CHASE!",
 	input: "keys",
 	rgb: [133, 97, 97],
 	duration: (ctx) => ctx.difficulty == 3 ? 5 : 4,

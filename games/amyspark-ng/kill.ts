@@ -3,8 +3,9 @@ import { Minigame } from "../../src/types/Minigame";
 
 // TODO: Do the whole squid cool game
 const killGame: Minigame = {
-	author: "amyspark-ng",
+	name: "kill",
 	prompt: "KILL!",
+	author: "amyspark-ng",
 	hideMouse: true,
 	isBoss: true,
 	rgb: (ctx) => ctx.mulfok.DARK_VIOLET,

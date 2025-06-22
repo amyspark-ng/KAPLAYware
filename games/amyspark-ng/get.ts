@@ -2,8 +2,9 @@ import { Vec2 } from "kaplay";
 import { Minigame } from "../../src/types/Minigame";
 
 const getGame: Minigame = {
-	prompt: "GET!",
+	name: "get",
 	author: "amyspark-ng",
+	prompt: "GET!",
 	rgb: (ctx) => ctx.mulfok.GREEN,
 	duration: (ctx) => ctx.difficulty == 3 ? 3.5 : 4,
 	input: "keys",

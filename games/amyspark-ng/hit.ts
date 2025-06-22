@@ -1,8 +1,9 @@
 import { Minigame } from "../../src/types/Minigame";
 
 const hitGame: Minigame = {
-	prompt: "HIT!",
+	name: "hit",
 	author: "amyspark-ng",
+	prompt: "HIT!",
 	rgb: (ctx) => ctx.mulfok.DARK_PINK,
 	input: "mouse (hidden)",
 	duration: 5,

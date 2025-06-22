@@ -2,8 +2,9 @@ import { Outline, Vec2 } from "kaplay";
 import { Minigame } from "../../src/types/Minigame";
 
 const spreadGame: Minigame = {
-	prompt: "SPREAD!",
+	name: "spread",
 	author: "amyspark-ng",
+	prompt: "SPREAD!",
 	duration: 20,
 	rgb: (ctx) => ctx.mulfok.BROWN,
 	input: "mouse (hidden)",
