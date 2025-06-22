@@ -30,7 +30,7 @@ interface BaseMicrogame {
 	prompt: string | ((ctx: MicrogameCtx, prompt: ReturnType<typeof addTextPrompt>) => void);
 	/** The author of the game */
 	author: string;
-	/** The name of the minigame, used for identification.  */
+	/** The name of the Microgame, used for identification.  */
 	name: string;
 	/** The RGB (color) code for the game's background
 	 *
