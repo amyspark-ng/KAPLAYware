@@ -5,11 +5,9 @@ import k from "../../engine";
 import { Microgame } from "../../types/Microgame";
 
 export const getGameID = (g: Microgame) => {
-	const gamePath = Object.keys(modules).find((pathKey: string) => (modules[pathKey] as any).default == g);
-	const filename = gamePath.split("/")[gamePath.split("/").length - 1].replace(".ts", "");
-	return `${g.author}:${filename}`;
+	return `${g.author}:${g.name}`;
 };
-export const getGameByID = (id: string) => games.find((microgame) => `${microgame.author}:${microgame.prompt}` == id);
+export const getGameByID = (id: string) => games.find((microgame) => `${microgame.author}:${microgame.name}` == id);
 
 /**
  * Returns a copy of the object where it'll only have the keys you pass as param
