@@ -1,14 +1,14 @@
 import { AreaComp, BodyComp, GameObj, PosComp } from "kaplay";
-import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
+import { Microgame } from "../../src/types/Microgame";
 
-const smashGame: Minigame = {
+const climbGame: Microgame = {
     prompt(ctx, textObj) {
         textObj.text = `GET ${ctx.difficulty} APPLES!`;
     },
+    name: "climb",
     author: "dragoncoder047",
-    rgb: mulfokColors.BLACK,
-    input: { keys: { use: true } },
+    rgb: (ctx) => ctx.BLACK,
+    input: "keys",
     duration: ctx => [10, 9, 8][ctx.difficulty],
     urlPrefix: "games/dragoncoder047/assets/",
     load(ctx) {
@@ -109,4 +109,4 @@ const smashGame: Minigame = {
     },
 };
 
-export default smashGame;
+export default climbGame;
