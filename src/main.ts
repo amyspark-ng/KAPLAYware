@@ -2,20 +2,21 @@ import k from "./engine";
 import "./loader";
 import "./plugins/cursor";
 
-import "../src/scenes/focus";
-import "../src/scenes/title";
-import "./scenes/menu/menu";
-import "./scenes/menu/select";
-import "../src/scenes/game";
-import "../src/scenes/gameover";
-import goGame from "../src/scenes/game";
+import "./scenes/FocusScene";
+import "./scenes/TitleScene";
+import "./scenes/MenuScene";
+import "./scenes/SelectScene";
+import "../src/scenes/game/GameScene";
+import "./scenes/game/GameoverScene";
+
+import goGame from "../src/scenes/game/GameScene";
 
 k.setVolume(0.5);
 k.setCursor("none");
 k.loadRoot("./");
 
 const INITIAL_SCENE = () => {
-	if (DEV_MINIGAME) goGame();
+	if (window.DEV_MICROGAME) goGame();
 	else goGame();
 };
 

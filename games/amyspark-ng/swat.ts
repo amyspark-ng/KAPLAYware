@@ -1,8 +1,9 @@
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const swatGame: Minigame = {
-	prompt: "SWAT!",
+const swatGame: Microgame = {
+	name: "swat",
 	author: "amyspark-ng",
+	prompt: "SWAT!",
 	rgb: (ctx) => ctx.mulfok.LIGHT_BROWN,
 	duration: (ctx) => ctx.difficulty == 3 ? 5 : 4,
 	input: "mouse (hidden)",
@@ -107,7 +108,8 @@ const swatGame: Minigame = {
 		};
 		let flies = ctx.difficulty;
 
-		ctx.onInputButtonPress("click", () => {
+		ctx.onButtonPress("click", () => {
+			// TODO: Removing this line makes the game 1000x more fun i assure you
 			if (ctx.get("shock").length > 0) return;
 
 			ctx.play("slap", { detune: ctx.rand(-50, 50), volume: 0.5 });
@@ -130,14 +132,14 @@ const swatGame: Minigame = {
 
 			shock.onCollide("fly", (fly) => {
 				flies--;
-				if (flies <= 0 && !ctx.winState()) ctx.win();
+				if (flies <= 0 && !ctx.winState) ctx.win();
 				fly.tag("dead");
 				ctx.play("bzz", { volume: 3, speed: 3 });
 				ctx.tween(ctx.vec2(2), ctx.vec2(1), 0.15 / ctx.speed, (p) => fly.scale = p, ctx.easings.easeOutQuint);
 				ctx.tween(ctx.RED, ctx.WHITE, 0.15 / ctx.speed, (p) => fly.color = p, ctx.easings.easeOutQuint);
 				ctx.tween(fly.angle, 90, 0.15 / ctx.speed, (p) => fly.angle = p, ctx.easings.easeOutQuint);
 				ctx.tween(fly.pos.y, ctx.height() + 10, 1 / ctx.speed, (p) => fly.pos.y = p, ctx.easings.easeOutQuint).onEnd(() => {
-					if (ctx.winState() == true) ctx.finish();
+					if (ctx.winState == true) ctx.finish();
 				});
 			});
 

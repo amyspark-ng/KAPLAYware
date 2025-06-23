@@ -1,26 +1,26 @@
-import kaplay, { GameObj, Vec2 } from "kaplay";
-import { Minigame } from "../../src/game/types.ts";
+import { GameObj } from "kaplay";
+import { Microgame } from "../../src/types/Microgame";
 
-const aimGame: Minigame = {
-	prompt: "AIM!",
+const aimGame: Microgame = {
+	name: "aim",
 	author: "kiwisky",
+	prompt: "AIM!",
 	rgb: [141, 183, 255],
 	urlPrefix: "games/kiwisky/assets/",
 	input: "mouse (hidden)",
 	duration: 6,
 	load(ctx) {
-		// ctx.loadSprite("balloon", "/aim/balloon.png");
-		ctx.loadAseprite("bullet", "/aim/bullet.png", "/aim/bullet.json");
-		ctx.loadAseprite("balloon", "/aim/balloon.png", "/aim/balloon.json");
-		ctx.loadSprite("explosivoon", "/aim/bomb.png");
-		ctx.loadSprite("aim", "/aim/aim.png");
-		ctx.loadSprite("cloud", "/aim/cloud.png");
-		ctx.loadSprite("mountain", "/aim/mountain.png");
+		ctx.loadSprite("balloon", "aim/balloon.png", {
+			sliceX: 6,
+			sliceY: 1,
+		});
+		ctx.loadSprite("explosivoon", "aim/bomb.png");
+		ctx.loadSprite("aim", "aim/aim.png");
+		ctx.loadSprite("cloud", "aim/cloud.png");
+		ctx.loadSprite("mountain", "aim/mountain.png");
 
-		ctx.loadSound("pop1", "/aim/sounds/balloon_pop-01.mp3");
-		ctx.loadSound("pop2", "/aim/sounds/balloon_pop-02.mp3");
-		ctx.loadSound("pop3", "/aim/sounds/balloon_pop-03.mp3");
-		ctx.loadSound("explode", "/aim/sounds/explosion.wav");
+		ctx.loadSound("pop", "aim/sounds/balloon_pop.mp3");
+		ctx.loadSound("explode", "aim/sounds/explosion.wav");
 	},
 	// TODO: Touch up some stuff
 	start(ctx) {
@@ -114,6 +114,7 @@ const aimGame: Minigame = {
 		const aim = ctx.add([
 			ctx.sprite("aim"),
 			ctx.pos(),
+			ctx.z(1),
 			ctx.area({
 				scale: 0.85,
 			}),
@@ -142,14 +143,14 @@ const aimGame: Minigame = {
 			// ctx.drawSprite
 			ctx.drawSprite({
 				sprite: "cloud",
-				pos: ctx.vec2(-64, -16),
+				pos: ctx.vec2(-64, -16 + ctx.wave(-10, 10, ctx.time() / ctx.speed)),
 				tiled: true,
 				width: ctx.width() + 87,
 			});
 
 			ctx.drawSprite({
 				sprite: "cloud",
-				pos: ctx.vec2(0, 8),
+				pos: ctx.vec2(0, 8 + ctx.wave(-10, 10, ctx.time() / ctx.speed)),
 				tiled: true,
 				width: ctx.width() + 128,
 			});
@@ -166,18 +167,18 @@ const aimGame: Minigame = {
 			}
 		});
 
-		ctx.onInputButtonPress("click", () => {
-			if (ctx.winState() == true) return;
+		ctx.onButtonPress("click", () => {
+			if (ctx.winState == true) return;
 			for (const bln of ctx.get("balloon").reverse()) {
 				if (bln.isHovering()) {
 					if (!mngr.hasLost) {
 						ctx.addKaboom(ctx.mousePos());
 						ctx.shakeCam(2.2);
-						ctx.play("pop" + ctx.randi(1, 3));
+						ctx.play("pop", { detune: ctx.rand(0, 100) });
 						hittedBalloons.push(bln);
 						bln.destroy();
 
-						if (ctx.winState() == undefined && hittedBalloons.length >= mngr.balloonCount) {
+						if (ctx.winState == undefined && hittedBalloons.length >= mngr.balloonCount) {
 							ctx.win();
 							ctx.wait(0.9, () => {
 								ctx.get("*").forEach((obj, i, a) => {
@@ -229,7 +230,7 @@ const aimGame: Minigame = {
 				ctx.lose();
 				ctx.wait(0.5, () => {
 					ctx.get("*").forEach((obj, i, a) => {
-						ctx.play("pop" + ctx.randi(1, 3));
+						ctx.play("pop", { detune: ctx.rand(0, 100) });
 						ctx.addKaboom(obj.pos);
 						obj.destroy();
 					});

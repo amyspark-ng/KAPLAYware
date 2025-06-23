@@ -1,8 +1,6 @@
 import kaplay from "kaplay";
-import conductorPlug from "./plugins/conductor";
 import dragCompPlugin from "./plugins/drag";
-import setterPlug from "./plugins/setter";
-import wareObjectsPlugin from "./plugins/wareobjects";
+import posSetterPlug from "./plugins/setter";
 import watchPlugin from "./plugins/watch";
 import plainBackgroundPlug from "./plugins/plainbackground";
 import mulfokPalettePlug from "./plugins/colors";
@@ -14,17 +12,23 @@ export const k = kaplay({
 	background: [0, 0, 0],
 	font: "happy-o",
 	focus: false,
+	debug: true,
+	maxFPS: 120,
+	buttons: {
+		"up": { "keyboard": ["up", "w"] },
+		"left": { "keyboard": ["left", "a"] },
+		"down": { "keyboard": ["down", "s"] },
+		"right": { "keyboard": ["right", "d"] },
+		"action": { "keyboard": "space" },
+		"click": { "mouse": "left" },
+	},
 	plugins: [
 		dragCompPlugin,
 		watchPlugin,
-		conductorPlug,
-		wareObjectsPlugin,
-		setterPlug,
+		posSetterPlug,
 		plainBackgroundPlug,
 		mulfokPalettePlug,
 	],
-	debug: true,
-	maxFPS: 120,
 });
 console.log("KAPLAY RAN");
 

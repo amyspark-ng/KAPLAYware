@@ -1,9 +1,10 @@
 import { Vec2 } from "kaplay";
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const tapGame: Minigame = {
-	prompt: "TAP!",
+const tapGame: Microgame = {
+	name: "tap",
 	author: "amyspark-ng",
+	prompt: "TAP!",
 	rgb: [0, 0, 0],
 	input: "mouse (hidden)",
 	duration: 8,
@@ -60,8 +61,8 @@ const tapGame: Minigame = {
 		}
 
 		ctx.onUpdate(() => {
-			hand.pos = ctx.isInputButtonDown("click") ? ctx.mousePos().sub(0, 30) : ctx.mousePos();
-			hand.frame = ctx.isInputButtonDown("click") ? 1 : 0;
+			hand.pos = ctx.isButtonDown("click") ? ctx.mousePos().sub(0, 30) : ctx.mousePos();
+			hand.frame = ctx.isButtonDown("click") ? 1 : 0;
 		});
 
 		const grid = generateGrid();
@@ -100,12 +101,12 @@ const tapGame: Minigame = {
 					});
 				}
 				else {
-					if (ctx.winState() != undefined) return;
+					if (ctx.winState != undefined) return;
 					monkeyWrong();
 				}
 
 				if (numbersHit.length >= numbers.length) {
-					if (ctx.winState() != undefined) return;
+					if (ctx.winState != undefined) return;
 					ctx.play("monkey", { detune: ctx.rand(50, 100) });
 					ctx.tween(ctx.mulfok.BEAN_GREEN, ctx.mulfok.VOID_PURPLE, 0.5 / ctx.speed, (p) => screen.color = p, ctx.easings.easeOutQuint);
 					ctx.win();

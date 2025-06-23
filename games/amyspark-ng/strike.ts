@@ -1,10 +1,10 @@
-import k from "../../src/engine";
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const strikeGame: Minigame = {
-	prompt: "STRIKE!",
+const strikeGame: Microgame = {
+	name: "strike",
 	author: "amyspark-ng",
-	rgb: k.WHITE,
+	prompt: "STRIKE!",
+	rgb: (ctx) => ctx.WHITE,
 	input: "mouse (hidden)",
 	duration: 5,
 	urlPrefix: "games/amyspark-ng/assets/",

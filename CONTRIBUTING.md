@@ -3,7 +3,7 @@
 Welcome to the KAPLAYware contributing guide! We'll go over these points
 
 ### 1. [How do i add a game?](#how-do-i-add-a-game)
-### 2. [What is a minigame context?](#what-is-a-minigame-context)
+### 2. [What is a microgame context?](#what-is-a-microgame-context)
 ### 3. [How do i develop said game? AKA start()](#how-do-i-develop-said-game)
 ### 4. [Do's and Don'ts](#dos-and-donts)
 ### 5. [Debug and advanced testing](#debug-and-advanced-testing)
@@ -30,17 +30,17 @@ For example:
 $ npm run create-game wario:squeeze
 ```
 
-Now that your game is created, you'll see a Javascript object with a few properties, there are not all the available properties, but we'll go through the ones that are here, if you want to learn about the other ones, can check the [Minigame](/src/game/types.ts) type to see all of them.
+Now that your game is created, you'll see a Javascript object with a few properties, there are not all the available properties, but we'll go through the ones that are here, if you want to learn about the other ones, can check the [Microgame](/src/game/types.ts) type to see all of them.
 
 `author:` It's a simple string where your name will be stored!
 
-`prompt:` The prompt/action the player has to do to win the game, this can be a short verb or a hint based on what your minigame's about.
+`prompt:` The prompt/action the player has to do to win the game, this can be a short verb or a hint based on what your microgame's about.
 
 To set your prompt there's 2 (two) methods, you can either use a simple string:
 ```ts
 prompt: "eat!"
 ```
-Or you can set a different prompt using the [minigame's context](#what-is-a-minigame-context):
+Or you can set a different prompt using the [microgame's context](#what-is-a-microgame-context):
 ```ts
 prompt: (ctx) => `EAT ${ctx.difficulty} APPLES`
 ```
@@ -56,21 +56,21 @@ prompt: (ctx, promptObj) => {
 } 
 ```
 
-``input:`` What type of input does your minigame use? You can either choose:
+``input:`` What type of input does your microgame use? You can either choose:
 
 `keys`, `mouse` or `mouse (hidden)`
 
-You'll want to use a hidden mouse when your minigame makes use of a custom cursor, like here:
+You'll want to use a hidden mouse when your microgame makes use of a custom cursor, like here:
 
 ![Hitting a tv, no cursor](/images/hittv.gif)
 
-Notice how there's no cursor? The cursor is actually the hand! Makes some pretty creative minigames.
+Notice how there's no cursor? The cursor is actually the hand! Makes some pretty creative microgames.
 
-`duration:` How long the minigame will go for.
+`duration:` How long the microgame will go for.
 
 If you don't put a duration, it will default to `4`.
 
-Remember to choose a reasonable time for this! You wouldn't want a minigame where you'll won after 5 seconds and wait for another 15 seconds for no reason right? The best is that when you set the win condition, you finish the minigame.
+Remember to choose a reasonable time for this! You wouldn't want a microgame where you'll won after 5 seconds and wait for another 15 seconds for no reason right? The best is that when you set the win condition, you finish the microgame.
 
 To set this number, you can do it in 2 (two) ways, you can either use a regular number:
 ```ts
@@ -82,22 +82,22 @@ Or you can set a different difficulty depending on difficulty, for those games t
 duration: (ctx) => ctx.difficulty == 3 ? 6 : 4 
 ```
 
-If your minigame is very short and relies more on wheter the player does an action right or wrong, you can return an undefined duration similar to the example above, it would look like this:
+If your microgame is very short and relies more on wheter the player does an action right or wrong, you can return an undefined duration similar to the example above, it would look like this:
 ```ts
 duration: (ctx) => undefined 
 ```
 This will disable the duration, making it go forever until you `finish()` it
 
-`rgb:` The color for the background of your minigame.
+`rgb:` The color for the background of your microgame.
 
-You want your minigame to look pretty right? You'll want to choose a nice color for the background.
+You want your microgame to look pretty right? You'll want to choose a nice color for the background.
 
 There's a few options on how you can do this, you can either use a regular array of R, G and B numbers:
 ```ts
 rgb: [235, 38, 202]
 ```
 
-Or you can set it by returning a color using the [minigame's context](#2-what-is-a-minigame-context):
+Or you can set it by returning a color using the [microgame's context](#2-what-is-a-microgame-context):
 ```ts
 rgb: (ctx) => ctx.difficulty == 3 ? ctx.Color.fromArray(237, 24, 63) : ctx.Color.fromArray(235, 38, 202)
 ```
@@ -110,24 +110,24 @@ You can also change this mid-game, making use of the `getRGB()` and `setRGB()` f
 
 `urlPrefix:` This is the prefix of where your assets will be loaded.
 
-This will point to the root of where your minigame's assets will be loaded, more on [How do i develop said game](#how-do-i-develop-said-game-aka-startctx) regarding the `load()` function.
+This will point to the root of where your microgame's assets will be loaded, more on [How do i develop said game](#how-do-i-develop-said-game-aka-startctx) regarding the `load()` function.
 
-These are the basic settings of your KAPLAYware minigame, i might have cut a few to keep it short, for that you'll have to check the [Minigame](/src/game/types.ts) type.
+These are the basic settings of your KAPLAYware microgame, i might have cut a few to keep it short, for that you'll have to check the [Microgame](/src/types/Microgame.ts) type.
 
-## What is a minigame context?
-KAPLAYware's minigame run on something called a "context", which is similar to kaplay's context, aka, not running kaplay on global, something like this:
+## What is a microgame context?
+KAPLAYware's microgame run on something called a "context", which is similar to kaplay's context, aka, not running kaplay on global, something like this:
 ```ts
 const k = kaplay()
 k.loadBean()
 k.add([k.sprite("bean")])
 ```
-In the previous example, every kaplay function is stored in its context, the minigame's run in a similar way, where you'll have a slightly limited context that also includes extra properties! like:
+In the previous example, every kaplay function is stored in its context, the microgame's run in a similar way, where you'll have a slightly limited context that also includes extra properties! like:
 
 `difficulty:` The current difficulty of the run.
 
 `speed:` The current speed of the run, use this to speed up your games appropiately!
 
-**PROTIP:** If you want something in your minigame to be shorter, based on the speed, you can do this:
+**PROTIP:** If you want something in your microgame to be shorter, based on the speed, you can do this:
 ```ts
 loop(1 / ctx.speed, () => addZombie())
 ```
@@ -162,7 +162,7 @@ load(ctx) {
     ctx.loadSprite("finger", "sprites/finger.png"),
 },
 ```
-The ctx used in `load()` is ANOTHER custom context similar to the [minigame's context](#what-is-a-minigame-context) but only including load functions.
+The ctx used in `load()` is ANOTHER custom context similar to the [microgame's context](#what-is-a-microgame-context) but only including load functions.
 
 Now we'll have to move to ACTUALLY making gameplay :) THIS is where it gets good
 ```ts
@@ -187,10 +187,10 @@ start(ctx) {
     ]);
 
     // now we move bean with the input buttons
-    ctx.onInputButtonDown("left", () => bean.move(-SPEED, 0));
-    ctx.onInputButtonDown("down", () => bean.move(0, SPEED));
-    ctx.onInputButtonDown("up", () => bean.move(0, -SPEED));
-    ctx.onInputButtonDown("right", () => bean.move(SPEED, 0));
+    ctx.onButtonDown("left", () => bean.move(-SPEED, 0));
+    ctx.onButtonDown("down", () => bean.move(0, SPEED));
+    ctx.onButtonDown("up", () => bean.move(0, -SPEED));
+    ctx.onButtonDown("right", () => bean.move(SPEED, 0));
 }
 ```
 
@@ -200,9 +200,9 @@ To set the win condition, you'll have to call the `ctx.win()` function.
 
 To set a lose condition, you'll have to call the `ctx.lose()` function, we could call this if the time has ran out and bean didn't eat the apple.
 
-**PROTIP:** You can check wheter you've already called the `win()` or `lose()` function by calling `ctx.winState()`, if the return value is true, that means you called `win()`, if it's false you've called `lose()`, if it's undefined you haven't called either.
+**PROTIP:** You can check wheter you've already called the `win()` or `lose()` function by calling `ctx.winState`, if the return value is true, that means you called `win()`, if it's false you've called `lose()`, if it's undefined you haven't called either.
 
-Now how would all of this look in our minigame? Let's check...
+Now how would all of this look in our microgame? Let's check...
 ```ts
 start(ctx) {
     const SPEED = 1200 // set a speed the bean will move at
@@ -220,16 +220,16 @@ start(ctx) {
     ])
 
     // now we move bean with the input buttons
-    ctx.onInputButtonDown("left", () => bean.move(-SPEED, 0));
-    ctx.onInputButtonDown("down", () => bean.move(0, SPEED));
-    ctx.onInputButtonDown("up", () => bean.move(0, -SPEED));
-    ctx.onInputButtonDown("right", () => bean.move(SPEED, 0));
+    ctx.onButtonDown("left", () => bean.move(-SPEED, 0));
+    ctx.onButtonDown("down", () => bean.move(0, SPEED));
+    ctx.onButtonDown("up", () => bean.move(0, -SPEED));
+    ctx.onButtonDown("right", () => bean.move(SPEED, 0));
 
     // now we check for the collision of bean with an object tagged "apple"
     bean.onCollide("apple", (apple) => {
         apple.destroy() // this destroys the object tagged "apple" that we collided with
         ctx.win() // sets the win condition
-        ctx.wait(0.5, () => ctx.finish()) // waits 0.5 seconds and calls finish(), which ends the minigame and sends you to the next one
+        ctx.wait(0.5, () => ctx.finish()) // waits 0.5 seconds and calls finish(), which ends the microgame and sends you to the next one
     })
 
     // this will run when the player has run out of time
@@ -240,7 +240,7 @@ start(ctx) {
     })
 }
 ```
-Pretty great! Now we have our own minigame running.
+Pretty great! Now we have our own microgame running.
 
 You can always polish it, you can import your own sprites and add a small background, maybe some bushes, and you can always use small effects provided by KAPLAY.
 
@@ -252,16 +252,16 @@ Or shake the camera when the time runs out doing: `ctx.shakeCam()`.
 For starters, DON'T MAKE USE OF KAPLAY'S BUTTON API, it's not setup and it will not work, at all
 ```ts
 bean.onButtonPress("action") // DON'T, not related to KAPLAYware at all
-ctx.onInputButtonPress("action") // DO, the appropiate function to use
+ctx.onButtonPress("action") // DO, the appropiate function to use
 ```
 
-Also DON'T USE `onMousePress` FUNCTIONS EITHER, these are not accounted for and will KAPLAYware's engine
+Also DON'T USE `onMousePress` FUNCTIONS EITHER, these are not accounted for and will crash KAPLAYware's engine
 ```ts
 bean.onMousePress("left") // DON'T, will break our game
-ctx.onInputButtonPress("click") // DO, the proper function to use 
+ctx.onButtonPress("click") // DO, the proper function to use 
 ```
 
-This means that you can't use different mouse buttons in your minigame, don't get smart with us, it's only left click 😔.
+This means that you can't use different mouse buttons in your microgame, don't get smart with us, it's only left click 😔.
 
 Also meaning about `onClick`-like functions, you CAN do:
 ```ts
@@ -281,12 +281,12 @@ ctx.add([
 ])
 ```
 
-If there's anything wrong in your minigame, we'll tell you when you're doing your PR (pull request) don't worry!
+If there's anything wrong in your microgame, we'll tell you when you're doing your PR (pull request) don't worry!
 
 ## Debug and advanced testing
 ### Debug keybinds:
-* `Q` - Restart minigame
-* `Shift + Q` - Skip minigame
+* `Q` - Restart microgame
+* `Shift + Q` - Skip microgame
 * `Shift + W` - Restart with speed up
 * `1, 2, 3` - Restart with new difficulty (wanted to make it with shift but it's not working)
 * If you press F2 you'll get a panel that shows some kaplayware info (inputEnabled, score, lives, speed, difficulty, etc)
@@ -294,12 +294,12 @@ If there's anything wrong in your minigame, we'll tell you when you're doing you
 ![alt text](images/debug.png)
 
 ### Advanced testing
-You can limit the minigames played by their `gameID` with `.env.development` file in the root folder. Copy `.env.development.example` file and save it without `.example` suffix. Then list games in `VITE_ONLY_MINIGAMES` like `{yourname}:{gamename}`, one per line.
+You can limit the microgames played by their `gameID` with `.env.development` file in the root folder. Copy `.env.development.example` file and save it without `.example` suffix. Then list games in `VITE_ONLY_MICROGAMES` like `{yourname}:{gamename}`, one per line.
 
 For example:
 ```sh
-# Include only these minigames
-VITE_ONLY_MINIGAMES="
+# Include only these microgames
+VITE_ONLY_MICROGAMES="
   amyspark-ng:spam
   amyspark-ng:connect
 "
@@ -308,4 +308,4 @@ VITE_ONLY_MINIGAMES="
 Remember to re-run the dev server when you modify it.
 
 ## Conclusion
-That would be all you need to know to make a minigame for KAPLAYware!!
+That would be all you need to know to make a microgame for KAPLAYware!!

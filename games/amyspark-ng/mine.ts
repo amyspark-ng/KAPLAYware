@@ -1,8 +1,9 @@
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const mineGame: Minigame = {
-	prompt: "MINE!",
+const mineGame: Microgame = {
+	name: "mine",
 	author: "amyspark-ng",
+	prompt: "MINE!",
 	rgb: (ctx) => ctx.mulfok.VOID_VIOLET,
 	input: "mouse (hidden)",
 	duration: 5,

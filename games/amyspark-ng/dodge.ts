@@ -1,8 +1,10 @@
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const dodgeGame: Minigame = {
-	prompt: "DODGE!",
+const dodgeGame: Microgame = {
+	name: "dodge",
 	author: "amyspark-ng",
+	prompt: "DODGE!",
+	input: "keys",
 	duration: (ctx) => ctx.difficulty == 1 || ctx.difficulty == 2 ? 6 : 8,
 	rgb: [255, 255, 255],
 	urlPrefix: "games/amyspark-ng/assets/",
@@ -135,7 +137,7 @@ const dodgeGame: Minigame = {
 			});
 		}
 
-		// TODO: Fix the ground of thi minigame
+		// TODO: Fix the ground of this microgame
 		function addGround() {
 			const ground = game.add([
 				ctx.sprite("ground", { tiled: true }),
@@ -189,14 +191,14 @@ const dodgeGame: Minigame = {
 			dino.paused = isDead;
 			dino.color = PRIMARY_COLOR;
 
-			dino.gravityScale = ctx.isInputButtonDown("down") ? 3 : 1;
+			dino.gravityScale = ctx.isButtonDown("down") ? 3 : 1;
 			if (isDead) {
 				dino.frame = 4;
 				return;
 			}
-			if (ctx.isInputButtonDown("down")) dino.frame = 2 + frame;
+			if (ctx.isButtonDown("down")) dino.frame = 2 + frame;
 			else if (dino.isGrounded()) dino.frame = frame;
-			dino.area.scale.y = ctx.isInputButtonDown("down") ? 0.25 : 1;
+			dino.area.scale.y = ctx.isButtonDown("down") ? 0.25 : 1;
 
 			ctx.get("moving").forEach((obj) => {
 				if (obj.pos.x <= -100) obj.destroy();
@@ -263,9 +265,9 @@ const dodgeGame: Minigame = {
 			});
 		});
 
-		ctx.onInputButtonPress("action", () => {
+		ctx.onButtonPress("action", () => {
 			if (timeout || isDead) return;
-			if (dino.isGrounded() && !isDead && !ctx.isInputButtonDown("down")) {
+			if (dino.isGrounded() && !isDead && !ctx.isButtonDown("down")) {
 				dino.jump(900);
 				ctx.play("jump", { detune: ctx.rand(-50, 50) });
 			}

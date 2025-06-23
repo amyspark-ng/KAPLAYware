@@ -1,8 +1,9 @@
-import { Minigame } from "../../src/game/types.ts";
+import { Microgame } from "../../src/types/Microgame";
 
-const hitGame: Minigame = {
-	prompt: "HIT!",
+const hitGame: Microgame = {
+	name: "hit",
 	author: "amyspark-ng",
+	prompt: "HIT!",
 	rgb: (ctx) => ctx.mulfok.DARK_PINK,
 	input: "mouse (hidden)",
 	duration: 5,

@@ -1,11 +1,13 @@
 import k from "../../src/engine";
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const pickGame: Minigame = {
-	prompt: "PICK!",
+const pickGame: Microgame = {
+	name: "pick",
 	author: "amyspark-ng",
+	prompt: "PICK!",
 	rgb: k.WHITE,
 	duration: 6,
+	input: "keys",
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
 		ctx.loadSprite("hand", "sprites/pick/hand.png", { sliceY: 1, sliceX: 3 });
@@ -87,7 +89,7 @@ const pickGame: Minigame = {
 
 		let boogersLeft = ctx.difficulty < 3 ? 1 : 2;
 		let collidedWithMiddle = false;
-		ctx.onInputButtonPress("action", () => {
+		ctx.onButtonPress("action", () => {
 			if (pressedAction) return;
 			pressedAction = true;
 			moving = false;
