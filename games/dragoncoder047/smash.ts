@@ -1,12 +1,12 @@
-import { BodyComp, GameObj, OpacityComp, PosComp, RotateComp } from "kaplay";
-import { Minigame } from "../../src/game/types";
-import mulfokColors from "../../src/plugins/colors";
+import { BodyComp, GameObj, OpacityComp, PosComp } from "kaplay";
+import { Microgame } from "../../src/types/Microgame";
 
-const smashGame: Minigame = {
+const smashGame: Microgame = {
     prompt: "smash",
+    name: "smash",
     author: "dragoncoder047",
-    rgb: mulfokColors.LIGHT_BLUE,
-    input: { cursor: { hide: false } },
+    rgb: (ctx) => ctx.mulfok.LIGHT_BLUE,
+    input: "mouse",
     duration: (ctx) => [10, 8, 6][ctx.difficulty - 1],
     urlPrefix: "games/dragoncoder047/assets/",
     load(ctx) {
