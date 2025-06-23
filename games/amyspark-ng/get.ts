@@ -1,12 +1,13 @@
-import { assets } from "@kaplayjs/crew";
 import { Vec2 } from "kaplay";
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const getGame: Minigame = {
-	prompt: "GET!",
+const getGame: Microgame = {
+	name: "get",
 	author: "amyspark-ng",
+	prompt: "GET!",
 	rgb: (ctx) => ctx.mulfok.GREEN,
 	duration: (ctx) => ctx.difficulty == 3 ? 3.5 : 4,
+	input: "keys",
 	urlPrefix: "games/amyspark-ng/assets/",
 	load(ctx) {
 		ctx.loadSprite("grass", "sprites/get/grass.png");
@@ -17,8 +18,7 @@ const getGame: Minigame = {
 		ctx.loadSound("rustle", "sounds/bushrustle.mp3");
 	},
 	start(ctx) {
-		ctx.speed = 1.6;
-		const SPEED = 300 * ctx.speed;
+		const SPEED = 400 * ctx.speed;
 		ctx.add([ctx.sprite("grass")]);
 
 		let appleOnFloor = false;
@@ -99,10 +99,10 @@ const getGame: Minigame = {
 			bean.pos.y = ctx.clamp(bean.pos.y, bean.height / 2, ctx.height() - bean.height / 2);
 
 			// this is to prevent bean going faster on diagonal movement
-			movement.x = ctx.isInputButtonDown("left") ? -1 : ctx.isInputButtonDown("right") ? 1 : 0;
-			movement.y = ctx.isInputButtonDown("up") ? -1 : ctx.isInputButtonDown("down") ? 1 : 0;
+			movement.x = ctx.isButtonDown("left") ? -1 : ctx.isButtonDown("right") ? 1 : 0;
+			movement.y = ctx.isButtonDown("up") ? -1 : ctx.isButtonDown("down") ? 1 : 0;
 
-			// this just lerps a movement to the unit, which rounds that 1.4 to 1 :thumbsup:
+			// this just lerps a movement to the unit, which rounds the magnitude of 1.4 to 1 :thumbsup:
 			lerpMovement = ctx.lerp(lerpMovement, movement.unit().scale(SPEED), 0.75);
 			bean.move(lerpMovement);
 			if (!movement.isZero()) bean.angle = ctx.lerp(bean.angle, ctx.wave(-25, 25, ctx.time() * 12 * ctx.speed), 0.25);
@@ -128,7 +128,7 @@ const getGame: Minigame = {
 		});
 
 		ctx.onDraw(() => {
-			if (appleOnFloor && !ctx.winState()) {
+			if (appleOnFloor && !ctx.winState) {
 				ctx.drawCircle({
 					radius: 10,
 					scale: ctx.vec2(2, 1),

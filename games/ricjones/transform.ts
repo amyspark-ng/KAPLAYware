@@ -1,11 +1,13 @@
-import { Minigame } from "../../src/game/types.ts";
+import { Microgame } from "../../src/types/Microgame";
 
-const transformGame: Minigame = {
-	prompt: "TRANSFORM!",
+const transformGame: Microgame = {
+	name: "transform",
 	author: "ricjones",
-	rgb: [74, 48, 82], // rgb for #4a3052 from mulfok32 palette
+	prompt: "TRANSFORM!",
+	input: "keys",
+	rgb: (ctx) => ctx.mulfok.DARK_VIOLET,
 	urlPrefix: "games/ricjones/assets/",
-	duration: () => undefined,
+	duration: undefined,
 	load(ctx) {
 		ctx.loadSound("jump", "jump_37.wav");
 		ctx.loadSprite("chad", "chadbean-amy.png");
@@ -20,6 +22,7 @@ const transformGame: Minigame = {
 		ctx.loadSound("bwomp", "bwomp.ogg");
 		ctx.loadSound("hellothere", "hellothere.mp3");
 	},
+	// TODO: maybe remove mark from the punching bag and add him as a picture hanged, would be funny
 	start(ctx) {
 		// game options start
 		const PIXEL_VEL = ctx.width() * 0.8 * ctx.speed;
@@ -139,7 +142,6 @@ const transformGame: Minigame = {
 					ctx.scale(2.5),
 				]);
 				ctx.wait(1.0 / ctx.speed, () => {
-					ctx.lose();
 					ctx.wait(0.5 / ctx.speed, () => ctx.finish());
 				});
 				return;
@@ -168,12 +170,16 @@ const transformGame: Minigame = {
 					ctx.play("hellothere");
 				});
 
-				ctx.win();
 				ctx.wait(1.5 / ctx.speed, () => ctx.finish());
 			});
 		}
 
 		function goToGameOver(isWin: boolean = true) {
+			if (ctx.winState != undefined) return;
+
+			if (isWin) ctx.win();
+			else ctx.lose();
+
 			// clear all previous objects
 			clearPrevCanvas();
 			createGameOverScreen(isWin);
@@ -232,6 +238,7 @@ const transformGame: Minigame = {
 		}
 
 		function onInputValid() {
+			if (ctx.winState != undefined) return;
 			updateBothCommands();
 			ctx.addKaboom(check.pos);
 			ctx.shakeCam();
@@ -263,10 +270,10 @@ const transformGame: Minigame = {
 
 		ctx.onUpdate(() => {
 			// checking input if it is within the box
-			if (ctx.isInputButtonPressed("up") && isInputValid(DIRECTION.UP)) onInputValid();
-			else if (ctx.isInputButtonPressed("down") && isInputValid(DIRECTION.DOWN)) onInputValid();
-			else if (ctx.isInputButtonPressed("left") && isInputValid(DIRECTION.LEFT)) onInputValid();
-			else if (ctx.isInputButtonPressed("right") && isInputValid(DIRECTION.RIGHT)) onInputValid();
+			if (ctx.isButtonPressed("up") && isInputValid(DIRECTION.UP)) onInputValid();
+			else if (ctx.isButtonPressed("down") && isInputValid(DIRECTION.DOWN)) onInputValid();
+			else if (ctx.isButtonPressed("left") && isInputValid(DIRECTION.LEFT)) onInputValid();
+			else if (ctx.isButtonPressed("right") && isInputValid(DIRECTION.RIGHT)) onInputValid();
 			else if (left_com.pos.x >= check.pos.x + check.width * 0.5 && canPress) onInputInvalid();
 		});
 	},

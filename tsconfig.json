@@ -3,22 +3,29 @@
 		"target": "ES2020",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+		"lib": [
+			"ES2023",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"skipLibCheck": true,
-		"types": ["vite/client"],
-
+		"types": [
+			"vite/client"
+		],
 		/* Bundler mode */
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
-
 		/* Linting */
 		"strict": false,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"noFallthroughCasesInSwitch": false
 	},
-	"include": ["src"]
+	"include": [
+		"src",
+		"games"
+	]
 }

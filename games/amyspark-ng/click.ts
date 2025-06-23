@@ -1,7 +1,8 @@
-import { GameObj, Vec2 } from "kaplay";
-import { Minigame, MinigameCtx } from "../../src/game/types.ts";
+import { Vec2 } from "kaplay";
+import { Microgame } from "../../src/types/Microgame";
+import { MicrogameCtx } from "../../src/scenes/game/context/types";
 
-function getHexagonShape(ctx: MinigameCtx) {
+function getHexagonShape(ctx: MicrogameCtx) {
 	// some cool math
 	const pts = [] as Vec2[];
 	for (let i = 0; i < 6; i++) {
@@ -13,31 +14,20 @@ function getHexagonShape(ctx: MinigameCtx) {
 	return new ctx.Polygon(pts);
 }
 
-function addBackground(ctx: MinigameCtx) {
+function addBackground(ctx: MicrogameCtx) {
 	const color = {
 		ColorPrimary: ctx.Color.fromHex("#291834"),
 		ColorSecondary: ctx.Color.fromHex("#36213f"),
 	};
 
-	const parent = ctx.add([
-		ctx.rotate(5),
-		ctx.anchor("center"),
-		ctx.scale(),
-	]);
-
 	const bg = ctx.add([
 		ctx.rect(ctx.width(), ctx.height()),
+		ctx.rotate(5),
 		{
 			offsetX: 0,
 			offsetY: 0,
 			cellSize: 148,
-			speed: 64 * ctx.speed,
-			set angle(val: number) {
-				parent.angle = val;
-			},
-			get angle() {
-				return parent.angle;
-			},
+			speed: 32 * ctx.speed,
 		},
 	]);
 
@@ -71,7 +61,7 @@ function addBackground(ctx: MinigameCtx) {
 	return bg;
 }
 
-function addComboText(ctx: MinigameCtx) {
+function addComboText(ctx: MicrogameCtx) {
 	let blendFactor = 0;
 	let words = ["MAX COMBO", "MAX COMBO!!", "YOO-HOO!!!", "YEEEOUCH!!", "FINISH IT"];
 	let maxComboText = ctx.add([
@@ -112,14 +102,15 @@ function addComboText(ctx: MinigameCtx) {
 	});
 }
 
-const clickGame: Minigame = {
-	prompt: "CLICK!",
+const clickGame: Microgame = {
+	name: "click",
 	author: "amyspark-ng", // of course
+	prompt: "CLICK!",
 	rgb: [41, 24, 52],
 	input: "mouse",
 	playsOwnMusic: true,
+	duration: 4,
 	urlPrefix: "games/amyspark-ng/assets/",
-	duration: (ctx) => ctx.difficulty == 3 ? 6 : 4,
 	load(ctx) {
 		ctx.loadSprite("hexagon", "sprites/click/hexagon.png");
 		ctx.loadSprite("background", "sprites/click/background.png");
@@ -165,7 +156,7 @@ const clickGame: Minigame = {
 		]);
 
 		hexagon.onUpdate(() => {
-			const hexagonClicked = hexagon.isHovering() && ctx.isInputButtonDown("click");
+			const hexagonClicked = hexagon.isHovering() && ctx.isButtonDown("click");
 			hexagon.scale = ctx.lerp(hexagon.scale, hexagonClicked ? ctx.vec2(0.95) : ctx.vec2(1), 0.25);
 			hexagon.angle = ctx.lerp(hexagon.angle, hexagon.angle + 0.1 + (score / 8 * spinspeed), 0.5);
 			scoreText.angle = ctx.wave(-15, 15, ctx.time() * ctx.speed);
@@ -194,7 +185,7 @@ const clickGame: Minigame = {
 			plusScoreText.onUpdate(() => plusScoreText.move(0, ctx.rand(-80, -90) * ctx.speed));
 		});
 
-		ctx.onInputButtonRelease("click", () => {
+		ctx.onButtonRelease("click", () => {
 			if (!hexagon.isHovering()) return;
 			ctx.play("clickpress", { detune: ctx.rand(-400, -200) });
 		});

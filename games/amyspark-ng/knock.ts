@@ -1,9 +1,10 @@
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const knockGame: Minigame = {
+const knockGame: Microgame = {
+	name: "knock",
+	author: "amyspark-ng",
 	prompt: "KNOCK!",
 	input: "mouse",
-	author: "amyspark-ng",
 	rgb: [74, 48, 82],
 	duration: (ctx) => ctx.difficulty == 3 ? 4.5 : 4,
 	urlPrefix: "games/amyspark-ng/assets/",
@@ -78,7 +79,7 @@ const knockGame: Minigame = {
 		door.onClick(() => {
 			if (!door.isHovering()) return;
 
-			if (!ctx.winState()) {
+			if (!ctx.winState) {
 				ctx.tween(ctx.vec2(DOOR_SCALE - 0.05 * totalKnocks - knocksLeft), ctx.vec2(DOOR_SCALE), 0.15 / ctx.speed, (p) => door.scale = p, ctx.easings.easeOutQuint);
 			}
 
@@ -123,7 +124,7 @@ const knockGame: Minigame = {
 		});
 
 		ctx.onTimeout(() => {
-			if (ctx.winState() == undefined) return;
+			if (ctx.winState == undefined) return;
 
 			if (knocksLeft > 0) {
 				ctx.lose();

@@ -1,9 +1,10 @@
 import { GameObj } from "kaplay";
-import { Minigame } from "../../src/game/types.ts";
+import { Microgame } from "../../src/types/Microgame";
 
-const newGame: Minigame = {
-	prompt: "CONNECT!",
+const connectGame: Microgame = {
+	name: "connect",
 	author: "amyspark-ng",
+	prompt: "CONNECT!",
 	input: "mouse",
 	rgb: (ctx) => ctx.mulfok.DARK_PURPLE,
 	duration: (ctx) => ctx.difficulty == 3 ? 7 : 5,
@@ -81,6 +82,7 @@ const newGame: Minigame = {
 				sourceX += sourceGap + source.width;
 			});
 
+			// TODO: make it so if you click and drop it it will stay on the floor, also make it so it can plug with other sockets
 			plugObj.onUpdate(() => {
 				if (plugSocketState[plugIndex] == "wiring") {
 					plugObj.pos = ctx.lerp(plugObj.pos, sourceObj.fromWorld(ctx.mousePos()), 0.5);
@@ -105,7 +107,7 @@ const newGame: Minigame = {
 					plugSocketState[plugIndex] = "connected";
 				}
 
-				if (ctx.isInputButtonReleased("click") && plugSocketState[plugIndex] == "wiring") {
+				if (ctx.isButtonReleased("click") && plugSocketState[plugIndex] == "wiring") {
 					if (!socketObj.isHovering()) plugSocketState[plugIndex] = "disconnected";
 				}
 			});
@@ -118,6 +120,9 @@ const newGame: Minigame = {
 					color,
 				});
 			});
+
+			// ctx.onDraw("tag", () => {
+			// });
 		});
 
 		let hasWon = false;
@@ -147,4 +152,4 @@ const newGame: Minigame = {
 	},
 };
 
-export default newGame;
+export default connectGame;

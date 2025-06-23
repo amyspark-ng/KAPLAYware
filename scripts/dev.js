@@ -1,19 +1,19 @@
 import { spawn } from "child_process";
 
 const [author, gamePrompt] = (process.argv[2] ?? "").split(":");
-const minigameID = `${author}:${gamePrompt}`;
-const minigameSet = author && gamePrompt;
+const microgameID = `${author}:${gamePrompt}`;
+const isMicrogameSet = author && gamePrompt;
 
-if (minigameSet) {
-  process.env.DEV_MINIGAME = `"${minigameID}"`;
-  console.log(
-    "\u{2728} \x1b[32m\x1b[1mRunning minigame\x1b[0m: \x1b[0m"
-    + minigameID
-  );
+if (isMicrogameSet) {
+	process.env.DEV_MICROGAME = `"${microgameID}"`;
+	console.log(
+		"\u{2728} \x1b[32m\x1b[1mRunning microgame\x1b[0m: \x1b[0m"
+			+ microgameID,
+	);
 }
 
 spawn(
-  'vite',
-  [...process.argv.slice(minigameSet ? 3 : 2)],
-  { shell: true, stdio: 'inherit' }
+	"vite",
+	[...process.argv.slice(isMicrogameSet ? 3 : 2)],
+	{ shell: true, stdio: "inherit" },
 );

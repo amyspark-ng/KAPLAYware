@@ -1,8 +1,9 @@
 import { GameObj, Vec2 } from "kaplay";
-import { Minigame } from "../../src/game/types.ts";
+import { Microgame } from "../../src/types/Microgame";
 
 // almost 300 lines of pure unadultered pain that took me a whole day to write
-const sortGame: Minigame = {
+const sortGame: Microgame = {
+	name: "sort",
 	prompt: "SORT!",
 	author: "amyspark-ng",
 	duration: (ctx) => ctx.difficulty == 3 ? 7 : 6,
@@ -249,7 +250,7 @@ const sortGame: Minigame = {
 						draggedItem.pos.y += acceleration;
 					}
 
-					if (ctx.isInputButtonReleased("click")) {
+					if (ctx.isButtonReleased("click")) {
 						draggedItem.drop();
 					}
 				});

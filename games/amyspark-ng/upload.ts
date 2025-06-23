@@ -1,9 +1,10 @@
 import { Vec2 } from "kaplay";
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const uploadGame: Minigame = {
-	prompt: "UPLOAD!",
+const uploadGame: Microgame = {
+	name: "upload",
 	author: "amyspark-ng",
+	prompt: "UPLOAD!",
 	rgb: (ctx) => ctx.mulfok.DARK_BLUE,
 	duration: 4,
 	input: "mouse",
@@ -144,7 +145,7 @@ const uploadGame: Minigame = {
 		if (ctx.difficulty > 1) addFile("zombean", false);
 		if (ctx.difficulty > 2) addFile("skuller", false);
 
-		ctx.onInputButtonDown("click", () => {
+		ctx.onButtonDown("click", () => {
 			for (const obj of ctx.get("drag").reverse()) {
 				if (obj.isHovering()) {
 					obj.dragging = true;
@@ -155,7 +156,7 @@ const uploadGame: Minigame = {
 		});
 
 		ctx.onTimeout(() => {
-			if (ctx.winState() == undefined) {
+			if (ctx.winState == undefined) {
 				ctx.lose();
 				ctx.wait(0.5 / ctx.speed, () => ctx.finish());
 			}

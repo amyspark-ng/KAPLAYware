@@ -1,8 +1,10 @@
-import { Minigame } from "../../src/game/types";
+import { Microgame } from "../../src/types/Microgame";
 
-const fishGame: Minigame = {
-	prompt: "FISH!",
+const fishGame: Microgame = {
+	name: "fish",
 	author: "erik",
+	prompt: "FISH!",
+	input: "keys",
 	rgb: [109, 128, 250],
 	duration: (ctx) => 10 - ctx.difficulty / 2,
 	playsOwnMusic: true,
@@ -242,7 +244,7 @@ const fishGame: Minigame = {
 			});
 		});
 
-		ctx.onInputButtonPress("action", async () => {
+		ctx.onButtonPress("action", async () => {
 			if (bobber.state === "reeling") {
 				return;
 			}
