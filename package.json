@@ -1,22 +1,29 @@
 {
-	"name": "kaplayware",
-	"type": "module",
-	"scripts": {
-		"dev": "node scripts/dev.js",
-		"create-game": "node scripts/create.js",
-		"check": "tsc --noEmit"
-	},
-	"dependencies": {
-		"@kaplayjs/crew": "^1.7.1",
-		"kaplay": "4000.0.0-alpha.18"
-	},
-	"devDependencies": {
-		"esbuild": "^0.25.5",
-		"dprint": "^0.50.0",
-		"terser": "^5.32.0",
-		"typescript": "^5.6.2",
-		"vite": "^5.4.5",
-		"vite-plugin-singlefile": "^2.0.2"
-	},
-	"packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
+    "name": "kaplayware",
+    "type": "module",
+    "scripts": {
+        "dev": "node scripts/dev.js",
+        "create-game": "node scripts/create.js",
+        "check": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@kaplayjs/crew": "^1.7.1",
+        "kaplay": "4000.0.0-alpha.18"
+    },
+    "devDependencies": {
+        "esbuild": "^0.25.5",
+        "dprint": "^0.50.0",
+        "terser": "^5.32.0",
+        "typescript": "^5.6.2",
+        "vite": "^5.4.5",
+        "vite-plugin-singlefile": "^2.0.2"
+    },
+    "pnpm": {
+        "ignoredBuiltDependencies": [
+            "esbuild"
+        ],
+        "onlyBuiltDependencies": [
+            "esbuild"
+        ]
+    }
 }
