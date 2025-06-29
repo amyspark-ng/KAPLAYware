@@ -1,36 +1,14 @@
 import k from "../../engine";
-import { kaplayware, KAPLAYwareOpts } from "./kaplayware";
+import { createGameInstance } from "./game";
+import { getGameByID } from "./utils";
 
-k.scene("game", (kaplaywareOpt: KAPLAYwareOpts) => {
-	const wareEngine = kaplayware(kaplaywareOpt);
-	wareEngine.nextGame();
+k.scene("game", () => {
+	const instance = createGameInstance();
 
-	let transitionOpacity = 0;
-	k.onUpdate(() => {
-		if (k.isKeyPressed("escape")) wareEngine.paused = !wareEngine.paused;
-		transitionOpacity = k.lerp(transitionOpacity, wareEngine.paused ? 1 : 0, 0.75);
-	});
+	instance.runMicroGame(getGameByID("amyspark-ng:avoid"));
 
-	k.onDraw(() => {
-		if (wareEngine.paused) {
-			k.drawRect({
-				width: k.width(),
-				height: k.height(),
-				fixed: true,
-				color: k.BLACK,
-				opacity: 0.75 * transitionOpacity,
-			});
+	// every paused thing should be handled here
 
-			k.drawText({
-				text: "PAUSED",
-				pos: k.center(),
-				anchor: "center",
-				align: "center",
-				opacity: transitionOpacity,
-			});
-		}
-	});
+	// every transition thing should be handled here (the kaplayware instance)
+	// could when running modify the speed and such (ctx.speed)
 });
-
-const goGame = (opts?: KAPLAYwareOpts) => k.go("game", opts);
-export default goGame;
