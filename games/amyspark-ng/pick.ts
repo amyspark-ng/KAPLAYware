@@ -1,4 +1,4 @@
-import k from "../../src/engine";
+import k from "../../src/kaplay";
 import { Microgame } from "../../src/types/Microgame";
 
 const pickGame: Microgame = {

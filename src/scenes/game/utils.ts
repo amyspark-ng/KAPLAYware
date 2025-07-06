@@ -1,7 +1,7 @@
 import { Color, GameObj, KEventController, Tag } from "kaplay";
 import { MicrogameCtx, MicrogameInput } from "./context/types";
 import games, { modules } from "./games";
-import k from "../../engine";
+import k from "../../kaplay";
 import { Microgame } from "../../types/Microgame";
 
 export const getGameID = (g: Microgame) => {

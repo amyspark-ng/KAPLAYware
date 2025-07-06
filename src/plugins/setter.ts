@@ -1,4 +1,4 @@
-import k from "../engine";
+import k from "../kaplay";
 
 export default function posSetterPlug() {
 	return {

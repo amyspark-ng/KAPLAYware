@@ -1,5 +1,5 @@
 import { Comp, GameObj, KAPLAYCtx } from "kaplay";
-import k from "../engine";
+import k from "../kaplay";
 
 // Keep track of the current draggin item
 export let curDraggin: GameObj<DragComp> = null;

@@ -1,7 +1,7 @@
 import { assets } from "@kaplayjs/crew";
-import k from "./engine";
+import k from "./kaplay";
 import games from "./scenes/game/games";
-import { createLoadCtx } from "./scenes/game/context/load";
+// import { createLoadCtx } from "./scenes/game/context/load";
 
 k.loadSprite("logo", "sprites/logo.png");
 k.loadSprite("menu-buttons", "sprites/menu/buttons.png", { sliceX: 2, sliceY: 3 });
@@ -79,10 +79,10 @@ k.loadSpriteAtlas("sprites/cursor.png", {
 
 games.forEach((game) => {
 	if (!game.load) return;
-	const loadCtx = createLoadCtx(game);
+	// const loadCtx = createLoadCtx(game);
 	// DON'T change the order of this
-	game.load(loadCtx);
-	loadCtx["loadRoot"] = k.loadRoot;
+	// game.load(loadCtx);
+	// loadCtx["loadRoot"] = k.loadRoot;
 });
 
 // const load crew

@@ -1,5 +1,5 @@
 import { Vec2 } from "kaplay";
-import k from "../../engine";
+import k from "../../kaplay";
 
 /** Creates a cute little object that contains a buncha game objects that can hold, a ware instance
  * @returns An object with a lot of objects
@@ -76,4 +76,4 @@ export function createGameContainer() {
 }
 
 /** The ReturnType of {@link createGameContainer `createGameContainer()`} */
-type GameContainer = ReturnType<typeof createGameContainer>;
+export type GameContainer = ReturnType<typeof createGameContainer>;

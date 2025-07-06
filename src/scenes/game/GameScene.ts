@@ -1,11 +1,20 @@
-import k from "../../engine";
-import { createGameInstance } from "./game";
+import k from "../../kaplay";
+import { createGameContainer } from "./container";
+import { executeWareEngine } from "./engine";
 import { getGameByID } from "./utils";
 
 k.scene("game", () => {
-	const instance = createGameInstance();
+	const engine = executeWareEngine();
 
-	instance.runMicroGame(getGameByID("amyspark-ng:avoid"));
+	engine.runMicroGame(getGameByID("amyspark-ng:avoid"));
+
+	engine.events.onButtonPress("left", () => {
+		k.debug.log();
+	});
+
+	engine.events.onKeyPress("r", () => {
+		engine.clearEvents();
+	});
 
 	// every paused thing should be handled here
 

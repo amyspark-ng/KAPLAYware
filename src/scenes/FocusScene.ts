@@ -1,4 +1,4 @@
-import k from "../engine";
+import k from "../kaplay";
 
 k.scene("focus", (initial_scene) => {
 	k.add([

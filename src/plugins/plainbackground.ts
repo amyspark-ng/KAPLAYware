@@ -1,5 +1,5 @@
 import { Color } from "kaplay";
-import k from "../engine";
+import k from "../kaplay";
 
 function addPlainBackground(color: Color) {
 	return k.add([

@@ -1,5 +1,5 @@
 import { AudioPlay, KAPLAYCtx, KEventController } from "kaplay";
-import k from "../engine";
+import k from "../kaplay";
 
 export type Conductor = {
 	time: number;
