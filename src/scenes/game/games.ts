@@ -11,7 +11,7 @@ window.microgames = [];
  * fix the function thing that creates a new minigame
  */
 
-export const modules = import.meta.glob("../../../games/*/*/main.ts", { eager: true });
+export const modules = import.meta.glob("../../../games/**/*/main.ts", { eager: true });
 
 const exclude = new Set([]);
 
