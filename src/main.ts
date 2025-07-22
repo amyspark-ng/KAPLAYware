@@ -27,7 +27,7 @@ k.onLoad(() => {
 	else k.go("focus", INITIAL_SCENE);
 });
 
-// Init Neutralino API
+// Init Neutralino API, load mods (maybe you should move this to another place)
 init();
 
 const loadMods = async () => {
@@ -41,14 +41,19 @@ const loadMods = async () => {
 
 			for (const microgameFolder of customMicrogamesDirs) {
 				const microgameMain = await filesystem.readFile(microgameFolder.path + "/main.js");
-				const microgameData = (await import(`data:text/javascript, ${microgameMain}`)).default;
-				window.microgames.push(microgameData);
+				const microgameData = await import(
+					/* @vite-ignore */
+					`data:text/javascript, ${microgameMain}`
+				);
+				window.microgames.push(microgameData.default);
 			}
 		}
 	}
 	catch (e) {
-		console.error("No mods folder found", e);
+		console.error("Error loading mods", e);
 	}
 };
 
-loadMods();
+if (window.NL_OS) {
+	loadMods();
+}

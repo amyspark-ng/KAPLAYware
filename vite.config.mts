@@ -2,6 +2,8 @@
 import { defineConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
+// TODO: Remove Tauri related stuff.
+
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
 	// Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -12,7 +14,10 @@ export default defineConfig(async () => ({
 	// 2. tauri expects a fixed port, fail if that port is not available
 	server: {
 		allowedHosts: true,
-		hmr: false,
+		hmr: {
+			// TODO: Temporary fix for neutralino will try load
+			overlay: false,
+		},
 		port: 8000,
 		strictPort: true,
 		watch: {
@@ -20,6 +25,7 @@ export default defineConfig(async () => ({
 			ignored: ["**/src-tauri/**"],
 		},
 	},
+
 	publicDir: "./assets",
 	build: {
 		minify: "terser",

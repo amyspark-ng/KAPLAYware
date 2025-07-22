@@ -25,21 +25,6 @@ for (const g of games) {
 	if (!g.isBoss) g.isBoss = false;
 }
 
-// Mod testing
-const testMods = ["/mods/microgames/lajbel/avoid"];
-
-for (const mod of testMods) {
-	// This is indeed for fetching the actual URL from the web, no from static
-	// file generation.
-
-	/* @vite-ignore */
-	import(`${mod}/main.js`).then((minigame) => {
-		// window.microgames.push(minigame.default);
-	}).catch(() => {
-		console.error(`Error loading ${mod} microgame.`);
-	});
-}
-
 const onlyInclude = new Set([
 	window.DEV_MICROGAME, // Passed arg from npm run dev {yourname}:{gamename}
 	...(import.meta.env?.VITE_ONLY_MICROGAME ?? "").trim().split("\n").map((s: string) => s.trim()),
