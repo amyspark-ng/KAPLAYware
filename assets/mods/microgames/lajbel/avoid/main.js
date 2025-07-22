@@ -18,6 +18,7 @@ const avoidGame = {
 
 		ctx.onClick(() => {
 			ctx.win();
+			ctx.finish();
 		});
 	},
 };
