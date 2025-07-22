@@ -2,15 +2,21 @@
 	"name": "kaplayware",
 	"type": "module",
 	"scripts": {
+		"postinstall": "pnpm neu update",
 		"dev": "node scripts/dev.js",
 		"create-game": "node scripts/create.js",
-		"check": "tsc --noEmit"
+		"check": "tsc --noEmit",
+		"desktop:dev": "neu run",
+		"desktop:build": "neu build",
+		"build": "vite build"
 	},
 	"dependencies": {
 		"@kaplayjs/crew": "^1.7.1",
+		"@neutralinojs/lib": "^6.2.0",
 		"kaplay": "github:kaplayjs/kaplay"
 	},
 	"devDependencies": {
+		"@neutralinojs/neu": "^11.5.0",
 		"dprint": "^0.50.0",
 		"esbuild": "^0.25.5",
 		"terser": "^5.32.0",

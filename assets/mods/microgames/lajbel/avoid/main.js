@@ -1,4 +1,5 @@
 /** @type {import("../../../../../src/types/Microgame").Microgame} */
+
 const avoidGame = {
 	prompt: "TEST MOD!",
 	name: "test",

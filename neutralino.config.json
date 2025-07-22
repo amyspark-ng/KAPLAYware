@@ -1,0 +1,36 @@
+{
+	"$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+	"applicationId": "js.neutralino.zero",
+	"version": "1.0.0",
+	"defaultMode": "window",
+	"documentRoot": "/dist/",
+	"url": "/",
+	"enableServer": true,
+	"enableNativeAPI": true,
+	"nativeAllowList": ["app.*", "filesystem.*"],
+	"modes": {
+		"window": {
+			"title": "KAPLAYWare",
+			"width": 800,
+			"height": 500,
+			"minWidth": 400,
+			"minHeight": 200,
+			"icon": "/assets/sprites/logo.png"
+		}
+	},
+	"cli": {
+		"binaryName": "KAPLAYWare",
+		"resourcesPath": "/dist/",
+		"extensionsPath": "/extensions/",
+		"binaryVersion": "6.1.0",
+		"clientVersion": "6.1.0",
+		"frontendLibrary": {
+			"patchFile": "/index.html",
+			"devUrl": "http://localhost:8000",
+			"projectPath": "/",
+			"initCommand": "pnpm install",
+			"devCommand": "pnpm run dev",
+			"buildCommand": "pnpm run build"
+		}
+	}
+}
