@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import fs from "fs";
+import path from "path";
 
 const [author, gamePrompt] = (process.argv[2] ?? "").split(":");
 const speed = process.argv.find((arg) => arg.includes("speed"))?.split("=")[1];
@@ -23,6 +25,15 @@ if (isMicrogameSet) {
 			+ microgameID,
 	);
 }
+
+const customGamesPath = path.join(process.cwd(), "games");
+const games = fs.readdirSync(customGamesPath).filter((v) => {
+	const existsMain = fs.existsSync(path.join(customGamesPath, v, "main.js"));
+	if (existsMain) return v;
+});
+
+process.env.CUSTOM_GAMES_PATH = customGamesPath;
+process.env.CUSTOM_GAMES = games;
 
 spawn(
 	"vite",

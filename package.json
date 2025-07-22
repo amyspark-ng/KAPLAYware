@@ -1,19 +1,22 @@
 {
 	"name": "kaplayware",
 	"type": "module",
+	"bin": "/scripts/pkg.js",
 	"scripts": {
 		"postinstall": "pnpm neu update",
 		"dev": "node scripts/dev.js",
 		"create-game": "node scripts/create.js",
 		"check": "tsc --noEmit",
+		"build": "vite build",
 		"desktop:dev": "neu run",
 		"desktop:build": "neu build",
-		"build": "vite build"
+		"package:build": "vite build --config vite.config.package.mts"
 	},
 	"dependencies": {
 		"@kaplayjs/crew": "^1.7.1",
 		"@neutralinojs/lib": "^6.2.0",
-		"kaplay": "github:kaplayjs/kaplay"
+		"kaplay": "github:kaplayjs/kaplay",
+		"kaplayware": "link:"
 	},
 	"devDependencies": {
 		"@neutralinojs/neu": "^11.5.0",
@@ -25,5 +28,11 @@
 		"vite-multiple-assets": "^2.2.5",
 		"vite-plugin-singlefile": "^2.0.2"
 	},
+	"files": [
+		"src/",
+		"scripts/",
+		"README.md",
+		"vite.config.mts"
+	],
 	"packageManager": "pnpm@10.8.1+sha512.c50088ba998c67b8ca8c99df8a5e02fd2ae2e2b29aaf238feaa9e124248d3f48f9fb6db2424949ff901cffbb5e0f0cc1ad6aedb602cd29450751d11c35023677"
 }

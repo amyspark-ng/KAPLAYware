@@ -54,6 +54,9 @@ const loadMods = async () => {
 	}
 };
 
+const loadCustomGame = () => {
+};
+
 if (window.NL_OS) {
 	loadMods();
 }

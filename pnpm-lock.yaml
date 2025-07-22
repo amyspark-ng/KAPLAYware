@@ -17,6 +17,9 @@ importers:
       kaplay:
         specifier: github:kaplayjs/kaplay
         version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/732a75d435b632d8d13a0afd757bcac08e7c9106
+      kaplayware:
+        specifier: 'link:'
+        version: 'link:'
     devDependencies:
       '@neutralinojs/neu':
         specifier: ^11.5.0

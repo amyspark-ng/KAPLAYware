@@ -1,10 +1,20 @@
 // @ts-nocheck
 import { defineConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { DynamicPublicDirectory } from "vite-multiple-assets";
 
 // TODO: Remove Tauri related stuff.
+const assets = ["assets/**/*", {
+	input: "games/**",
+	output: "games",
+}];
+
+if (process.env.CUSTOM_GAMES_PATH) {
+	assets.push({
+		input: process.env.CUSTOM_GAMES_PATH,
+		output: "custom_games/**",
+	});
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
