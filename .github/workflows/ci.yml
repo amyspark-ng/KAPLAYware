@@ -1,4 +1,4 @@
-name: Bun Check
+name: pnpm Check
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   type-check:
-    name: Run `bun check`
+    name: Run `pnpm check`
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +20,9 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Install dependencies
-        run: bun install
+        run: pnpm install
 
-      - name: Run `bun check`
-        run: bun check
+      - name: Run `pnpm check`
+        run: pnpm check
