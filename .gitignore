@@ -6,6 +6,6 @@ dist/
 builds
 package-lock.json
 .env.development
-bin
+/bin/
 .tmp
 neutralinojs.log
