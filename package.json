@@ -8,12 +8,13 @@
 		"check": "tsc --noEmit",
 		"desktop:dev": "neu run",
 		"desktop:build": "neu build",
-		"build": "vite build"
+		"build": "vite build",
+		"kaplay:build": "cd lib/kaplay && pnpm i --ignore-workspace"
 	},
 	"dependencies": {
 		"@kaplayjs/crew": "2.0.0-beta.6",
 		"@neutralinojs/lib": "^6.2.0",
-		"kaplay": "github:kaplayjs/kaplay"
+		"kaplay": "link:lib/kaplay"
 	},
 	"devDependencies": {
 		"@neutralinojs/neu": "^11.5.0",

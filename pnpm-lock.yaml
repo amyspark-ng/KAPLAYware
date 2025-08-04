@@ -15,8 +15,8 @@ importers:
         specifier: ^6.2.0
         version: 6.2.0
       kaplay:
-        specifier: github:kaplayjs/kaplay
-        version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/732a75d435b632d8d13a0afd757bcac08e7c9106
+        specifier: link:lib/kaplay
+        version: link:lib/kaplay
     devDependencies:
       '@neutralinojs/neu':
         specifier: ^11.5.0
@@ -795,11 +795,6 @@ packages:
 
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
-
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/732a75d435b632d8d13a0afd757bcac08e7c9106:
-    resolution: {tarball: https://codeload.github.com/kaplayjs/kaplay/tar.gz/732a75d435b632d8d13a0afd757bcac08e7c9106}
-    version: 4000.0.0-alpha.20
-    engines: {node: '>=20.0.0'}
 
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
@@ -1668,8 +1663,6 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
-
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/732a75d435b632d8d13a0afd757bcac08e7c9106: {}
 
   make-dir@3.1.0:
     dependencies:

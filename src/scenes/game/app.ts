@@ -1,4 +1,4 @@
-import { AudioPlay, Color, KEventController, TimerController, TweenController, Vec2 } from "kaplay";
+import { AudioPlay, Color, KEventController, TimerController, TweenController, Vec2, wareModsConfig } from "kaplay";
 import k from "../../engine";
 
 /** Creates a cute little object that contains a buncha game objects that can hold, a ware instance
@@ -6,7 +6,8 @@ import k from "../../engine";
  * @returns An object with a lot of objects
  */
 export function createGameContainer(rootParent = k.getTreeRoot()) {
-	const root = rootParent.add([]);
+	const root = rootParent.add();
+	wareModsConfig.wareRoot = root;
 
 	const gameBox = root.add([
 		k.rect(k.width(), k.height()),
@@ -16,10 +17,10 @@ export function createGameContainer(rootParent = k.getTreeRoot()) {
 		k.anchor("center"),
 		{
 			scaleToSize(size: Vec2) {
-				this.scale.x = size.x / k.width()
-				this.scale.y = size.y / k.height()
-			}
-		}
+				this.scale.x = size.x / k.width();
+				this.scale.y = size.y / k.height();
+			},
+		},
 	]);
 
 	const maskObj = gameBox.add([

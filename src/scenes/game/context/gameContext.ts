@@ -94,6 +94,11 @@ export function createStartCtx(game: Microgame, wareApp: WareApp): StartCtx {
 				get fixed() {
 					return fixed;
 				},
+				serialize() {
+					return {
+						fixed: fixed,
+					};
+				},
 			};
 		},
 		opacity(o) {
