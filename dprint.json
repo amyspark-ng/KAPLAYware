@@ -1,0 +1,24 @@
+{
+	"typescript": {
+		"lineWidth": 180,
+		"trailingCommas": "onlyMultiLine",
+		"indentWidth": 4,
+		"useTabs": true,
+		"semiColons": "always",
+		"quoteStyle": "preferDouble",
+		"nextControlFlowPosition": "nextLine",
+		"module.sortImportDeclarations": "maintain"
+	},
+	"json": {
+		"indentWidth": 4,
+		"useTabs": true
+	},
+	"excludes": [
+		"**/node_modules",
+		"**/*-lock.json"
+	],
+	"plugins": [
+		"https://plugins.dprint.dev/typescript-0.93.3.wasm",
+		"https://plugins.dprint.dev/json-0.19.4.wasm"
+	]
+}

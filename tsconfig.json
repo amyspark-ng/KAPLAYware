@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"noEmit": true,
+		"target": "esnext",
+		"moduleResolution": "node",
+		"module": "esnext",
+		"types": ["vite/client"]
+	},
+	"include": [
+		"src/**/*.ts",
+		"microgames/**/*.ts"
+	]
+}
