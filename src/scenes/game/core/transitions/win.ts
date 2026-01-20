@@ -46,7 +46,7 @@ export async function runWinTransition(scenery: Scenery, controller: MicrogameCo
 			}
 		});
 
-		ctx.play("winJingle").onEnd(() => {
+		ctx.play("jingle-win").onEnd(() => {
 			conductor.destroy();
 			instance.root.destroy();
 			pauseCheck.cancel();

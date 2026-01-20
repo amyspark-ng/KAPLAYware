@@ -42,7 +42,7 @@ export function buildPausedScreen(parent: GameObj) {
 					progress += k.dt() / 1.5;
 					if (progress >= 1 && !exited) {
 						exited = true;
-						k.go("focus");
+						this.trigger("exit");
 					}
 				}
 

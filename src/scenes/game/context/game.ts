@@ -64,6 +64,7 @@ export function buildGameContext(instance: SandboxInstance, controller: Microgam
 
 		setResult(result) {
 			controller.gameResult = result;
+			if (result == "win" && controller.currentBomb) controller.currentBomb.extinguish();
 		},
 
 		getResult() {

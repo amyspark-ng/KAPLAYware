@@ -10,6 +10,8 @@ import { runLoseTransition } from "./core/transitions/lose";
 import { buildKHandled } from "./elements/khandled";
 import { addBackground } from "./elements/background";
 import { buildPausedScreen } from "./elements/paused";
+import { addBomb } from "./elements/bomb";
+import { SandboxInstance } from "./core/instance/instance";
 
 let paused = false;
 let pauseKEvent: KEvent = new k.KEvent();
@@ -61,6 +63,7 @@ k.scene("game", () => {
 				controller.finishKEvent.clear();
 				controller.finished = false;
 				controller.currentInstance?.root.destroy();
+				controller.currentBomb?.destroy();
 
 				// get game
 				controller.currentGame = getGame("amyspark-ng:get");

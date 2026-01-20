@@ -30,7 +30,7 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 			instance.root.paused = paused;
 		});
 
-		ctx.play("prepJingle").onEnd(() => {
+		ctx.play("jingle-prep").onEnd(() => {
 			conductor.destroy();
 			instance.root.destroy();
 			pauseCheck.cancel();

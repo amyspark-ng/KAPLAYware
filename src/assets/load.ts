@@ -46,10 +46,20 @@ k.loadSprite("reality", "sprites/realitysheet.png", {
 	},
 });
 
+// bomb
+k.loadSprite("bomb", "sprites/bomb/bomb.png");
+k.loadSprite("bomb-cord-start", "sprites/bomb/cord-start.png");
+k.loadSprite("bomb-cord", "sprites/bomb/cord.png");
+k.loadSprite("bomb-cord-tip", "sprites/bomb/cord-tip.png");
+k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
+
 // sounds
-k.loadSound("prepJingle", "sounds/prepJingle.ogg");
-k.loadSound("winJingle", "sounds/winJingle.ogg");
-k.loadSound("loseJingle", "sounds/loseJingle.ogg");
+k.loadSound("jingle-prep", "sounds/jingles/prep.ogg");
+k.loadSound("jingle-win", "sounds/jingles/win.ogg");
+k.loadSound("jingle-lose", "sounds/jingles/lose.ogg");
+
+k.loadSound("bomb-tick", "sounds/bomb/tick.mp3");
+k.loadSound("bomb-explosion", "sounds/bomb/explosion.mp3");
 
 // fonts
 k.loadBitmapFont("happy", "fonts/happy.png", 28, 37);
