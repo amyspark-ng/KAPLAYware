@@ -6,6 +6,7 @@ import { SandboxInstance } from "./instance/instance";
 import { onPauseChange } from "../game";
 import { GameState } from "../state/state";
 import { addBomb, Bomb } from "../elements/bomb";
+import { getGameColor } from "../../../registry";
 
 // in charge of the flow and loop of the microgames
 export class MicrogameController {
@@ -15,26 +16,50 @@ export class MicrogameController {
 	timeoutKEvent = new k.KEvent();
 	finishKEvent = new k.KEvent<["win" | "lose"]>();
 
-	gameResult: "win" | "lose";
+	gameResult: "win" | "lose" = undefined;
 	finished: boolean;
 	currentGame: Microgame;
 	score: number = 0;
 	timeLeft: number;
-	games: any[];
 	speed: number = 1;
 	lives: number = 4;
 	isHard: boolean = false;
+	microgameHat: Microgame[] = [];
 
+	// TODO: fix bomb
 	currentBomb: Bomb = null;
 
 	get shouldSpeedUp() {
 		return false;
 	}
 
-	constructor(private scenery: Scenery, games: any[]) {
-		this.games = games;
+	/**
+	 * @param passedGames Means the games that the controller was created with
+	 */
+	constructor(private scenery: Scenery, private passedGames: Microgame[] = []) {
+		this.microgameHat = passedGames;
 		this.speed = 1;
 		this.lives = 4;
+	}
+
+	prepareForGame() {
+		this.timeoutKEvent.clear();
+		this.finishKEvent.clear();
+		this.finished = false;
+		this.currentInstance?.root.destroy();
+		this.currentBomb?.destroy();
+		this.gameResult = undefined;
+
+		// get game
+		this.currentGame = this.getGameFromHat();
+	}
+
+	getGameFromHat() {
+		if (this.microgameHat.length == 0) this.microgameHat = this.passedGames;
+		const game = k.choose(this.microgameHat);
+		// TODO: figure out why not working
+		// this.microgameHat.splice(this.microgameHat.indexOf(game), 1);
+		return game;
 	}
 
 	onTimeout(action: () => void) {
@@ -52,6 +77,12 @@ export class MicrogameController {
 			this.currentBomb = null;
 			const ctx = buildGameContext(this.currentInstance, this);
 
+			if (this.isHard) {
+				if (this.currentGame.hardMode.bgColor) this.currentInstance.root.color = getGameColor(this.currentGame.hardMode.bgColor);
+				else this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
+			}
+			else this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
+
 			this.timeLeft = game.duration;
 			let timeOver = false;
 
@@ -62,18 +93,19 @@ export class MicrogameController {
 				if (this.timeLeft <= 0 && !timeOver) {
 					this.timeoutKEvent.trigger();
 					timeOver = true;
-					if (!this.currentBomb.hasExploded && !this.currentBomb.conductor.paused) {
-						// TODO: is it weird the bomb has to be exploded separately to the lit function?
-						this.currentBomb.explode();
-					}
+					// if (!this.currentBomb?.hasExploded && !this.currentBomb.conductor.paused) {
+					// TODO: is it weird the bomb has to be exploded separately to the lit function?
+					// this.currentBomb.explode();
+					// }
 				}
 
-				const beatInterval = 60 / (140 * this.speed);
-				if (this.timeLeft <= beatInterval * 4 && !this.currentBomb) {
-					if (this.gameResult == "win") return;
-					this.currentBomb = addBomb(this.currentInstance);
-					this.currentBomb.lit(140 * this.speed);
-				}
+				// TODO: figure out bomb workings
+				// const beatInterval = 60 / (140 * this.speed);
+				// if (this.timeLeft <= beatInterval * 4 && !this.currentBomb) {
+				// 	if (this.gameResult == "win") return;
+				// 	this.currentBomb = addBomb(this.currentInstance);
+				// 	this.currentBomb.lit(140 * this.speed);
+				// }
 			});
 
 			onPauseChange((paused) => {

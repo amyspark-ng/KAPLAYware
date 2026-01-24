@@ -1,6 +1,7 @@
 import { createConductor } from "../../../conductor";
 import { k } from "../../../kaplay";
 import { SandboxInstance } from "../core/instance/instance";
+import { onPauseChange } from "../game";
 
 export function addBomb(instance: SandboxInstance) {
 	const ctx = instance.context;
@@ -66,9 +67,14 @@ export function addBomb(instance: SandboxInstance) {
 		}
 	});
 
+	const pauseCheckEv = onPauseChange((paused) => {
+		bomb.conductor.paused = paused;
+	});
+
 	function destroy() {
-		bomb.destroy();
+		if (bomb.exists()) bomb.destroy();
 		bomb.conductor.destroy();
+		pauseCheckEv.cancel();
 	}
 
 	let hasExploded = false;
@@ -76,7 +82,7 @@ export function addBomb(instance: SandboxInstance) {
 		if (hasExploded) return;
 		destroy();
 		const kaboom = k.addKaboom(bombSpr.pos);
-		if (kaboom.exists()) kaboom.setParent(instance.root, { keep: null });
+		if (kaboom.exists()) kaboom.parent = instance.root;
 		instance.play("bomb-explosion");
 		hasExploded = true;
 	}

@@ -16,5 +16,6 @@ export function buildInstanceContext(instance: SandboxInstance): void {
 		center: () => k.vec2(k.width() / 2, k.height() / 2),
 		add: (comps) => instance.root.add(comps),
 		play: (src, options) => instance.play(src, options),
+		get: (tag, opts) => instance.root.get(tag, opts),
 	};
 }

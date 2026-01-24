@@ -1,7 +1,7 @@
 import { k } from "../../kaplay";
 import { Scenery } from "./core/scenery";
 import { MicrogameController } from "./core/controller";
-import { getGame } from "../../registry";
+import { MicrogameRegistry } from "../../registry";
 import { KEvent } from "kaplay";
 import { runPrepTransition } from "./core/transitions/prep";
 import { GameEvent, GameState, nextState } from "./state/state";
@@ -10,8 +10,6 @@ import { runLoseTransition } from "./core/transitions/lose";
 import { buildKHandled } from "./elements/khandled";
 import { addBackground } from "./elements/background";
 import { buildPausedScreen } from "./elements/paused";
-import { addBomb } from "./elements/bomb";
-import { SandboxInstance } from "./core/instance/instance";
 
 let paused = false;
 let pauseKEvent: KEvent = new k.KEvent();
@@ -51,7 +49,8 @@ k.scene("game", () => {
 	scenery.scale = k.vec2(320 / k.width(), 240 / k.height());
 	scenery.pos = k.vec2(-1, -217);
 
-	const controller = new MicrogameController(scenery, []);
+	const controller = new MicrogameController(scenery, MicrogameRegistry["chill"]);
+	// controller.isHard = true;
 
 	/** Runs the code necessary on the states and events of the game scene */
 	const dispatch = async (event: GameEvent) => {
@@ -59,15 +58,7 @@ k.scene("game", () => {
 
 		switch (controller.state) {
 			case GameState.Preparing:
-				controller.timeoutKEvent.clear();
-				controller.finishKEvent.clear();
-				controller.finished = false;
-				controller.currentInstance?.root.destroy();
-				controller.currentBomb?.destroy();
-
-				// get game
-				controller.currentGame = getGame("amyspark-ng:get");
-
+				controller.prepareForGame();
 				runPrepTransition(scenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});

@@ -1,4 +1,4 @@
-import { AudioPlay, GameObj, KAPLAYCtx, TimerComp, ZComp } from "kaplay";
+import { AudioPlay, ColorComp, GameObj, KAPLAYCtx, RectComp, TimerComp } from "kaplay";
 import { Scenery } from "../scenery";
 import { k } from "../../../../kaplay";
 import { buildInstanceContext, InstanceContext } from "./context";
@@ -7,7 +7,7 @@ export class SandboxInstance {
 	/** Rooot of this specific instance of sandbox, children of scene
 	 * k.root -> scenery.scene -> instance.root (k.root is the grandfather of instance.root)
 	 */
-	root: GameObj<TimerComp>;
+	root: GameObj<TimerComp | RectComp | ColorComp>;
 	context: InstanceContext;
 
 	get paused() {
@@ -67,7 +67,7 @@ export class SandboxInstance {
 	};
 
 	constructor(private scenery: Scenery) {
-		this.root = this.scenery.scene.add([k.timer()]);
 		buildInstanceContext(this);
+		this.root = this.scenery.scene.add([k.timer(), k.rect(this.context.width(), this.context.height()), k.color()]);
 	}
 }

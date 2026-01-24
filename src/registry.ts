@@ -20,3 +20,7 @@ export function getGame(id: string) {
 	});
 	return game;
 }
+
+export function getGameColor(param: [number, number, number] | string) {
+	return typeof param == "string" ? k.Color.fromHex(param) : k.rgb(...param);
+}

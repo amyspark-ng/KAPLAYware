@@ -11,7 +11,7 @@ export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 	readonly isHardMode: boolean;
 
 	setResult(result: "win" | "lose"): void;
-	getResult(): "win" | "lose";
+	getResult(): "win" | "lose" | undefined;
 	finishGame(): void;
 	onTimeout: MicrogameController["onTimeout"];
 };
