@@ -1,6 +1,5 @@
 import { GameObj, PosComp, SpriteComp, Vec2 } from "kaplay";
 import { createMicrogame } from "../../../src/registry";
-import { k } from "../../../src/kaplay";
 
 createMicrogame({
 	pack: "chill",
@@ -24,6 +23,7 @@ createMicrogame({
 		ctx.loadSprite("bush", "sprites/bush.png");
 		ctx.loadSprite("badapple", "sprites/badapple.png"); // cool reference (not related to reference at all)
 
+		ctx.loadSprite("treeflowers", "sprites/treeflowers.png");
 		ctx.loadSprite("flowers", "sprites/flowers.png");
 		ctx.loadSprite("badderapple", "sprites/badderapple.png");
 		ctx.loadSprite("basket", "sprites/basket.png", { sliceX: 3, sliceY: 1 });
@@ -34,10 +34,10 @@ createMicrogame({
 	},
 	start(ctx) {
 		// TODO
-		// RE DRAW TREE
 		// ADD MUSIC
 
-		const SPEED = 99999 / 3 * ctx.dt() * ctx.speed;
+		// don't multiply by ctx.dt() ctx.move() already works with it
+		const SPEED = 450 * ctx.speed;
 		const timer = ctx.add([ctx.timer()]);
 		ctx.add([ctx.sprite("grass"), ctx.pos(ctx.rand(-20, 20))]); // decoration with random offset
 		if (ctx.isHardMode) ctx.add([ctx.sprite("flowers"), ctx.pos(ctx.rand(-20, 20))]);
@@ -48,7 +48,7 @@ createMicrogame({
 			return ctx.vec2(ctx.rand(0, ctx.width()), ctx.rand(0, ctx.height()));
 		};
 
-		const trunkPos = k.vec2(649, 584);
+		const trunkPos = ctx.vec2(649, 584);
 
 		const applePositions = [ctx.center(), trunkPos, trunkPos.sub(0, 140), trunkPos.sub(0, 250), trunkPos.sub(0, 300)]; // { x, y }
 
@@ -83,11 +83,11 @@ createMicrogame({
 		const bean = ctx.add([
 			ctx.sprite("bean"),
 			ctx.pos(ctx.center()),
-			ctx.area({ isSensor: true }),
+			ctx.area({ isSensor: true, scale: ctx.vec2(1, 0.4), offset: ctx.vec2(0, 0) }),
 			ctx.anchor("bot"),
 			ctx.scale(1.5),
 			ctx.rotate(),
-			ctx.z(0.5),
+			ctx.z(1),
 			ctx.body(),
 			{
 				canMove: true,
@@ -98,7 +98,7 @@ createMicrogame({
 			basket = bean.add([
 				ctx.sprite("basket"),
 				ctx.pos(-25, -110),
-				ctx.z(1),
+				ctx.z(2),
 			]);
 		}
 
@@ -117,11 +117,11 @@ createMicrogame({
 			ctx.sprite("bush"),
 			ctx.anchor("center"),
 			ctx.scale(),
-			ctx.pos(trunk.pos.x, trunk.pos.y - trunk.height - 70),
+			ctx.pos(trunk.pos.x - 50, trunk.pos.y - trunk.height - 70),
 			ctx.z(2),
 			{
 				shake() {
-					const thePos = ctx.vec2(trunk.pos.x, trunk.pos.y - trunk.height - 70);
+					const thePos = ctx.vec2(trunk.pos.x - 50, trunk.pos.y - trunk.height - 70);
 					bushShake = 14;
 					this.onUpdate(() => {
 						bushShake = ctx.lerp(bushShake, 0, 5 * ctx.dt());
@@ -131,6 +131,14 @@ createMicrogame({
 				},
 			},
 		]);
+
+		if (ctx.isHardMode) {
+			bush.add([
+				ctx.sprite("treeflowers"),
+				ctx.z(3),
+				ctx.pos(ctx.vec2(-55, -50).add(ctx.rand(0, 20))),
+			]);
+		}
 
 		const movement = ctx.vec2();
 		let lerpMovement = ctx.vec2();
@@ -143,15 +151,14 @@ createMicrogame({
 				movement.x = ctx.isButtonDown("left") ? -1 : ctx.isButtonDown("right") ? 1 : 0;
 				movement.y = ctx.isButtonDown("up") ? -1 : ctx.isButtonDown("down") ? 1 : 0;
 			}
+			else {
+				movement.x = 0;
+				movement.y = 0;
+			}
 
 			// this just lerps a movement to the unit, which rounds the magnitude of 1.4 to 1 :thumbsup:
 			lerpMovement = ctx.lerp(lerpMovement, movement.unit().scale(SPEED), 0.75);
 			bean.move(lerpMovement);
-
-			if (ctx.getResult() != undefined) {
-				movement.x = 0;
-				movement.y = 0;
-			}
 
 			if (!movement.isZero()) bean.angle = ctx.lerp(bean.angle, ctx.wave(-25, 25, ctx.time() * 12 * ctx.speed), 0.25);
 			else {
@@ -230,7 +237,7 @@ createMicrogame({
 				scale: ctx.vec2(2, 1),
 				color: ctx.mulfok.VOID_VIOLET,
 				opacity: 0.4,
-				pos: bean.pos.add(25, -20),
+				pos: bean.pos.add(25, -30),
 			});
 
 			if (ctx.debug.inspect) {
@@ -265,7 +272,7 @@ createMicrogame({
 				ctx.pos(bush.screenPos),
 				ctx.area({ scale: ctx.vec2(0.5), isSensor: true }),
 				ctx.anchor("center"),
-				ctx.z(1),
+				ctx.z(0.5),
 				ctx.rotate(),
 				"apple",
 				{
@@ -277,11 +284,11 @@ createMicrogame({
 			timer.onDraw(() => {
 				if (apple.onFloor && apple.exists()) {
 					ctx.drawCircle({
-						radius: 10,
+						radius: 15,
 						scale: ctx.vec2(2, 1),
 						color: ctx.mulfok.VOID_VIOLET,
 						opacity: 0.4,
-						pos: apple.pos.add(10, 0),
+						pos: apple.pos.add(10, 5),
 					});
 				}
 			});

@@ -23,7 +23,7 @@ export class MicrogameController {
 	timeLeft: number;
 	speed: number = 1;
 	lives: number = 4;
-	isHard: boolean = false;
+	isHard: boolean = true;
 	microgameHat: Microgame[] = [];
 
 	// TODO: fix bomb
@@ -100,12 +100,12 @@ export class MicrogameController {
 				}
 
 				// TODO: figure out bomb workings
-				// const beatInterval = 60 / (140 * this.speed);
-				// if (this.timeLeft <= beatInterval * 4 && !this.currentBomb) {
-				// 	if (this.gameResult == "win") return;
-				// 	this.currentBomb = addBomb(this.currentInstance);
-				// 	this.currentBomb.lit(140 * this.speed);
-				// }
+				const beatInterval = 60 / (140 * this.speed);
+				if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
+					if (this.gameResult == "win") return;
+					this.currentBomb = addBomb(this.currentInstance);
+					this.currentBomb.lit(140 * this.speed);
+				}
 			});
 
 			onPauseChange((paused) => {

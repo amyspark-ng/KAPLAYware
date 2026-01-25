@@ -126,6 +126,8 @@ k.scene("game", () => {
 		}
 
 		pauseScreen.screen.pauseInputHandling();
+
+		k.debug.log(k.get("*", { recursive: true }).length);
 	});
 
 	onPauseChange((paused) => {

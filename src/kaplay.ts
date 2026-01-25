@@ -7,8 +7,8 @@ export const k = kaplay({
 	width: 800,
 	height: 600,
 	font: "happy",
-	maxFPS: 60,
 	letterbox: true,
+	maxFPS: 60,
 	plugins: [crew, mulfokPlug, posSetterPlug],
 	buttons: {
 		// TODO: figure out why dpad doesn't work
