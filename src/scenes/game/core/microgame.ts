@@ -10,8 +10,10 @@ export interface Microgame {
 	urlPrefix: string;
 	duration: number;
 	bgColor: [number, number, number] | string;
-	/** Wheter hard mode is available for this particular microgame, if the values inside are left undefined they will be the same as the ones defined before */
-	hardMode: {
+	/** Additional options for the HARD MODE version of the microgame
+	 *
+	 * if the values inside are left undefined they will be the same as the ones defined before */
+	hardModeOpt?: {
 		duration?: number;
 		prompt?: string;
 		bgColor?: [number, number, number] | string;

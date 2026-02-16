@@ -6,11 +6,8 @@ createMicrogame({
 	author: "amyspark-ng",
 	name: "get",
 	prompt: "GET!",
-	duration: 5,
+	duration: 7,
 	bgColor: "6bc96c",
-	hardMode: {
-		duration: 6,
-	},
 	urlPrefix: "microgames/chill/get/",
 	load(ctx) {
 		ctx.loadCrew("bean");
@@ -31,10 +28,10 @@ createMicrogame({
 		ctx.loadSound("rustle", "sounds/bushrustle.mp3");
 		ctx.loadSound("box", "../../assets/sounds/box.ogg");
 		ctx.loadSound("crunch", "../../assets/sounds/crunch.mp3");
+		ctx.loadSound("music", "sounds/music.mp3");
 	},
 	start(ctx) {
-		// TODO
-		// ADD MUSIC
+		ctx.play("music", { speed: ctx.speed });
 
 		// don't multiply by ctx.dt() ctx.move() already works with it
 		const SPEED = 450 * ctx.speed;

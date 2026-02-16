@@ -47,6 +47,11 @@ export class SandboxInstance {
 		}
 	}
 
+	destroy() {
+		this.root.destroy();
+		this.sounds.forEach((sound) => sound.stop());
+	}
+
 	play: KAPLAYCtx["play"] = (src, options) => {
 		const sound = k.play(src, options);
 		// options.paused is undefined, don't use it for checks

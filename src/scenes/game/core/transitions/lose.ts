@@ -44,7 +44,7 @@ export async function runLoseTransition(scenery: Scenery, controller: MicrogameC
 
 		ctx.play("jingle-lose").onEnd(() => {
 			conductor.destroy();
-			instance.root.destroy();
+			instance.destroy();
 			pauseCheck.cancel();
 			resolve("");
 		});

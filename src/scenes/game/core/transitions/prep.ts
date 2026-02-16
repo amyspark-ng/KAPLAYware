@@ -32,7 +32,7 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 
 		ctx.play("jingle-prep").onEnd(() => {
 			conductor.destroy();
-			instance.root.destroy();
+			instance.destroy();
 			pauseCheck.cancel();
 			resolve("");
 		});
@@ -51,8 +51,12 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 			}
 		});
 
+		let promptString = "";
+		if (controller.currentGame.hardModeOpt && controller.currentGame.hardModeOpt.prompt) promptString = controller.currentGame.hardModeOpt.prompt;
+		else promptString = controller.currentGame.prompt;
+
 		const prompt = ctx.add([
-			ctx.text(controller.currentGame.prompt),
+			ctx.text(promptString),
 			ctx.pos(ctx.center()),
 			ctx.color(ctx.BLACK),
 			ctx.scale(2),

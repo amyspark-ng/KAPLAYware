@@ -71,7 +71,7 @@ k.scene("game", () => {
 				break;
 
 			case GameState.TransitionWin:
-				controller.currentInstance?.root.destroy();
+				controller.currentInstance?.destroy();
 
 				runWinTransition(scenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
@@ -79,7 +79,7 @@ k.scene("game", () => {
 				break;
 
 			case GameState.TransitionLose:
-				controller.currentInstance?.root.destroy();
+				controller.currentInstance?.destroy();
 				runLoseTransition(scenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});

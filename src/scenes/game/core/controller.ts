@@ -46,7 +46,7 @@ export class MicrogameController {
 		this.timeoutKEvent.clear();
 		this.finishKEvent.clear();
 		this.finished = false;
-		this.currentInstance?.root.destroy();
+		this.currentInstance?.destroy();
 		this.currentBomb?.destroy();
 		this.gameResult = undefined;
 
@@ -77,13 +77,15 @@ export class MicrogameController {
 			this.currentBomb = null;
 			const ctx = buildGameContext(this.currentInstance, this);
 
-			if (this.isHard) {
-				if (this.currentGame.hardMode.bgColor) this.currentInstance.root.color = getGameColor(this.currentGame.hardMode.bgColor);
-				else this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
-			}
-			else this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
-
+			this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
 			this.timeLeft = game.duration;
+
+			if (this.isHard && this.currentGame.hardModeOpt) {
+				if (this.currentGame.hardModeOpt.bgColor) this.currentInstance.root.color = getGameColor(this.currentGame.hardModeOpt.bgColor);
+				if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration;
+				// Prompt not because that's created at PREP and not here
+			}
+
 			let timeOver = false;
 
 			ctx.add([]).onUpdate(() => {

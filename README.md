@@ -1,27 +1,6 @@
-# Folder structure
+# KAPLAYWARE 
+Or KONSOLE???
 
-- `src` - source code for your kaplay project
-- `dist` - distribution folder, contains your index.html, built js bundle and static assets
+Warioware-styled game made in KAPLAY not entirely related to KAPLAY but uses a bunch of its assets and artstyle
 
-
-## Development
-
-```sh
-$ pnpm run dev
-```
-
-will start a dev server at http://localhost:8000
-
-## Distribution
-
-```sh
-$ pnpm run build
-```
-
-will build your js files into `dist/`
-
-```sh
-$ pnpm run zip
-```
-
-will build your game and package into a .zip file, you can upload to your server or itch.io / newground etc.
+The idea is that each microgame has to have a hardmode version where the gameplay changes, this is part of its design which i will elaborate further at some point
