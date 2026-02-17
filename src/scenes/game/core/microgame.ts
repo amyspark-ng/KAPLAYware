@@ -1,6 +1,5 @@
 import { MicrogameContext } from "../context/game";
 import { LoadContext } from "../../../assets/context";
-import { Color } from "kaplay";
 
 export interface Microgame {
 	pack: string;

@@ -31,11 +31,11 @@ createMicrogame({
 		ctx.loadSound("music", "sounds/music.mp3");
 	},
 	start(ctx) {
+		const game = ctx.add([ctx.timer()]);
 		ctx.play("music", { speed: ctx.speed });
 
 		// don't multiply by ctx.dt() ctx.move() already works with it
 		const SPEED = 450 * ctx.speed;
-		const timer = ctx.add([ctx.timer()]);
 		ctx.add([ctx.sprite("grass"), ctx.pos(ctx.rand(-20, 20))]); // decoration with random offset
 		if (ctx.isHardMode) ctx.add([ctx.sprite("flowers"), ctx.pos(ctx.rand(-20, 20))]);
 
@@ -171,13 +171,13 @@ createMicrogame({
 				if (!ctx.isHardMode) {
 					ctx.setResult("win");
 					bean.canMove = false;
-					timer.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+					game.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 					const crunch = ctx.play("crunch", { detune: ctx.rand(-50, 50) });
-					timer.wait(crunch.duration(), () => {
-						timer.tween(ctx.vec2(1), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+					game.wait(crunch.duration(), () => {
+						game.tween(ctx.vec2(1), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 						const burp = ctx.burp({ detune: ctx.rand(-50 / ctx.speed, 50 * ctx.speed) });
-						timer.wait(burp.duration(), () => {
-							timer.wait(0.1 / ctx.speed, () => {
+						game.wait(burp.duration(), () => {
+							game.wait(0.1 / ctx.speed, () => {
 								ctx.finishGame();
 							});
 						});
@@ -187,7 +187,7 @@ createMicrogame({
 					const goodApples = apples.filter((apple) => apple.good);
 					basket.frame = 2 - goodApples.length;
 
-					timer.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+					game.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 					ctx.play("box", { detune: ctx.rand(-50, 50), speed: 1.25 * ctx.speed });
 
 					if (goodApples.length == 0) {
@@ -195,14 +195,14 @@ createMicrogame({
 						bean.canMove = false;
 
 						for (let i = 0; i < 2; i++) {
-							timer.wait(0.5 / ctx.speed * i + 0.1, () => {
+							game.wait(0.5 / ctx.speed * i + 0.1, () => {
 								ctx.play("crunch", { detune: ctx.rand(-50, 50) });
 								basket.frame -= 1;
-								timer.tween(ctx.vec2(1), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+								game.tween(ctx.vec2(1), ctx.vec2(1.5), 0.25 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 							});
 						}
 
-						timer.wait(1 / ctx.speed, () => {
+						game.wait(1 / ctx.speed, () => {
 							ctx.finishGame();
 						});
 					}
@@ -214,20 +214,20 @@ createMicrogame({
 
 				bean.sprite = "skuller";
 				ctx.play("crunch", { detune: ctx.rand(-50, 50) });
-				timer.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
+				game.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 
-				timer.wait(0.5, () => {
+				game.wait(0.5, () => {
 					// if it's closer to the left die to the left and visceversa
-					timer.tween(0, Math.sign(bean.angle) * 90, 0.15 / ctx.speed, (p) => bean.angle = p, ctx.easings.easeOutExpo);
+					game.tween(0, Math.sign(bean.angle) * 90, 0.15 / ctx.speed, (p) => bean.angle = p, ctx.easings.easeOutExpo);
 				});
 
-				timer.wait(1 / ctx.speed, () => {
+				game.wait(1 / ctx.speed, () => {
 					ctx.finishGame();
 				});
 			}
 		});
 
-		timer.onDraw(() => {
+		game.onDraw(() => {
 			// bean shadow
 			ctx.drawCircle({
 				radius: 20,
@@ -250,7 +250,7 @@ createMicrogame({
 
 		ctx.play("rustle", { detune: ctx.rand(-50, 50) });
 		bush.shake();
-		timer.wait(0.01 / ctx.speed, () => {
+		game.wait(0.01 / ctx.speed, () => {
 			if (ctx.isHardMode) {
 				spawnApple(true);
 				spawnApple(true);
@@ -278,7 +278,7 @@ createMicrogame({
 				},
 			]);
 
-			timer.onDraw(() => {
+			game.onDraw(() => {
 				if (apple.onFloor && apple.exists()) {
 					ctx.drawCircle({
 						radius: 15,
@@ -292,11 +292,11 @@ createMicrogame({
 
 			apple.collisionIgnore = ["*"];
 
-			timer.tween(apple.pos, trunk.pos, 0.5 / ctx.speed, (p) => apple.pos = p, ctx.easings.easeOutExpo).onEnd(() => {
+			game.tween(apple.pos, trunk.pos, 0.5 / ctx.speed, (p) => apple.pos = p, ctx.easings.easeOutExpo).onEnd(() => {
 				apple.onFloor = true;
-				timer.wait(0.25 / ctx.speed, () => apple.collisionIgnore = [""]);
-				timer.tween(apple.pos, getRandApplePos(), 0.5 / ctx.speed, (p) => apple.pos = p, ctx.easings.easeOutQuint);
-				timer.tween(apple.angle, 360 * 2, 0.5 / ctx.speed, (p) => apple.angle = p, ctx.easings.easeOutQuint);
+				game.wait(0.25 / ctx.speed, () => apple.collisionIgnore = [""]);
+				game.tween(apple.pos, getRandApplePos(), 0.5 / ctx.speed, (p) => apple.pos = p, ctx.easings.easeOutQuint);
+				game.tween(apple.angle, 360 * 2, 0.5 / ctx.speed, (p) => apple.angle = p, ctx.easings.easeOutQuint);
 			});
 		}
 
@@ -307,12 +307,12 @@ createMicrogame({
 			bean.canMove = false;
 			bean.sprite = "beant";
 			ctx.setResult("lose");
-			timer.wait(0.5 / ctx.speed, () => ctx.finishGame());
+			game.wait(0.5 / ctx.speed, () => ctx.finishGame());
 
 			apples.filter((apple) => apple.good).forEach((apple) => {
 				apple.destroy();
 				const badapple = ctx.add([ctx.sprite("badapple"), ctx.scale(), ctx.pos(apple.pos.sub(15, 0)), ctx.anchor("center")]);
-				timer.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => badapple.scale = p, ctx.easings.easeOutQuint);
+				game.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => badapple.scale = p, ctx.easings.easeOutQuint);
 			});
 		});
 

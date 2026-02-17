@@ -23,14 +23,14 @@ export class MicrogameController {
 	timeLeft: number;
 	speed: number = 1;
 	lives: number = 4;
-	isHard: boolean = true;
+	isHard: boolean = false;
 	microgameHat: Microgame[] = [];
 
 	// TODO: fix bomb
 	currentBomb: Bomb = null;
 
 	get shouldSpeedUp() {
-		return false;
+		return false; // MAX 1.3
 	}
 
 	/**
@@ -78,11 +78,11 @@ export class MicrogameController {
 			const ctx = buildGameContext(this.currentInstance, this);
 
 			this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
-			this.timeLeft = game.duration;
+			this.timeLeft = game.duration / ctx.speed;
 
 			if (this.isHard && this.currentGame.hardModeOpt) {
 				if (this.currentGame.hardModeOpt.bgColor) this.currentInstance.root.color = getGameColor(this.currentGame.hardModeOpt.bgColor);
-				if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration;
+				if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration / ctx.speed;
 				// Prompt not because that's created at PREP and not here
 			}
 
@@ -95,10 +95,6 @@ export class MicrogameController {
 				if (this.timeLeft <= 0 && !timeOver) {
 					this.timeoutKEvent.trigger();
 					timeOver = true;
-					// if (!this.currentBomb?.hasExploded && !this.currentBomb.conductor.paused) {
-					// TODO: is it weird the bomb has to be exploded separately to the lit function?
-					// this.currentBomb.explode();
-					// }
 				}
 
 				// TODO: figure out bomb workings

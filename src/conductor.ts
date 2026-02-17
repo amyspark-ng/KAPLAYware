@@ -4,6 +4,7 @@ import { k } from "./kaplay";
 export type Conductor = {
 	time: number;
 	bpm: number;
+	beats: number;
 	paused: boolean;
 	readonly beatInterval: number;
 	destroy(): void;
@@ -35,6 +36,9 @@ export function createConductor(bpm: number, startPaused: boolean = false): Cond
 	return {
 		onBeat(action: (beat: number, beatTime: number) => void) {
 			return beatHitEv.add(action);
+		},
+		get beats() {
+			return Math.floor(currentBeat);
 		},
 		set bpm(val: number) {
 			bpm = val;

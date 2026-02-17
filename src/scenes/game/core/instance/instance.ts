@@ -1,4 +1,4 @@
-import { AudioPlay, ColorComp, GameObj, KAPLAYCtx, RectComp, TimerComp } from "kaplay";
+import { AudioPlay, ColorComp, GameObj, KAPLAYCtx, PosComp, RectComp, RotateComp, ScaleComp, TimerComp } from "kaplay";
 import { Scenery } from "../scenery";
 import { k } from "../../../../kaplay";
 import { buildInstanceContext, InstanceContext } from "./context";
@@ -8,6 +8,11 @@ export class SandboxInstance {
 	 * k.root -> scenery.scene -> instance.root (k.root is the grandfather of instance.root)
 	 */
 	root: GameObj<TimerComp | RectComp | ColorComp>;
+
+	get camera() {
+		return this.scenery.camera;
+	}
+
 	context: InstanceContext;
 
 	get paused() {

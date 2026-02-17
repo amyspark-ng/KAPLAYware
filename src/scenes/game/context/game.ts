@@ -29,6 +29,8 @@ export function buildGameContext(instance: SandboxInstance, controller: Microgam
 			return k.sprite(spr, opt);
 		},
 
+		getSprite: (name) => k.getSprite(`${id}-${name}`),
+
 		play: (src, options) => {
 			src = typeof src == "string" ? (src.startsWith("@") ? src : `${id}-${src}`) : src;
 
@@ -64,7 +66,7 @@ export function buildGameContext(instance: SandboxInstance, controller: Microgam
 
 		setResult(result) {
 			controller.gameResult = result;
-			if (result == "win" && controller.currentBomb) controller.currentBomb.extinguish();
+			if (result == "win" && controller.currentBomb && 4 - controller.currentBomb.conductor.beats > 1) controller.currentBomb.extinguish();
 		},
 
 		getResult() {

@@ -145,4 +145,7 @@ export const gameAPIs = [
 	// assets
 	"getSprite",
 	"getSound",
+
+	// extra
+	"addConfetti",
 ] as const;

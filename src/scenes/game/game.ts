@@ -1,7 +1,7 @@
 import { k } from "../../kaplay";
 import { Scenery } from "./core/scenery";
 import { MicrogameController } from "./core/controller";
-import { MicrogameRegistry } from "../../registry";
+import { getGame } from "../../registry";
 import { KEvent } from "kaplay";
 import { runPrepTransition } from "./core/transitions/prep";
 import { GameEvent, GameState, nextState } from "./state/state";
@@ -49,8 +49,9 @@ k.scene("game", () => {
 	scenery.scale = k.vec2(320 / k.width(), 240 / k.height());
 	scenery.pos = k.vec2(-1, -217);
 
-	const controller = new MicrogameController(scenery, MicrogameRegistry["chill"]);
+	const controller = new MicrogameController(scenery, [getGame("click")]);
 	// controller.isHard = true;
+	// controller.speed = 1.1;
 
 	/** Runs the code necessary on the states and events of the game scene */
 	const dispatch = async (event: GameEvent) => {

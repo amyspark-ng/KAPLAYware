@@ -1,4 +1,4 @@
-import { GameObj, PosComp, Vec2 } from "kaplay";
+import { GameObj, PosComp, RectComp, RotateComp, ScaleComp, Vec2 } from "kaplay";
 import { k } from "../../../kaplay";
 
 /** Manages the things like the root object and the objects where stuff gets added */
@@ -10,6 +10,8 @@ export class Scenery {
 
 	/** The global scene */
 	scene: GameObj<PosComp>;
+
+	camera: GameObj<PosComp | ScaleComp | RotateComp | RectComp | { shake: number; }>;
 
 	constructor(private parent: GameObj = k.getTreeRoot()) {
 		this.root = this.parent.add([]);
@@ -33,7 +35,7 @@ export class Scenery {
 			k.pos(),
 		]);
 
-		const cameraObject = shakeCameraObject.add([
+		this.camera = shakeCameraObject.add([
 			k.rect(k.width(), k.height(), { fill: false }),
 			k.pos(k.width() / 2, k.height() / 2),
 			k.rotate(0),
@@ -45,8 +47,8 @@ export class Scenery {
 			},
 		]);
 
-		this.scene = cameraObject.add([
-			k.pos(-cameraObject.width / 2, -cameraObject.height / 2),
+		this.scene = this.camera.add([
+			k.pos(-this.camera.width / 2, -this.camera.height / 2),
 		]);
 
 		this.root.onUpdate(() => {
@@ -60,15 +62,15 @@ export class Scenery {
 			maskObj.pos = k.vec2(-k.width() / 2, -k.height() / 2);
 
 			// camera obj stuff
-			cameraObject.width = k.width();
-			cameraObject.height = k.height();
-			cameraObject.pos = k.vec2(k.width() / 2, k.height() / 2);
-			cameraObject.shake = k.lerp(cameraObject.shake, 0, 5 * k.dt());
-			let posShake = k.Vec2.fromAngle(k.rand(0, 360)).scale(cameraObject.shake);
+			this.camera.width = k.width();
+			this.camera.height = k.height();
+			this.camera.pos = k.vec2(k.width() / 2, k.height() / 2);
+			this.camera.shake = k.lerp(this.camera.shake, 0, 5 * k.dt());
+			let posShake = k.Vec2.fromAngle(k.rand(0, 360)).scale(this.camera.shake);
 			shakeCameraObject.pos = k.vec2().add(posShake);
 
 			// scene stuff
-			this.scene.pos = k.vec2(-cameraObject.width / 2, -cameraObject.height / 2);
+			this.scene.pos = k.vec2(-this.camera.width / 2, -this.camera.height / 2);
 		});
 	}
 }

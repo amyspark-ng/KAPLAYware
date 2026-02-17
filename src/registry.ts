@@ -16,7 +16,7 @@ export function getGameID(game: Microgame) {
 export function getGame(id: string) {
 	let game: Microgame = null;
 	Object.keys(MicrogameRegistry).forEach((pack) => {
-		MicrogameRegistry[pack].forEach((g) => getGameID(g) == id ? game = g : undefined);
+		game = MicrogameRegistry[pack].find((microgame) => microgame.name == id);
 	});
 	return game;
 }

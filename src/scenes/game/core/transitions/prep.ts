@@ -30,7 +30,9 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 			instance.root.paused = paused;
 		});
 
-		ctx.play("jingle-prep").onEnd(() => {
+		// FOR SOME REASON CHANGING THE SPEED MAKES AUDIOPLAY.ONEND NOT WORK
+		const jingle = instance.play("jingle-prep", { speed: controller.speed });
+		instance.root.wait(jingle.duration() / controller.speed, () => {
 			conductor.destroy();
 			instance.destroy();
 			pauseCheck.cancel();
@@ -56,7 +58,7 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 		else promptString = controller.currentGame.prompt;
 
 		const prompt = ctx.add([
-			ctx.text(promptString),
+			ctx.text(promptString, { font: "happy" }),
 			ctx.pos(ctx.center()),
 			ctx.color(ctx.BLACK),
 			ctx.scale(2),
