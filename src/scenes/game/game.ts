@@ -51,7 +51,7 @@ k.scene("game", () => {
 
 	const controller = new MicrogameController(scenery, [getGame("click")]);
 	// controller.isHard = true;
-	// controller.speed = 1.1;
+	// controller.speed = 1.3;
 
 	/** Runs the code necessary on the states and events of the game scene */
 	const dispatch = async (event: GameEvent) => {

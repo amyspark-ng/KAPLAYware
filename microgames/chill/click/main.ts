@@ -219,7 +219,7 @@ createMicrogame({
 
 			game.onUpdate(() => {
 				powerupTimer += ctx.dt() * ctx.speed;
-				if (powerupTimer > 0.5 && !theresPowerup) {
+				if (powerupTimer > 0.65 && !theresPowerup) {
 					theresPowerup = true;
 					const pos = ctx.vec2(ctx.rand(50, ctx.width() - 50), ctx.rand(50, ctx.height() - 50));
 
@@ -246,8 +246,15 @@ createMicrogame({
 					});
 
 					powerup.onClick(() => {
+						const blur = ctx.add([
+							ctx.sprite("blur"),
+							ctx.opacity(),
+						]);
+
 						ctx.play("powerup", { speed: ctx.speed, detune: ctx.rand(-50, 50) });
 						powerup.dead = true;
+
+						game.tween(0, 1, 0.15 / ctx.speed, (p) => blur.opacity = p, ctx.easings.easeOutQuad);
 						game.tween(powerup.pos.y, powerup.pos.y - 100, 2 / ctx.speed, (p) => powerup.pos.y = p, ctx.easings.easeOutQuad);
 						game.tween(ctx.WHITE, ctx.mulfok.LIGHT_BLUE, 0.15 / ctx.speed, (p) => powerup.color = p, ctx.easings.easeOutQuad);
 						game.tween(powerup.opacity, 0, 0.15 / ctx.speed, (p) => powerup.opacity = p, ctx.easings.easeOutCubic).onEnd(() => {
@@ -257,6 +264,7 @@ createMicrogame({
 						let powerClicksLeft = ctx.randi(1, 3);
 						power = 2;
 						const test = hexagon.onClick(() => {
+							game.tween(1, 0, 0.15 / ctx.speed, (p) => blur.opacity = p, ctx.easings.easeOutQuad).onEnd(() => blur.destroy());
 							powerClicksLeft--;
 							if (powerClicksLeft == 0) {
 								power = 1;
