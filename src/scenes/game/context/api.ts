@@ -148,4 +148,5 @@ export const gameAPIs = [
 
 	// extra
 	"addConfetti",
+	"posSetter",
 ] as const;

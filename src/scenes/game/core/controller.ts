@@ -26,7 +26,6 @@ export class MicrogameController {
 	isHard: boolean = false;
 	microgameHat: Microgame[] = [];
 
-	// TODO: fix bomb
 	currentBomb: Bomb = null;
 
 	get shouldSpeedUp() {
@@ -97,7 +96,6 @@ export class MicrogameController {
 					timeOver = true;
 				}
 
-				// TODO: figure out bomb workings
 				const beatInterval = 60 / (140 * this.speed);
 				if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
 					if (this.gameResult == "win") return;

@@ -22,17 +22,19 @@ export function addBomb(instance: SandboxInstance) {
 		ctx.anchor("center"),
 		ctx.scale(),
 		ctx.color(),
-		ctx.z(1),
+		ctx.z(999),
 	]);
 
 	const cordstart = bomb.add([
 		ctx.sprite("bomb-cord-start"),
 		ctx.pos(29, 528),
+		ctx.z(998),
 	]);
 
 	const cord = bomb.add([
 		ctx.sprite("bomb-cord", { tiled: true, width: ctx.width() / 2 }),
 		ctx.pos(69, 528),
+		ctx.z(998),
 	]);
 
 	const cordtip = cord.add([
@@ -40,6 +42,7 @@ export function addBomb(instance: SandboxInstance) {
 		ctx.pos(cord.width, 0),
 		ctx.anchor("center"),
 		ctx.opacity(),
+		ctx.z(998),
 	]);
 	cordtip.pos.y += cordtip.height / 2;
 
@@ -49,6 +52,7 @@ export function addBomb(instance: SandboxInstance) {
 		ctx.anchor("center"),
 		ctx.scale(),
 		ctx.opacity(),
+		ctx.z(999),
 	]);
 
 	let movingFuse = false;
@@ -81,7 +85,7 @@ export function addBomb(instance: SandboxInstance) {
 	function explode() {
 		if (hasExploded) return;
 		destroy();
-		const kaboom = k.addKaboom(bombSpr.pos);
+		const kaboom = k.addKaboom(bombSpr.pos, { comps: [k.z(1000)] });
 		if (kaboom.exists()) kaboom.parent = instance.root;
 		instance.play("bomb-explosion");
 		hasExploded = true;

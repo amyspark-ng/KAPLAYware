@@ -318,7 +318,6 @@ createMicrogame({
 				game.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
 			}
 			else {
-				// TODO: make the hexagon explode like in deltarune, made the thing yesterday
 				ctx.shake();
 				ctx.setResult("lose");
 				game.tween(spinspeed, spinspeed * 2, 1 / ctx.speed, (p) => spinspeed = p, ctx.easings.easeOutExpo);

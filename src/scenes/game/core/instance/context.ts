@@ -53,5 +53,15 @@ export function buildInstanceContext(instance: SandboxInstance): void {
 			else confetti.destroy();
 			return confetti;
 		},
+		flash(flashColor, fadeOutTime) {
+			const obj = instance.root.add([
+				this.rect(this.width(), this.height()),
+				this.color(flashColor),
+				this.opacity(),
+				this.z(99999999),
+			]);
+			const tween = instance.root.tween(1, 0, fadeOutTime, (p) => obj.opacity = p);
+			return tween;
+		},
 	};
 }

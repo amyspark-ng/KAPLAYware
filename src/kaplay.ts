@@ -12,7 +12,6 @@ export const k = kaplay({
 	maxFPS: 60,
 	plugins: [crew, mulfokPlug, posSetterPlug, confettiPlug],
 	buttons: {
-		// TODO: figure out why dpad doesn't work
 		"up": { "keyboard": ["up", "w"], gamepad: ["dpad-up"] },
 		"left": { "keyboard": ["left", "a"], gamepad: ["dpad-left"] },
 		"down": { "keyboard": ["down", "s"], gamepad: ["dpad-down"] },

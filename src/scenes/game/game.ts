@@ -49,7 +49,7 @@ k.scene("game", () => {
 	scenery.scale = k.vec2(320 / k.width(), 240 / k.height());
 	scenery.pos = k.vec2(-1, -217);
 
-	const controller = new MicrogameController(scenery, [getGame("click")]);
+	const controller = new MicrogameController(scenery, [getGame("dont")]);
 	// controller.isHard = true;
 	// controller.speed = 1.3;
 
