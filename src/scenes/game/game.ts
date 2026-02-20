@@ -10,6 +10,7 @@ import { runLoseTransition } from "./core/transitions/lose";
 import { buildKHandled } from "./elements/khandled";
 import { addBackground } from "./elements/background";
 import { buildPausedScreen } from "./elements/paused";
+import { CONFIG } from "../../config";
 
 let paused = false;
 let pauseKEvent: KEvent = new k.KEvent();
@@ -49,9 +50,11 @@ k.scene("game", () => {
 	scenery.scale = k.vec2(320 / k.width(), 240 / k.height());
 	scenery.pos = k.vec2(-1, -217);
 
-	const controller = new MicrogameController(scenery, [getGame("dont")]);
-	// controller.isHard = true;
-	// controller.speed = 1.3;
+	const controller = new MicrogameController(scenery, CONFIG.microgames);
+	if (CONFIG.DEV_MICROGAME) {
+		controller.isHard = CONFIG.DEV_HARD;
+		controller.speed = CONFIG.DEV_SPEED;
+	}
 
 	/** Runs the code necessary on the states and events of the game scene */
 	const dispatch = async (event: GameEvent) => {

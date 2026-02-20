@@ -1,11 +1,9 @@
+import { CONFIG } from "./config";
 import { k } from "./kaplay";
 import { Microgame } from "./scenes/game/core/microgame";
 
-export const MicrogameRegistry: Record<string, Microgame[]> = {};
-
 export function createMicrogame(game: Microgame): void {
-	if (!MicrogameRegistry[game.pack]) MicrogameRegistry[game.pack] = [];
-	MicrogameRegistry[game.pack].push(game);
+	CONFIG.microgames.push(game);
 	console.log(`Pushed microgame "${getGameID(game)}" to the registry`);
 }
 
@@ -14,11 +12,7 @@ export function getGameID(game: Microgame) {
 }
 
 export function getGame(id: string) {
-	let game: Microgame = null;
-	Object.keys(MicrogameRegistry).forEach((pack) => {
-		game = MicrogameRegistry[pack].find((microgame) => microgame.name == id);
-	});
-	return game;
+	return CONFIG.microgames.find((game) => getGameID(game) == id);
 }
 
 export function getGameColor(param: [number, number, number] | string) {

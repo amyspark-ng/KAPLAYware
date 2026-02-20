@@ -1,3 +1,5 @@
+❌✅
+
 1. GET: [✅]
 ARROW KEYS
 
@@ -15,10 +17,18 @@ MOUSE
 **HardMode**:
 You would have to click more times, click the power ups in the air to get more power to click the amount of times you'd need
 
-3. DONT [❌]
+3. DONT [✅]
 KEYBOARD
 
 - Is like a spaceship and there's a button and if you press it it blows up the earth
 
 **HardMode**
-There's a sign saying "PRESS" pointing to the button
+There's a sign prohibiting the button to the button
+
+4. SORT [❌]
+MOUSE
+
+- Is like the circle and square factory and you have to sort coming things from a conveyor belt into different boxes dragging them with the mouse
+
+**HardMode**
+There's a third category of items that goes in the trash (a sepparate box basically)

@@ -37,7 +37,6 @@ export class MicrogameController {
 	 */
 	constructor(private scenery: Scenery, private passedGames: Microgame[] = []) {
 		this.microgameHat = passedGames;
-		this.speed = 1;
 		this.lives = 4;
 	}
 

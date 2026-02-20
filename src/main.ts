@@ -20,5 +20,10 @@ k.app.onGamepadStick("left", (v) => {
 
 k.onLoad(() => {
 	if (!k.isFocused()) k.go("focus");
-	else k.go(CONFIG.initialScene);
+	else {
+		if (CONFIG.DEV_MICROGAME) {
+			k.go("game");
+		}
+		else k.go(CONFIG.initialScene);
+	}
 });

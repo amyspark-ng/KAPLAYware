@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
-		"dev": "vite",
+		"dev": "node scripts/dev.js",
 		"preview": "vite preview",
 		"zip": "pnpm run build && mkdir -p dist && zip -r dist/game.zip dist -x \"**/.DS_Store\"",
 		"check": "tsc"
