@@ -10,19 +10,19 @@ createMicrogame({
 	bgColor: "6bc96c",
 	urlPrefix: "microgames/chill/get/",
 	load(ctx) {
-		ctx.loadCrew("bean");
-		ctx.loadCrew("beant");
-		ctx.loadCrew("apple");
-		ctx.loadCrew("skuller");
+		ctx.loadCrew("sprite", "bean");
+		ctx.loadCrew("sprite", "beant");
+		ctx.loadCrew("sprite", "apple");
+		ctx.loadCrew("sprite", "skuller");
 
 		ctx.loadSprite("grass", "sprites/grass.png");
 		ctx.loadSprite("trunk", "sprites/trunk.png");
 		ctx.loadSprite("bush", "sprites/bush.png");
-		ctx.loadSprite("badapple", "sprites/badapple.png"); // cool reference (not related to reference at all)
+		ctx.loadSprite("badapple", "../../assets/sprites/badapple.png"); // cool reference (not related to reference at all)
+		ctx.loadSprite("badderapple", "../../assets/sprites/badderapple.png");
 
 		ctx.loadSprite("treeflowers", "sprites/treeflowers.png");
 		ctx.loadSprite("flowers", "sprites/flowers.png");
-		ctx.loadSprite("badderapple", "sprites/badderapple.png");
 		ctx.loadSprite("basket", "sprites/basket.png", { sliceX: 3, sliceY: 1 });
 
 		ctx.loadSound("rustle", "sounds/bushrustle.mp3");

@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@kaplayjs/crew':
-        specifier: 2.0.0-beta.6
-        version: 2.0.0-beta.6(typescript@5.9.3)
+        specifier: ^2.1.0
+        version: 2.1.0(typescript@5.9.3)
       kaplay:
-        specifier: github:kaplayjs/kaplay
-        version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/eceffa12b6ac9b083328fd6964720a3210d801fd
+        specifier: github:kaplayjs/kaplay#5fd8236
+        version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -237,8 +237,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@kaplayjs/crew@2.0.0-beta.6':
-    resolution: {integrity: sha512-ApfZIzKYJuX50UDawqzqUL3lG9MRs6A+/rLuHg0+Ddzz+7XyznxTbReOCAv2Ut2AaTyVBlCfDsxjVPeq/ARukA==}
+  '@kaplayjs/crew@2.1.0':
+    resolution: {integrity: sha512-kkRQTppRCfg7Lr3eclMluENopqHEde67zyWATYoMYNyw0FF1ReGpDBcXPH4zBQcOQ+qhM+pPRPyoT2FBtIZucw==}
     peerDependencies:
       typescript: ^5.0.0
 
@@ -445,8 +445,8 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/eceffa12b6ac9b083328fd6964720a3210d801fd:
-    resolution: {tarball: https://codeload.github.com/kaplayjs/kaplay/tar.gz/eceffa12b6ac9b083328fd6964720a3210d801fd}
+  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236:
+    resolution: {tarball: https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236}
     version: 4000.0.0-alpha.26
     engines: {node: '>=24.0.0'}
 
@@ -685,7 +685,7 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
-  '@kaplayjs/crew@2.0.0-beta.6(typescript@5.9.3)':
+  '@kaplayjs/crew@2.1.0(typescript@5.9.3)':
     dependencies:
       typescript: 5.9.3
 
@@ -866,7 +866,7 @@ snapshots:
 
   is-number@7.0.0: {}
 
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/eceffa12b6ac9b083328fd6964720a3210d801fd: {}
+  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236: {}
 
   merge2@1.4.1: {}
 

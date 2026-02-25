@@ -13,9 +13,12 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 		// just in case
 		khandled.antennae.forEach((antenna) => antenna.sprite = "consoleantenna");
 
-		ctx.add([
+		const bg = ctx.add([
 			ctx.rect(ctx.width(), ctx.height()),
+			ctx.color(ctx.WHITE),
 		]);
+
+		if (controller.isHard) bg.color = ctx.WHITE.lerp(ctx.mulfok.RED, 0.5);
 
 		const statico = ctx.add([
 			ctx.sprite("static", { anim: "a" }),

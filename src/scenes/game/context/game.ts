@@ -4,6 +4,7 @@ import { MicrogameController } from "../core/controller";
 import { getGameID } from "../../../registry";
 import { assets } from "@kaplayjs/crew";
 import { SandboxInstance } from "../core/instance/instance";
+import { mergeWithRef } from "../../../utils";
 
 export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 	readonly timeLeft: number;
@@ -22,11 +23,22 @@ export function buildGameContext(instance: SandboxInstance, controller: Microgam
 	return {
 		...instance.context,
 		sprite: (spr, opt) => {
-			if (typeof spr == "string" && !Object.keys(assets).includes(spr)) {
+			const keys = Object.keys(assets).concat(Object.keys(assets).map((a) => a + "-o"));
+			if (typeof spr == "string" && !keys.includes(spr)) {
 				spr = `${id}-${spr}`;
 			}
 
-			return k.sprite(spr, opt);
+			const spriteComp = k.sprite(spr, opt);
+
+			return mergeWithRef(spriteComp, {
+				get sprite() {
+					return spriteComp.sprite.replace(id + "-", "");
+				},
+				set sprite(val: string) {
+					if (!keys.includes(val)) spriteComp.sprite = `${id}-${val}`;
+					spriteComp.sprite = val;
+				},
+			});
 		},
 
 		getSprite: (name) => k.getSprite(`${id}-${name}`),

@@ -9,8 +9,6 @@ import { CONFIG } from "../config";
 // Starts the loading process of minigames
 k.loadRoot("");
 
-// TODO: fix random error "can't access property "cancel" r is undefined" ????
-
 if (!CONFIG.DEV_MICROGAME) {
 	const modules = import.meta.glob("/microgames/**/main.ts");
 	const loaders = Object.values(modules);
@@ -45,7 +43,7 @@ else {
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 
-k.loadCrew("beant");
+k.loadCrew("sprite", "beant");
 k.loadBean();
 
 k.loadSprite("reality", "sprites/reality.png");

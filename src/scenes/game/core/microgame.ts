@@ -1,6 +1,10 @@
 import { MicrogameContext } from "../context/game";
 import { LoadContext } from "../../../assets/context";
 
+// do cursor interface
+// should include wheter mouse should "action"
+// and if keyboard should move mouse
+
 export interface Microgame {
 	pack: string;
 	author: string;

@@ -9,8 +9,8 @@
 		"check": "tsc"
 	},
 	"dependencies": {
-		"@kaplayjs/crew": "2.0.0-beta.6",
-		"kaplay": "github:kaplayjs/kaplay"
+		"@kaplayjs/crew": "^2.1.0",
+		"kaplay": "github:kaplayjs/kaplay#5fd8236"
 	},
 	"devDependencies": {
 		"@types/node": "^25.0.3",

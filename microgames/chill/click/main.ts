@@ -130,7 +130,6 @@ createMicrogame({
 			},
 		});
 
-		ctx.loadSound("clicker", "sounds/clicker.ogg");
 		ctx.loadSound("fullcombo", "sounds/clickeryfullcombo.ogg");
 		ctx.loadSound("explode", "../../assets/sounds/explodedr.mp3");
 		ctx.loadSound("clickpress", "sounds/clickPress.ogg");
@@ -140,6 +139,8 @@ createMicrogame({
 	start(ctx) {
 		const game = ctx.add([ctx.timer()]);
 		ctx.play("music", { speed: ctx.speed });
+
+		// TODO: base difficulty AROUND speed
 
 		const SCORE_TO_WIN = ctx.isHardMode ? ctx.randi(30, 40) : ctx.randi(12, 20);
 		let score = 0;
