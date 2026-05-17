@@ -12,8 +12,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(typescript@5.9.3)
       kaplay:
-        specifier: github:kaplayjs/kaplay#5fd8236
-        version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236
+        specifier: 4000.0.0-alpha.27.1
+        version: 4000.0.0-alpha.27.1
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -445,9 +445,8 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236:
-    resolution: {tarball: https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236}
-    version: 4000.0.0-alpha.26
+  kaplay@4000.0.0-alpha.27.1:
+    resolution: {integrity: sha512-vSTKt9KHOUrlP3dELUWDjZ6wrGMW9t7lADoZFhKl2vHHhd2OMsEyyB2eLoG9ZDCz24w1Vs9E1uTBzPU8ZgnoHA==}
     engines: {node: '>=24.0.0'}
 
   merge2@1.4.1:
@@ -866,7 +865,7 @@ snapshots:
 
   is-number@7.0.0: {}
 
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/5fd8236: {}
+  kaplay@4000.0.0-alpha.27.1: {}
 
   merge2@1.4.1: {}
 

@@ -5,6 +5,7 @@ export type Conductor = {
 	time: number;
 	bpm: number;
 	beats: number;
+	beatTime: number;
 	paused: boolean;
 	readonly beatInterval: number;
 	destroy(): void;
@@ -15,6 +16,7 @@ export type Conductor = {
 export function createConductor(bpm: number, startPaused: boolean = false): Conductor {
 	const beatHitEv = new k.KEvent();
 	let currentBeat = 0;
+	let beatTime = 0;
 	let time = 0;
 	let beatInterval = 60 / bpm;
 	let paused = startPaused;
@@ -25,7 +27,7 @@ export function createConductor(bpm: number, startPaused: boolean = false): Cond
 		beatInterval = 60 / bpm;
 		time = (time + k.dt()) % 60;
 
-		const beatTime = time / beatInterval;
+		beatTime = time / beatInterval;
 		const oldBeat = Math.floor(currentBeat);
 		currentBeat = Math.floor(beatTime);
 		if (currentBeat != oldBeat) {
@@ -36,6 +38,9 @@ export function createConductor(bpm: number, startPaused: boolean = false): Cond
 	return {
 		onBeat(action: (beat: number, beatTime: number) => void) {
 			return beatHitEv.add(action);
+		},
+		get beatTime() {
+			return beatTime;
 		},
 		get beats() {
 			return Math.floor(currentBeat);

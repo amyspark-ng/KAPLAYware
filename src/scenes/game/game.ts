@@ -12,9 +12,16 @@ import { addBackground } from "./elements/background";
 import { buildPausedScreen } from "./elements/paused";
 import { CONFIG } from "../../config";
 
+let canPause = true;
 let paused = false;
 let pauseKEvent: KEvent = new k.KEvent();
+
+export let setCanPause = (newCanPause: boolean) => {
+	canPause = newCanPause;
+};
+
 export let setPaused = (newPause: boolean) => {
+	if (!canPause) return;
 	if (paused != newPause) pauseKEvent.trigger(newPause);
 	paused = newPause;
 };
@@ -34,6 +41,7 @@ export let getKHandled = () => {
 };
 
 k.scene("game", () => {
+	canPause = true;
 	paused = false;
 	zoomedIn = false;
 	pauseKEvent.clear();
@@ -62,19 +70,23 @@ k.scene("game", () => {
 
 		switch (controller.state) {
 			case GameState.Preparing:
+				setCanPause(false);
 				controller.prepareForGame();
 				runPrepTransition(scenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
+
 				break;
 
 			case GameState.Playing:
+				setCanPause(true);
 				const result = await controller.runGame(controller.currentGame);
 				dispatch({ type: "MICROGAME_END", result });
 
 				break;
 
 			case GameState.TransitionWin:
+				setCanPause(false);
 				controller.currentInstance?.destroy();
 
 				runWinTransition(scenery, controller).then(() => {
@@ -83,7 +95,9 @@ k.scene("game", () => {
 				break;
 
 			case GameState.TransitionLose:
+				setCanPause(false);
 				controller.currentInstance?.destroy();
+
 				runLoseTransition(scenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
@@ -95,6 +109,7 @@ k.scene("game", () => {
 				// });
 				// break;
 			case GameState.GameOver:
+				setCanPause(false);
 				// runGameOver();
 				break;
 		}

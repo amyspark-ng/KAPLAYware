@@ -42,10 +42,14 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 			resolve("");
 		});
 
-		conductor.onBeat((beat) => {
-			khandled.root.bop();
-			khandled.antennae.forEach((antenna) => antenna.bop());
-			const idx = (beat - 1) % 4;
+		function prepBop(beat: number) {
+			khandled.root.bop(0.9);
+			khandled.antennae.forEach((antenna) => antenna.bop(0.8));
+			const skew = 2.5;
+			if (beat % 2 == 0) khandled.root.tween(-skew, 0, 0.5 / controller.speed, (p) => khandled.root.skew.x = p, ctx.easings.easeOutBack);
+			else khandled.root.tween(skew, 0, 0.5 / controller.speed, (p) => khandled.root.skew.x = p, ctx.easings.easeOutBack);
+
+			const idx = beat % 4;
 			khandled.dots[idx].flash();
 
 			if (beat == 1) {
@@ -54,6 +58,10 @@ export async function runPrepTransition(scenery: Scenery, controller: MicrogameC
 			else if (beat == 2) {
 				statico.opacity = 1;
 			}
+		}
+
+		conductor.onBeat((beat) => {
+			prepBop(beat);
 		});
 
 		let promptString = "";

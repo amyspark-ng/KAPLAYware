@@ -289,8 +289,8 @@ createMicrogame({
 								scales: [1, 1.2],
 								colors: [ctx.mulfok.LIGHT_BLUE, ctx.mulfok.LIGHT_BLUE.darken(25), ctx.mulfok.LIGHT_BLUE.lighten(100)],
 								opacities: [0.1, 1.0, 0.0],
-								texture: ctx.getSprite("part_star").data.tex,
-								quads: [ctx.getSprite("part_star").data.frames[0]],
+								texture: ctx.getSprite("part_star").data.frames[0].tex,
+								quads: [ctx.getSprite("part_star").data.frames[0].q],
 							}, {
 								position: ctx.vec2(),
 								lifetime: 1.5,
@@ -313,10 +313,10 @@ createMicrogame({
 			if (score >= SCORE_TO_WIN) {
 				ctx.play("fullcombo", { detune: ctx.rand(-50, 50) });
 				ctx.setResult("win");
-				addComboText(ctx);
-				ctx.addConfetti({ pos: ctx.mousePos() });
-				game.tween(1.1, 1, 1 / ctx.speed, (p) => ctx.setCamScale(p), ctx.easings.easeOutQuint);
-				game.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
+				// addComboText(ctx);
+				// ctx.addConfetti({ pos: ctx.mousePos() });
+				// game.tween(1.1, 1, 1 / ctx.speed, (p) => ctx.setCamScale(p), ctx.easings.easeOutQuint);
+				// game.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
 			}
 			else {
 				ctx.shake();

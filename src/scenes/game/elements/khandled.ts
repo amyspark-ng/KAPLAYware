@@ -35,17 +35,17 @@ function addAntenna(parent: GameObj, startAngle = 25) {
 				k.tween(startAngle + k.rand(-15, 15), startAngle, 0.5 * speed, (p) => this.angle = p, k.easings.easeOutQuint);
 			},
 
-			bop(speed = 1) {
-				k.tween(0.9, 1, 0.5 * speed, (p) => this.scale.y = p, k.easings.easeOutQuint);
+			bop(scale = 0.9, speed = 1) {
+				k.tween(scale, 1, 0.5 * speed, (p) => this.scale.y = p, k.easings.easeOutQuint);
 			},
 		},
 	]);
 }
 
 export function buildKHandled() {
-	const root = k.add([k.pos(k.center().x, k.height()), k.timer(1), k.scale(1), k.anchor("bot"), {
-		bop(speed: number = 1) {
-			this.tween(0.98, 1, 0.5 * speed, (p) => this.scale = k.vec2(1, p), k.easings.easeOutQuint);
+	const root = k.add([k.pos(k.center().x, k.height()), k.timer(1), k.scale(1), k.anchor("bot"), k.skew(0, 0), {
+		bop(scale: number = 0.98, speed: number = 1) {
+			this.tween(scale, 1, 0.5 * speed, (p) => this.scale = k.vec2(1, p), k.easings.easeOutQuint);
 		},
 	}]);
 
@@ -80,6 +80,7 @@ export function buildKHandled() {
 
 	return {
 		root,
+		body,
 		sideDot,
 		dots: [dot1, dot2, dot3, dot4],
 		antennae: [leftAntenna, rightAntenna],

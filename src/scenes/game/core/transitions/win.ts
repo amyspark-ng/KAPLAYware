@@ -11,6 +11,8 @@ export async function runWinTransition(scenery: Scenery, controller: MicrogameCo
 		const ctx = instance.context;
 		const conductor = createConductor(140 * controller.speed);
 		const khandled = getKHandled();
+		// just in case
+		khandled.antennae.forEach((antenna) => antenna.sprite = "consoleantenna");
 
 		ctx.add([
 			ctx.rect(ctx.width(), ctx.height()),
@@ -30,12 +32,12 @@ export async function runWinTransition(scenery: Scenery, controller: MicrogameCo
 			instance.root.paused = paused;
 		});
 
-		conductor.onBeat((beat) => {
-			khandled.root.bop();
-			khandled.antennae.forEach((antenna) => antenna.bop());
-			khandled.antennae.forEach((antenna) => antenna.tweak());
+		khandled.root.tween(khandled.root.scale.x, 0.75, 0.75 / controller.speed, (p) => khandled.root.scale.x = p, ctx.easings.easeOutQuint);
+		khandled.root.tween(khandled.root.scale.y, 1.1, 0.75 / controller.speed, (p) => khandled.root.scale.y = p, ctx.easings.easeOutQuint);
+
+		function winBop(beat: number) {
 			khandled.sideDot.flash(controller.speed, k.mulfok.GREEN);
-			const idx = (beat - 1) % 4;
+			const idx = beat % 4;
 			khandled.dots[idx].flash();
 
 			if (beat == 1) {
@@ -44,6 +46,17 @@ export async function runWinTransition(scenery: Scenery, controller: MicrogameCo
 			else if (beat == 2) {
 				statico.opacity = 1;
 			}
+		}
+
+		conductor.onBeat((beat, beatTime) => winBop(beat));
+
+		let hasDepressed = false;
+		conductor.onUpdate(() => {
+			if (conductor.beatTime >= 1.4 && !hasDepressed) {
+				hasDepressed = true;
+				khandled.root.tween(khandled.root.scale.x, 1.1, 1 / controller.speed, (p) => khandled.root.scale.x = p, ctx.easings.easeOutQuint);
+				khandled.root.tween(khandled.root.scale.y, 0.7, 0.5 / controller.speed, (p) => khandled.root.scale.y = p, ctx.easings.easeOutQuint);
+			}
 		});
 
 		ctx.play("jingle-win").onEnd(() => {
@@ -51,6 +64,9 @@ export async function runWinTransition(scenery: Scenery, controller: MicrogameCo
 			instance.destroy();
 			pauseCheck.cancel();
 			resolve("");
+
+			khandled.root.tween(khandled.root.scale.x, 1, 0.25 / controller.speed, (p) => khandled.root.scale.x = p, ctx.easings.easeOutQuint);
+			khandled.root.tween(khandled.root.scale.y, 1, 0.25 / controller.speed, (p) => khandled.root.scale.y = p, ctx.easings.easeOutQuint);
 		});
 
 		const bean = ctx.add([

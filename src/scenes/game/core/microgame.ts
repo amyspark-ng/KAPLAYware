@@ -30,5 +30,5 @@ export interface Microgame {
 	 * ```
 	 */
 	load?: (ctx: LoadContext) => void;
-	start: (ctx: MicrogameContext, speed: number, difficulty: number) => void;
+	start: (ctx: MicrogameContext) => void;
 }

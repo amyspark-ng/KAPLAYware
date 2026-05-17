@@ -2,7 +2,7 @@ import { CONFIG } from "./config";
 import { k } from "./kaplay";
 import "./assets/load";
 
-k.setVolume(0.1);
+k.setVolume(0.4);
 
 k.app.onGamepadStick("left", (v) => {
 	if (v.x <= -0.9) k.pressButton("left");

@@ -25,6 +25,7 @@ export class MicrogameController {
 	lives: number = 4;
 	isHard: boolean = false;
 	microgameHat: Microgame[] = [];
+	turnsWithoutLosing: number = 0;
 
 	currentBomb: Bomb = null;
 
@@ -89,17 +90,24 @@ export class MicrogameController {
 			ctx.add([]).onUpdate(() => {
 				if (this.finished) return;
 
-				if (this.timeLeft > 0) this.timeLeft -= k.dt();
+				if (this.timeLeft > 0) {
+					this.timeLeft -= k.dt();
+					k.debug.log(this.timeLeft);
+				}
+
 				if (this.timeLeft <= 0 && !timeOver) {
 					this.timeoutKEvent.trigger();
 					timeOver = true;
 				}
 
-				const beatInterval = 60 / (140 * this.speed);
-				if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
-					if (this.gameResult == "win") return;
-					this.currentBomb = addBomb(this.currentInstance);
-					this.currentBomb.lit(140 * this.speed);
+				// if already won don't add the bomb
+				if (this.gameResult != "win") {
+					// 140 IT'S THE HARDCODED BPM
+					const beatInterval = 60 / (140 * this.speed);
+					if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
+						this.currentBomb = addBomb(this.currentInstance);
+						this.currentBomb.lit(140 * this.speed);
+					}
 				}
 			});
 
@@ -109,7 +117,7 @@ export class MicrogameController {
 				this.currentInstance.root.paused = paused;
 			});
 
-			game.start(ctx, 1, 1);
+			game.start(ctx);
 
 			this.onFinish((result) => {
 				resolve(result);
