@@ -13,6 +13,9 @@ export interface Microgame {
 	urlPrefix: string;
 	duration: number;
 	bgColor: [number, number, number] | string;
+	boss: boolean;
+	input: "arrowkeys" | "mouse" | "mouseclick";
+
 	/** Additional options for the HARD MODE version of the microgame
 	 *
 	 * if the values inside are left undefined they will be the same as the ones defined before */

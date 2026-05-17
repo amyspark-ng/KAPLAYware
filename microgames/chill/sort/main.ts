@@ -12,6 +12,8 @@ createMicrogame({
 	},
 	bgColor: "a6859f",
 	urlPrefix: "microgames/chill/sort/",
+	input: "mouseclick",
+	boss: false,
 	load(ctx) {
 		const list = ["bag", "money_bag", "bobo", "sukomi", "bean", "zombean", "kat", "marroc", "apple", "cake"] as const;
 		list.forEach((a) => {
@@ -233,6 +235,7 @@ createMicrogame({
 				ctx.area({ scale: ctx.vec2(1.5) }),
 				ctx.rotate(),
 				"item",
+				"cursor-hover",
 			]);
 
 			item.onClick(() => {

@@ -138,9 +138,6 @@ export const gameAPIs = [
 	"isButtonPressed",
 	"isButtonDown",
 	"isButtonReleased",
-	// "onButtonPress",
-	// "onButtonDown",
-	// "onButtonRelease",
 
 	// assets
 	"getSprite",

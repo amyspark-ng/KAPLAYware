@@ -43,6 +43,33 @@ else {
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 
+k.loadSpriteAtlas("sprites/cursor.png", {
+	"cursor": {
+		width: 28,
+		height: 32,
+		x: 0,
+		y: 0,
+	},
+	"cursor-point": {
+		width: 28,
+		height: 32,
+		x: 28,
+		y: 0,
+	},
+	"cursor-like": {
+		width: 28,
+		height: 32,
+		x: 28 * 2,
+		y: 0,
+	},
+	"cursor-knock": {
+		width: 28,
+		height: 32,
+		x: 28 * 3,
+		y: 0,
+	},
+});
+
 k.loadCrew("sprite", "beant");
 k.loadBean();
 

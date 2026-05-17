@@ -13,11 +13,11 @@ export const k = kaplay({
 	maxFPS: 30,
 	plugins: [crew, mulfokPlug, posSetterPlug, confettiPlug, dragCompPlugin],
 	buttons: {
-		"up": { "keyboard": ["up", "w"], gamepad: ["dpad-up"] },
-		"left": { "keyboard": ["left", "a"], gamepad: ["dpad-left"] },
-		"down": { "keyboard": ["down", "s"], gamepad: ["dpad-down"] },
-		"right": { "keyboard": ["right", "d"], gamepad: ["dpad-right"] },
-		"action": { "keyboard": "space", mouse: "left", gamepad: ["south"] },
-		"return": { "keyboard": ["escape", "backspace"], gamepad: ["select", "start"] },
+		"up": { "keyboard": ["up", "w"] },
+		"left": { "keyboard": ["left", "a"] },
+		"down": { "keyboard": ["down", "s"] },
+		"right": { "keyboard": ["right", "d"] },
+		"action": { "keyboard": "space", mouse: "left" },
+		"return": { "keyboard": ["escape", "backspace"] },
 	},
 });

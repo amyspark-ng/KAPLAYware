@@ -92,7 +92,6 @@ export class MicrogameController {
 
 				if (this.timeLeft > 0) {
 					this.timeLeft -= k.dt();
-					k.debug.log(this.timeLeft);
 				}
 
 				if (this.timeLeft <= 0 && !timeOver) {

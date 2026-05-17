@@ -113,6 +113,8 @@ createMicrogame({
 	},
 	bgColor: "291834",
 	urlPrefix: "microgames/chill/click/",
+	input: "mouseclick",
+	boss: false,
 	load(ctx) {
 		ctx.loadSprite("hexagon", "sprites/hexagon.png");
 		ctx.loadSprite("background", "sprites/background.png");
@@ -175,6 +177,7 @@ createMicrogame({
 			ctx.rotate(ctx.rand(0, 360)),
 			ctx.area({ scale: ctx.vec2(0.85), shape: getHexagonShape(ctx) }),
 			ctx.scale(),
+			"cursor-hover",
 		]);
 
 		hexagon.onUpdate(() => {

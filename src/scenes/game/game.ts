@@ -11,6 +11,7 @@ import { buildKHandled } from "./elements/khandled";
 import { addBackground } from "./elements/background";
 import { buildPausedScreen } from "./elements/paused";
 import { CONFIG } from "../../config";
+import { cursor } from "../../cursor";
 
 let canPause = true;
 let paused = false;
@@ -145,6 +146,15 @@ k.scene("game", () => {
 		}
 
 		pauseScreen.screen.pauseInputHandling();
+
+		// cursor
+		const shouldMouseBeVisible = controller.currentGame.input == "mouse" || controller.currentGame.input == "mouseclick";
+		if (shouldMouseBeVisible) {
+			cursor.hidden = false;
+		}
+		else {
+			cursor.hidden = true;
+		}
 	});
 
 	onPauseChange((paused) => {
