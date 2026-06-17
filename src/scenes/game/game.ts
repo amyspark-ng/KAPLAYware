@@ -1,17 +1,6 @@
 import { k } from "../../kaplay";
-import { Scenery } from "./core/scenery";
-import { MicrogameController } from "./core/controller";
-import { getGame } from "../../registry";
 import { KEvent } from "kaplay";
-import { runPrepTransition } from "./core/transitions/prep";
-import { GameEvent, GameState, nextState } from "./state/state";
-import { runWinTransition } from "./core/transitions/win";
-import { runLoseTransition } from "./core/transitions/lose";
 import { buildKHandled } from "./elements/khandled";
-import { addBackground } from "./elements/background";
-import { buildPausedScreen } from "./elements/paused";
-import { CONFIG } from "../../config";
-import { cursor } from "../../cursor";
 
 let canPause = true;
 let paused = false;
@@ -42,129 +31,129 @@ export let getKHandled = () => {
 };
 
 k.scene("game", () => {
-	canPause = true;
-	paused = false;
-	zoomedIn = false;
-	pauseKEvent.clear();
+	// canPause = true;
+	// paused = false;
+	// zoomedIn = false;
+	// pauseKEvent.clear();
 
-	// TODO: some wiggle shader for this because cool?
-	const reality = k.add([k.sprite("reality")]);
-	const background = addBackground();
-	khandled = buildKHandled();
-	const pauseScreen = buildPausedScreen(khandled.root);
+	// // TODO: some wiggle shader for this because cool?
+	// const reality = k.add([k.sprite("reality")]);
+	// const background = addBackground();
+	// khandled = buildKHandled();
+	// const pauseScreen = buildPausedScreen(khandled.root);
 
-	// has to be scaled to 320x240
-	// scalingFactor = desiredWidth / originalWidth
-	const scenery = new Scenery(khandled.root);
-	scenery.scale = k.vec2(320 / k.width(), 240 / k.height());
-	scenery.pos = k.vec2(-1, -217);
+	// // has to be scaled to 320x240
+	// // scalingFactor = desiredWidth / originalWidth
+	// const scenery = new Scenery(khandled.root);
+	// scenery.scale = k.vec2(320 / k.width(), 240 / k.height());
+	// scenery.pos = k.vec2(-1, -217);
 
-	const controller = new MicrogameController(scenery, CONFIG.microgames);
-	if (CONFIG.DEV_MICROGAME) {
-		controller.isHard = CONFIG.DEV_HARD;
-		controller.speed = CONFIG.DEV_SPEED;
-	}
+	// const controller = new MicrogameController(scenery, CONFIG.microgames);
+	// if (CONFIG.DEV_MICROGAME) {
+	// 	controller.isHard = CONFIG.DEV_HARD;
+	// 	controller.speed = CONFIG.DEV_SPEED;
+	// }
 
-	/** Runs the code necessary on the states and events of the game scene */
-	const dispatch = async (event: GameEvent) => {
-		controller.state = nextState(controller.state, event, controller);
+	// /** Runs the code necessary on the states and events of the game scene */
+	// const dispatch = async (event: GameEvent) => {
+	// 	controller.state = nextState(controller.state, event, controller);
 
-		switch (controller.state) {
-			case GameState.Preparing:
-				setCanPause(false);
-				controller.prepareForGame();
-				runPrepTransition(scenery, controller).then(() => {
-					dispatch({ type: "TRANSITION_DONE" });
-				});
+	// 	switch (controller.state) {
+	// 		case GameState.Preparing:
+	// 			setCanPause(false);
+	// 			controller.prepareForGame();
+	// 			runPrepTransition(scenery, controller).then(() => {
+	// 				dispatch({ type: "TRANSITION_DONE" });
+	// 			});
 
-				break;
+	// 			break;
 
-			case GameState.Playing:
-				setCanPause(true);
-				const result = await controller.runGame(controller.currentGame);
-				dispatch({ type: "MICROGAME_END", result });
+	// 		case GameState.Playing:
+	// 			setCanPause(true);
+	// 			const result = await controller.runGame(controller.currentGame);
+	// 			dispatch({ type: "MICROGAME_END", result });
 
-				break;
+	// 			break;
 
-			case GameState.TransitionWin:
-				setCanPause(false);
-				controller.currentInstance?.destroy();
+	// 		case GameState.TransitionWin:
+	// 			setCanPause(false);
+	// 			controller.currentInstance?.destroy();
 
-				runWinTransition(scenery, controller).then(() => {
-					dispatch({ type: "TRANSITION_DONE" });
-				});
-				break;
+	// 			runWinTransition(scenery, controller).then(() => {
+	// 				dispatch({ type: "TRANSITION_DONE" });
+	// 			});
+	// 			break;
 
-			case GameState.TransitionLose:
-				setCanPause(false);
-				controller.currentInstance?.destroy();
+	// 		case GameState.TransitionLose:
+	// 			setCanPause(false);
+	// 			controller.currentInstance?.destroy();
 
-				runLoseTransition(scenery, controller).then(() => {
-					dispatch({ type: "TRANSITION_DONE" });
-				});
-				break;
+	// 			runLoseTransition(scenery, controller).then(() => {
+	// 				dispatch({ type: "TRANSITION_DONE" });
+	// 			});
+	// 			break;
 
-			case GameState.SpeedUp:
-				// runSpeedUpTransition().then(() => {
-				// 	dispatch({ type: "TRANSITION_DONE" });
-				// });
-				// break;
-			case GameState.GameOver:
-				setCanPause(false);
-				// runGameOver();
-				break;
-		}
-	};
+	// 		case GameState.SpeedUp:
+	// 			// runSpeedUpTransition().then(() => {
+	// 			// 	dispatch({ type: "TRANSITION_DONE" });
+	// 			// });
+	// 			// break;
+	// 		case GameState.GameOver:
+	// 			setCanPause(false);
+	// 			// runGameOver();
+	// 			break;
+	// 	}
+	// };
 
-	const lerpValue = 0.35;
-	k.onUpdate(() => {
-		// if it's playing and it's not paused, zoom
-		changeZoom(controller.state == GameState.Playing && !paused);
+	// const lerpValue = 0.35;
+	// k.onUpdate(() => {
+	// 	// if it's playing and it's not paused, zoom
+	// 	changeZoom(controller.state == GameState.Playing && !paused);
 
-		if (paused) {
-			pauseScreen.screen.opacity = k.lerp(pauseScreen.screen.opacity, 0.5, 0.25);
-			khandled.root.pos = k.lerp(khandled.root.pos, k.vec2(khandled.root.pos.x, k.height() + 200), 0.25);
-			background.opacity = k.lerp(background.opacity, 0, 0.1);
+	// 	if (paused) {
+	// 		pauseScreen.screen.opacity = k.lerp(pauseScreen.screen.opacity, 0.5, 0.25);
+	// 		khandled.root.pos = k.lerp(khandled.root.pos, k.vec2(khandled.root.pos.x, k.height() + 200), 0.25);
+	// 		background.opacity = k.lerp(background.opacity, 0, 0.1);
 
-			if (controller.state == GameState.Playing && !paused) background.hidden = true;
-			else background.hidden = false;
-		}
-		else {
-			pauseScreen.screen.opacity = k.lerp(pauseScreen.screen.opacity, 0, 0.35);
-			khandled.root.pos = k.lerp(khandled.root.pos, k.vec2(khandled.root.pos.x, k.height()), 0.5);
-			background.opacity = k.lerp(background.opacity, 1, 0.5);
-		}
+	// 		if (controller.state == GameState.Playing && !paused) background.hidden = true;
+	// 		else background.hidden = false;
+	// 	}
+	// 	else {
+	// 		pauseScreen.screen.opacity = k.lerp(pauseScreen.screen.opacity, 0, 0.35);
+	// 		khandled.root.pos = k.lerp(khandled.root.pos, k.vec2(khandled.root.pos.x, k.height()), 0.5);
+	// 		background.opacity = k.lerp(background.opacity, 1, 0.5);
+	// 	}
 
-		if (zoomedIn) {
-			k.setCamPos(k.lerp(k.getCamPos(), k.center().add(-1, 83.5), lerpValue));
-			const camScaleNew = k.vec2(k.width() / 320, k.height() / 240);
-			k.setCamScale(k.lerp(k.getCamScale(), camScaleNew, lerpValue));
-		}
-		else {
-			k.setCamPos(k.lerp(k.getCamPos(), k.center(), lerpValue));
-			k.setCamScale(k.lerp(k.getCamScale(), k.vec2(1), 0.25));
-		}
+	// 	if (zoomedIn) {
+	// 		k.setCamPos(k.lerp(k.getCamPos(), k.center().add(-1, 83.5), lerpValue));
+	// 		const camScaleNew = k.vec2(k.width() / 320, k.height() / 240);
+	// 		k.setCamScale(k.lerp(k.getCamScale(), camScaleNew, lerpValue));
+	// 	}
+	// 	else {
+	// 		k.setCamPos(k.lerp(k.getCamPos(), k.center(), lerpValue));
+	// 		k.setCamScale(k.lerp(k.getCamScale(), k.vec2(1), 0.25));
+	// 	}
 
-		pauseScreen.screen.pauseInputHandling();
+	// 	pauseScreen.screen.pauseInputHandling();
 
-		// cursor
-		const shouldMouseBeVisible = controller.currentGame.input == "mouse" || controller.currentGame.input == "mouseclick";
-		if (shouldMouseBeVisible) {
-			cursor.hidden = false;
-		}
-		else {
-			cursor.hidden = true;
-		}
-	});
+	// 	// cursor
+	// 	const shouldMouseBeVisible = controller.currentGame.input == "mouse" || controller.currentGame.input == "mouseclick";
+	// 	if (shouldMouseBeVisible) {
+	// 		cursor.hidden = false;
+	// 	}
+	// 	else {
+	// 		cursor.hidden = true;
+	// 	}
+	// });
 
-	onPauseChange((paused) => {
-		if (paused) reality.frame = k.randi(0, 5);
-	});
+	// onPauseChange((paused) => {
+	// 	if (paused) reality.frame = k.randi(0, 5);
+	// });
 
-	pauseScreen.onExit(() => {
-		// throw static here
-		k.go("focus");
-	});
+	// pauseScreen.onExit(() => {
+	// 	// throw static here
+	// 	k.go("focus");
+	// });
 
-	dispatch({ type: "START" });
+	// dispatch({ type: "START" });
 });

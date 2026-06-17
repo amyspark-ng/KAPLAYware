@@ -1,73 +1,15 @@
 import { k } from "../kaplay";
-import { buildLoadContext } from "./context";
 
 // scenes
 import "../focus";
 import "../scenes/game/game";
-import { CONFIG } from "../config";
-
-// Starts the loading process of minigames
-k.loadRoot("");
-
-if (!CONFIG.DEV_MICROGAME) {
-	const modules = import.meta.glob("/microgames/**/main.ts");
-	const loaders = Object.values(modules);
-
-	const loadedModules = await Promise.all(
-		loaders.map(loader => loader()),
-	);
-
-	CONFIG.microgames.forEach((game) => {
-		if (game.load) {
-			k.loadRoot(game.urlPrefix);
-			game.load(buildLoadContext(game));
-		}
-	});
-}
-// import 1 single microgame
-else {
-	const modules = import.meta.glob("../../**/main.ts");
-
-	const name = CONFIG.DEV_MICROGAME.split(":")[1];
-	const module = modules[`../../microgames/chill/${name}/main.ts`];
-	if (module) {
-		await module();
-		const game = CONFIG.microgames[0];
-		if (game.load) {
-			k.loadRoot(game.urlPrefix);
-			game.load(buildLoadContext(game));
-		}
-	}
-}
 
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 
-k.loadSpriteAtlas("sprites/cursor.png", {
-	"cursor": {
-		width: 28,
-		height: 32,
-		x: 0,
-		y: 0,
-	},
-	"cursor-point": {
-		width: 28,
-		height: 32,
-		x: 28,
-		y: 0,
-	},
-	"cursor-like": {
-		width: 28,
-		height: 32,
-		x: 28 * 2,
-		y: 0,
-	},
-	"cursor-knock": {
-		width: 28,
-		height: 32,
-		x: 28 * 3,
-		y: 0,
-	},
+await k.loadSprite("cursor", "sprites/cursor.png", {
+	sliceX: 4,
+	sliceY: 1,
 });
 
 k.loadCrew("sprite", "beant");

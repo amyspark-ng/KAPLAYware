@@ -1,7 +1,9 @@
-import { CONFIG } from "./config";
 import { k } from "./kaplay";
-import "./assets/load";
-import { addCursor } from "./cursor";
+import { CONFIG } from "./config";
+import "./assets/load_ingscreen";
+import "./assets/load_microgames";
+import "./assets/load_assets";
+import "./cursor";
 
 k.setVolume(0.4);
 k.setCursor("none");
@@ -21,7 +23,6 @@ k.app.onGamepadStick("left", (v) => {
 });
 
 k.onLoad(() => {
-	addCursor();
 	if (!k.isFocused()) k.go("focus");
 	else {
 		if (CONFIG.DEV_MICROGAME) k.go("game");

@@ -1,3 +1,6 @@
+allowBuilds:
+  dprint: true
+  esbuild: true
 onlyBuiltDependencies:
   - dprint
   - esbuild

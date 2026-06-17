@@ -1,6 +1,8 @@
+import { GameObj } from "kaplay";
 import { k } from "./kaplay";
 
-function createCursor() {
+export let GAME_CURSOR: GameObj = null;
+k.onLoad(() => {
 	let cursor = k.add([
 		k.sprite("cursor"),
 		k.pos(k.mousePos()),
@@ -16,16 +18,8 @@ function createCursor() {
 		const isThereHoveredObject = hoverObjects.some((obj) => obj.isHovering());
 		cursor.pos = k.mousePos();
 
-		if (k.isMouseDown("left")) cursor.sprite = "cursor-knock";
-		else if (isThereHoveredObject) cursor.sprite = "cursor-point";
-		else cursor.sprite = "cursor";
+		if (k.isMouseDown("left")) cursor.frame = 3;
+		else if (isThereHoveredObject) cursor.frame = 1;
+		else cursor.frame = 0;
 	});
-
-	return cursor;
-}
-
-export let cursor: ReturnType<typeof createCursor> = null;
-
-export function addCursor() {
-	cursor = createCursor();
-}
+});

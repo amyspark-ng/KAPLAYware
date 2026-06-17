@@ -3,6 +3,7 @@ import { k } from "../kaplay";
 import { Microgame } from "../scenes/game/core/microgame";
 import { KAPLAYCtx, SpriteAtlasData } from "kaplay";
 import { getGameID } from "../registry";
+import { CONFIG } from "../config";
 
 // type Friend = keyof typeof assets | `${keyof typeof assets}-o`;
 // type AtFriend = `@${Friend}`;
@@ -81,4 +82,37 @@ export function buildLoadContext(game: Microgame) {
 	}
 
 	return loadCtx as LoadContext;
+}
+
+k.loadRoot("");
+
+if (!CONFIG.DEV_MICROGAME) {
+	const modules = import.meta.glob("/microgames/**/main.ts");
+	const loaders = Object.values(modules);
+
+	const loadedModules = await Promise.all(
+		loaders.map(loader => loader()),
+	);
+
+	CONFIG.microgames.forEach((game) => {
+		if (game.load) {
+			k.loadRoot(game.urlPrefix);
+			game.load(buildLoadContext(game));
+		}
+	});
+}
+// import 1 single microgame
+else {
+	const modules = import.meta.glob("../../**/main.ts");
+
+	const name = CONFIG.DEV_MICROGAME.split(":")[1];
+	const module = modules[`../../microgames/chill/${name}/main.ts`];
+	if (module) {
+		await module();
+		const game = CONFIG.microgames[0];
+		if (game.load) {
+			k.loadRoot(game.urlPrefix);
+			game.load(buildLoadContext(game));
+		}
+	}
 }
