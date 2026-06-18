@@ -1,4 +1,4 @@
-import { createMicrogame } from "../../../src/registry";
+import { createMicrogame } from "../../../src/core/game_registry";
 
 createMicrogame({
 	pack: "chill",
@@ -121,7 +121,7 @@ createMicrogame({
 		let moonRotation = ctx.randi(179.5, 181);
 		game.onUpdate(() => {
 			moonRotation += ctx.dt() / 15 * ctx.speed;
-			button.frame = ctx.isButtonDown("action") ? 1 : 0;
+			button.frame = ctx.isButtonDown("click") ? 1 : 0;
 			stars.move(-ctx.rand(5, 10) * ctx.speed, 0);
 			earth.angle -= ctx.rand(0.005, 0.05) * ctx.speed;
 

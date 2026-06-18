@@ -1,4 +1,4 @@
-import { MicrogameController } from "../core/controller";
+import { MicrogameController } from "../controller";
 
 /** All the states the game scene goes through: It answers "What state is the game in?" */
 export enum GameState {

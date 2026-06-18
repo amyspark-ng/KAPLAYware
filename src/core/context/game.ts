@@ -1,10 +1,10 @@
-import { gameAPIs } from "./api";
-import { k } from "../../../kaplay";
-import { MicrogameController } from "../core/controller";
-import { getGameID } from "../../../registry";
+import { k } from "../../kaplay";
+import { mergeWithRef } from "../../utils";
+import { MicrogameController } from "../controller";
+import { getGameID } from "../game_registry";
 import { assets } from "@kaplayjs/crew";
-import { SandboxInstance } from "../core/instance/instance";
-import { mergeWithRef } from "../../../utils";
+import { gameAPIs } from "./api";
+import { GameAct } from "../act/game_act";
 
 export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 	readonly timeLeft: number;
@@ -17,11 +17,11 @@ export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 	onTimeout: MicrogameController["onTimeout"];
 };
 
-export function buildGameContext(instance: SandboxInstance, controller: MicrogameController): MicrogameContext {
+export function buildGameContext(act: GameAct, controller: MicrogameController): MicrogameContext {
 	const id = getGameID(controller.currentGame);
 
 	return {
-		...instance.context,
+		...act.ctx,
 		sprite: (spr, opt) => {
 			const keys = Object.keys(assets).concat(Object.keys(assets).map((a) => a + "-o"));
 			if (typeof spr == "string" && !keys.includes(spr)) {
@@ -49,16 +49,16 @@ export function buildGameContext(instance: SandboxInstance, controller: Microgam
 			const sound = k.play(src, options);
 			// options.paused is undefined, don't use it for checks
 
-			if (instance.soundsPaused && sound.paused == false) {
+			if (act.engine.getSoundsPaused() && sound.paused == false) {
 				sound.paused = true;
-				instance.disabledSounds.push(sound);
+				act.engine.disabledSounds.push(sound);
 			}
 
-			instance.sounds.push(sound);
+			act.engine.sounds.push(sound);
 
 			sound.onEnd(() => {
-				instance.sounds.splice(instance.sounds.indexOf(sound), 1);
-				if (instance.disabledSounds.includes(sound)) instance.disabledSounds.splice(instance.disabledSounds.indexOf(sound), 1);
+				act.engine.sounds.splice(act.engine.sounds.indexOf(sound), 1);
+				if (act.engine.disabledSounds.includes(sound)) act.engine.disabledSounds.splice(act.engine.disabledSounds.indexOf(sound), 1);
 			});
 
 			return sound;

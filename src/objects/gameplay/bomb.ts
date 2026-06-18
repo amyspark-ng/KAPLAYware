@@ -1,15 +1,15 @@
-import { createConductor } from "../../../conductor";
-import { k } from "../../../kaplay";
-import { SandboxInstance } from "../core/instance/instance";
-import { onPauseChange } from "../game";
+import { k } from "../../kaplay";
+import { createConductor } from "../conductor";
+import { onPauseChange } from "../../scenes/game";
+import { GameAct } from "../../core/act/game_act";
 
-export function addBomb(instance: SandboxInstance) {
-	const ctx = instance.context;
+export function addBomb(act: GameAct) {
+	const ctx = act.ctx;
 
 	const BOMB_POS = ctx.vec2(40, ctx.height() - 40);
 	let beatsLeft = 3;
 
-	const bomb = instance.root.add([
+	const bomb = act.root.add([
 		ctx.z(9999),
 		{
 			conductor: createConductor(140, true),
@@ -67,7 +67,7 @@ export function addBomb(instance: SandboxInstance) {
 			if (cordstart.exists()) cordstart.destroy();
 			cordtip.opacity = 0;
 			movingFuse = true;
-			instance.root.tween(fuse.pos.y, fuse.pos.y - 30, bomb.conductor.beatInterval, (p) => fuse.pos.y = p);
+			act.root.tween(fuse.pos.y, fuse.pos.y - 30, bomb.conductor.beatInterval, (p) => fuse.pos.y = p);
 		}
 	});
 
@@ -86,8 +86,8 @@ export function addBomb(instance: SandboxInstance) {
 		if (hasExploded) return;
 		destroy();
 		const kaboom = k.addKaboom(bombSpr.pos, { comps: [k.z(1000)] });
-		if (kaboom.exists()) kaboom.parent = instance.root;
-		instance.play("bomb-explosion");
+		if (kaboom.exists()) kaboom.parent = act.root;
+		act.engine.play("bomb-explosion");
 		hasExploded = true;
 	}
 
@@ -96,8 +96,8 @@ export function addBomb(instance: SandboxInstance) {
 		if (beatsLeft > 0) {
 			beatsLeft--;
 			const tweenMult = 2 - beatsLeft + 1; // goes from 1 to 3;
-			instance.root.tween(ctx.vec2(1).add(0.33 * tweenMult), ctx.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, ctx.easings.easeOutQuint);
-			instance.play("bomb-tick", { detune: 25 * 2 - beatsLeft });
+			act.root.tween(ctx.vec2(1).add(0.33 * tweenMult), ctx.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, ctx.easings.easeOutQuint);
+			act.engine.play("bomb-tick", { detune: 25 * 2 - beatsLeft });
 			if (beatsLeft == 2) bombSpr.color = ctx.YELLOW;
 			else if (beatsLeft == 1) bombSpr.color = ctx.RED.lerp(ctx.YELLOW, 0.5);
 			else if (beatsLeft == 0) bombSpr.color = ctx.RED;

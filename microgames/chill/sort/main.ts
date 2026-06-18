@@ -1,5 +1,5 @@
 import { GameObj, Vec2 } from "kaplay";
-import { createMicrogame } from "../../../src/registry";
+import { createMicrogame } from "../../../src/core/game_registry";
 
 createMicrogame({
 	pack: "chill",
@@ -288,7 +288,7 @@ createMicrogame({
 						draggedItem.pos.y += yAcceleration;
 					}
 
-					if (ctx.isButtonReleased("action")) {
+					if (ctx.isButtonReleased("click")) {
 						xAcceleration = ctx.mouseDeltaPos().x / 2;
 						draggedItem.drop();
 					}

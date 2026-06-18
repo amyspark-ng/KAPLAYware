@@ -1,4 +1,4 @@
-import { Microgame } from "./scenes/game/core/microgame";
+import { Microgame } from "./core/microgame";
 
 export const CONFIG = {
 	initialScene: "game",

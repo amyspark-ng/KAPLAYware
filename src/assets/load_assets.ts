@@ -1,8 +1,8 @@
 import { k } from "../kaplay";
 
 // scenes
-import "../focus";
-import "../scenes/game/game";
+import "../scenes/focus";
+import "../scenes/game";
 
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later

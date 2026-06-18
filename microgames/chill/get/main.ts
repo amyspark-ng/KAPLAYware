@@ -1,5 +1,5 @@
 import { GameObj, PosComp, SpriteComp, Vec2 } from "kaplay";
-import { createMicrogame } from "../../../src/registry";
+import { createMicrogame } from "../../../src/core/game_registry";
 
 createMicrogame({
 	pack: "chill",
@@ -7,6 +7,8 @@ createMicrogame({
 	name: "get",
 	prompt: "GET!",
 	duration: 7,
+	boss: false,
+	input: "arrowkeys",
 	bgColor: "6bc96c",
 	urlPrefix: "microgames/chill/get/",
 	load(ctx) {

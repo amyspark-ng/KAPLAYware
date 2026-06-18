@@ -1,5 +1,5 @@
-import { GameObj } from "kaplay";
-import { k } from "./kaplay";
+import { k } from "../kaplay";
+import { AreaComp, GameObj } from "kaplay";
 
 export let GAME_CURSOR: GameObj = null;
 k.onLoad(() => {
@@ -14,9 +14,9 @@ k.onLoad(() => {
 	]);
 
 	cursor.onUpdate(() => {
-		const hoverObjects = k.get("cursor-hover", { recursive: true });
+		const hoverObjects = k.get("area", { recursive: true }).filter((obj: GameObj<AreaComp>) => obj.area.cursor);
 		const isThereHoveredObject = hoverObjects.some((obj) => obj.isHovering());
-		cursor.pos = k.mousePos();
+		cursor.pos = k.mousePos().add(25);
 
 		if (k.isMouseDown("left")) cursor.frame = 3;
 		else if (isThereHoveredObject) cursor.frame = 1;

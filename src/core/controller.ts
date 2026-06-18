@@ -1,17 +1,17 @@
-import { k } from "../../../kaplay";
-import { buildGameContext, MicrogameContext } from "../context/game";
-import { Scenery } from "./scenery";
 import { Microgame } from "./microgame";
-import { SandboxInstance } from "./instance/instance";
-import { onPauseChange } from "../game";
-import { GameState } from "../state/state";
-import { addBomb, Bomb } from "../elements/bomb";
-import { getGameColor } from "../../../registry";
+import { GameState } from "./state/state";
+import { k } from "../kaplay";
+import { addBomb, Bomb } from "../objects/gameplay/bomb";
+import { GameScenery } from "./scenery";
+import { createAct, GameAct } from "./act/game_act";
+import { getGameColor } from "./game_registry";
+import { buildGameContext } from "./context/context";
+import { onPauseChange } from "../scenes/game";
 
 // in charge of the flow and loop of the microgames
 export class MicrogameController {
 	state: GameState = GameState.Idle;
-	currentInstance: SandboxInstance = null;
+	currentAct: GameAct = null;
 
 	timeoutKEvent = new k.KEvent();
 	finishKEvent = new k.KEvent<["win" | "lose"]>();
@@ -36,7 +36,7 @@ export class MicrogameController {
 	/**
 	 * @param passedGames Means the games that the controller was created with
 	 */
-	constructor(private scenery: Scenery, private passedGames: Microgame[] = []) {
+	constructor(private scenery: GameScenery, private passedGames: Microgame[] = []) {
 		this.microgameHat = passedGames;
 		this.lives = 4;
 	}
@@ -45,7 +45,7 @@ export class MicrogameController {
 		this.timeoutKEvent.clear();
 		this.finishKEvent.clear();
 		this.finished = false;
-		this.currentInstance?.destroy();
+		this.currentAct?.destroy();
 		this.currentBomb?.destroy();
 		this.gameResult = undefined;
 
@@ -72,22 +72,22 @@ export class MicrogameController {
 	async runGame(game: Microgame): Promise<"win" | "lose"> {
 		return new Promise((resolve) => {
 			this.currentGame = game;
-			this.currentInstance = new SandboxInstance(this.scenery);
+			this.currentAct = createAct(this.scenery);
 			this.currentBomb = null;
-			const ctx = buildGameContext(this.currentInstance, this);
+			const gameCtx = buildGameContext(this.currentAct, this);
 
-			this.currentInstance.root.color = getGameColor(this.currentGame.bgColor);
-			this.timeLeft = game.duration / ctx.speed;
+			this.currentAct.root.color = getGameColor(this.currentGame.bgColor);
+			this.timeLeft = game.duration / gameCtx.speed;
 
 			if (this.isHard && this.currentGame.hardModeOpt) {
-				if (this.currentGame.hardModeOpt.bgColor) this.currentInstance.root.color = getGameColor(this.currentGame.hardModeOpt.bgColor);
-				if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration / ctx.speed;
+				if (this.currentGame.hardModeOpt.bgColor) this.currentAct.root.color = getGameColor(this.currentGame.hardModeOpt.bgColor);
+				if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration / gameCtx.speed;
 				// Prompt not because that's created at PREP and not here
 			}
 
 			let timeOver = false;
 
-			ctx.add([]).onUpdate(() => {
+			gameCtx.add([]).onUpdate(() => {
 				if (this.finished) return;
 
 				if (this.timeLeft > 0) {
@@ -104,7 +104,7 @@ export class MicrogameController {
 					// 140 IT'S THE HARDCODED BPM
 					const beatInterval = 60 / (140 * this.speed);
 					if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
-						this.currentBomb = addBomb(this.currentInstance);
+						this.currentBomb = addBomb(this.currentAct);
 						this.currentBomb.lit(140 * this.speed);
 					}
 				}
@@ -112,11 +112,11 @@ export class MicrogameController {
 
 			onPauseChange((paused) => {
 				if (this.state != GameState.Playing) return;
-				this.currentInstance.soundsPaused = paused;
-				this.currentInstance.root.paused = paused;
+				this.currentAct.engine.setSoundsPaused(paused);
+				this.currentAct.root.paused = paused;
 			});
 
-			game.start(ctx);
+			game.start(gameCtx);
 
 			this.onFinish((result) => {
 				resolve(result);

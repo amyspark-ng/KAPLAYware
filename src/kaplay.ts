@@ -17,7 +17,7 @@ export const k = kaplay({
 		"left": { "keyboard": ["left", "a"] },
 		"down": { "keyboard": ["down", "s"] },
 		"right": { "keyboard": ["right", "d"] },
-		"action": { "keyboard": "space", mouse: "left" },
+		"click": { "mouse": "left" },
 		"return": { "keyboard": ["escape", "backspace"] },
 	},
 });

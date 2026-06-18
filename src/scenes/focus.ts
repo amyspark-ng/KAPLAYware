@@ -1,5 +1,5 @@
-import { CONFIG } from "./config";
-import { k } from "./kaplay";
+import { CONFIG } from "../config";
+import { k } from "../kaplay";
 
 k.scene("focus", () => {
 	k.add([
@@ -12,5 +12,5 @@ k.scene("focus", () => {
 		k.color(k.WHITE),
 	]);
 
-	k.onClick(() => k.go(CONFIG.initialScene));
+	k.onButtonPress("click", () => k.go(CONFIG.initialScene));
 });

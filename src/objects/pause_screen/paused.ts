@@ -1,6 +1,6 @@
 import { GameObj } from "kaplay";
-import { k } from "../../../kaplay";
-import { setPaused } from "../game";
+import { k } from "../../kaplay";
+import { setPaused } from "../../scenes/game";
 
 export function buildPausedScreen(parent: GameObj) {
 	let exitColor = k.WHITE;

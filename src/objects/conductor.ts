@@ -1,5 +1,5 @@
 import { GameObj, KEventController } from "kaplay";
-import { k } from "./kaplay";
+import { k } from "../kaplay";
 
 export type Conductor = {
 	time: number;

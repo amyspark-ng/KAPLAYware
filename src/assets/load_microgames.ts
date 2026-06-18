@@ -1,9 +1,9 @@
-import { assets, KAPLAYCrewPlugin } from "@kaplayjs/crew";
+import { assets } from "@kaplayjs/crew";
 import { k } from "../kaplay";
-import { Microgame } from "../scenes/game/core/microgame";
-import { KAPLAYCtx, SpriteAtlasData } from "kaplay";
-import { getGameID } from "../registry";
 import { CONFIG } from "../config";
+import { getGameID } from "../core/game_registry";
+import { Microgame } from "../core/microgame";
+import { SpriteAtlasData } from "kaplay";
 
 // type Friend = keyof typeof assets | `${keyof typeof assets}-o`;
 // type AtFriend = `@${Friend}`;

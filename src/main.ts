@@ -3,7 +3,7 @@ import { CONFIG } from "./config";
 import "./assets/load_ingscreen";
 import "./assets/load_microgames";
 import "./assets/load_assets";
-import "./cursor";
+import "./objects/cursor";
 
 k.setVolume(0.4);
 k.setCursor("none");

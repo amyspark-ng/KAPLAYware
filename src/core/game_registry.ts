@@ -1,6 +1,6 @@
-import { CONFIG } from "./config";
-import { k } from "./kaplay";
-import { Microgame } from "./scenes/game/core/microgame";
+import { CONFIG } from "../config";
+import { k } from "../kaplay";
+import { Microgame } from "./microgame";
 
 export function createMicrogame(game: Microgame): void {
 	CONFIG.microgames.push(game);
@@ -12,7 +12,9 @@ export function getGameID(game: Microgame) {
 }
 
 export function getGame(id: string) {
-	return CONFIG.microgames.find((game) => getGameID(game) == id);
+	const game = CONFIG.microgames.find((game) => getGameID(game) == id);
+	if (!game) throw new Error("No game found by " + id);
+	else return game;
 }
 
 export function getGameColor(param: [number, number, number] | string) {
