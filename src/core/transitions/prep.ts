@@ -10,10 +10,6 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 	const gameActScenery = controller.currentAct.scenery;
 	gameActScenery.scale = ctx.vec2(0.64, 0.64);
 
-	parent.add([
-		ctx.sprite("trans-background"),
-	]);
-
 	const plainBackground = parent.add([
 		ctx.rect(512, 384),
 		ctx.pos(ctx.center()),
@@ -33,7 +29,7 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 		ctx.rect(5, 75),
 		ctx.pos(ctx.center()),
 		ctx.anchor("bot"),
-		ctx.rotate(30 * (controller.progress)), // 30 full hour // 15 half hour
+		ctx.rotate(0), // 30 full hour // 15 half hour
 		ctx.color(ctx.mulfok.VOID_VIOLET),
 		ctx.opacity(1),
 	]);
@@ -76,6 +72,10 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 		ctx.anchor("center"),
 		ctx.opacity(0),
 		ctx.z(1),
+	]);
+
+	parent.add([
+		ctx.sprite("trans-background"),
 	]);
 
 	// TODO: can heart turns be replaced by score? since it also doesn't decrease when losing

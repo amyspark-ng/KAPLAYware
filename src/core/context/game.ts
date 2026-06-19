@@ -6,6 +6,7 @@ import { assets } from "@kaplayjs/crew";
 import { gameAPIs } from "./api";
 import { GameAct } from "../act/game_act";
 
+/** The KAPLAYCtx modified for the context of Microgame developing */
 export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 	readonly timeLeft: number;
 	readonly speed: number;
@@ -17,6 +18,7 @@ export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 	onTimeout: MicrogameController["onTimeout"];
 };
 
+/** Creates a {@link MicrogameContext} */
 export function buildGameContext(act: GameAct, controller: MicrogameController): MicrogameContext {
 	const id = getGameID(controller.currentGame);
 
@@ -45,25 +47,15 @@ export function buildGameContext(act: GameAct, controller: MicrogameController):
 
 		play: (src, options) => {
 			src = typeof src == "string" ? (src.startsWith("@") ? src : `${id}-${src}`) : src;
-
-			const sound = k.play(src, options);
-			// options.paused is undefined, don't use it for checks
-
-			if (act.engine.getSoundsPaused() && sound.paused == false) {
-				sound.paused = true;
-				act.engine.disabledSounds.push(sound);
-			}
-
-			act.engine.sounds.push(sound);
-
-			sound.onEnd(() => {
-				act.engine.sounds.splice(act.engine.sounds.indexOf(sound), 1);
-				if (act.engine.disabledSounds.includes(sound)) act.engine.disabledSounds.splice(act.engine.disabledSounds.indexOf(sound), 1);
-			});
-
+			const sound = act.engine.play(src, options);
 			return sound;
 		},
 
+		/**
+		 * Microgame specific functions here
+		 *
+		 * These would not be on the KAPLAYCtx
+		 */
 		get speed() {
 			return controller.speed;
 		},

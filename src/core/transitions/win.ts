@@ -8,10 +8,6 @@ export const winTransition = createTransition("jingle-win", 4, (act, ctx, contro
 
 	const magicNumber = 25 / 16;
 
-	parent.add([
-		ctx.sprite("trans-background"),
-	]);
-
 	const plainBackground = parent.add([
 		ctx.rect(512, 384),
 		ctx.pos(ctx.center()),
@@ -31,7 +27,7 @@ export const winTransition = createTransition("jingle-win", 4, (act, ctx, contro
 		ctx.rect(5, 75),
 		ctx.pos(ctx.center()),
 		ctx.anchor("bot"),
-		ctx.rotate(30 * (controller.progress)), // 30 full hour // 15 half hour
+		ctx.rotate(0), // 30 full hour // 15 half hour
 		ctx.color(ctx.mulfok.VOID_VIOLET),
 		ctx.opacity(0),
 	]);
@@ -40,7 +36,7 @@ export const winTransition = createTransition("jingle-win", 4, (act, ctx, contro
 		ctx.rect(7, 45),
 		ctx.pos(ctx.center()),
 		ctx.anchor("bot"),
-		ctx.rotate(30 * (controller.progress)),
+		ctx.rotate(30 * (controller.progress - 1)),
 		ctx.color(ctx.mulfok.VOID_VIOLET),
 		ctx.opacity(0),
 	]);
@@ -79,11 +75,14 @@ export const winTransition = createTransition("jingle-win", 4, (act, ctx, contro
 		ctx.opacity(0),
 	]);
 
+	parent.add([
+		ctx.sprite("trans-background"),
+	]);
+
 	parent.tween(scenery.scale.scale(magicNumber), ctx.vec2(1), conductor.beatInterval, (p) => {
 		scenery.scale = p;
 	}, ctx.easings.easeOutQuint);
 
-	parent.tween(minuteHand.angle, minuteHand.angle + 360, jingle.duration() / controller.speed, (p) => minuteHand.angle = p, ctx.easings.easeOutQuint);
 	parent.tween(0, 1, conductor.beatInterval * 2, (p) => clock.opacity = p, ctx.easings.easeOutQuint);
 	parent.tween(0, 1, conductor.beatInterval * 2, (p) => minuteHand.opacity = p, ctx.easings.easeOutQuint);
 	parent.tween(0, 1, conductor.beatInterval * 2, (p) => hourHand.opacity = p, ctx.easings.easeOutQuint);
@@ -92,5 +91,9 @@ export const winTransition = createTransition("jingle-win", 4, (act, ctx, contro
 	parent.tween(0, 1, conductor.beatInterval, (p) => tvstatic.opacity = p, ctx.easings.easeOutQuint);
 	parent.wait(conductor.beatInterval, () => {
 		tvstatic.opacity = 0;
+
+		parent.tween(minuteHand.angle, minuteHand.angle + 360, conductor.beatInterval * 3, (p) => minuteHand.angle = p, ctx.easings.easeOutQuint).onEnd(() => {
+			parent.tween(hourHand.angle, hourHand.angle + 30, conductor.beatInterval / 2, (p) => hourHand.angle = p, ctx.easings.easeOutElastic);
+		});
 	});
 });

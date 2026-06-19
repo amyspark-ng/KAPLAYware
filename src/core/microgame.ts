@@ -1,6 +1,7 @@
 import { LoadContext } from "../assets/load_microgames";
-import { MicrogameContext } from "./context/context";
+import { MicrogameContext } from "./context/game";
 
+/** The properties and the Microgame Interface */
 export interface Microgame {
 	pack: string;
 	author: string;
@@ -10,7 +11,7 @@ export interface Microgame {
 	duration: number;
 	bgColor: [number, number, number] | string;
 	boss: boolean;
-	input: "arrowkeys" | "mouse" | "mouseclick";
+	input: "arrowkeys" | "mouse" | "mouseclick" | "all";
 
 	/** Additional options for the HARD MODE version of the microgame
 	 *

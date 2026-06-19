@@ -11,6 +11,7 @@ export const k = kaplay({
 	font: "happy-o",
 	letterbox: true,
 	maxFPS: 70,
+	topMostOnlyActivate: true,
 	plugins: [crew, mulfokPlug, posSetterPlug, confettiPlug, dragCompPlugin],
 	buttons: {
 		"up": { "keyboard": ["up", "w"] },

@@ -8,10 +8,6 @@ export const loseTransition = createTransition("jingle-lose", 5, (act, ctx, cont
 
 	const magicNumber = 25 / 16;
 
-	parent.add([
-		ctx.sprite("trans-background"),
-	]);
-
 	const plainBackground = parent.add([
 		ctx.rect(512, 384),
 		ctx.pos(ctx.center()),
@@ -89,6 +85,10 @@ export const loseTransition = createTransition("jingle-lose", 5, (act, ctx, cont
 		ctx.anchor("center"),
 		ctx.z(1),
 		ctx.opacity(0),
+	]);
+
+	parent.add([
+		ctx.sprite("trans-background"),
 	]);
 
 	parent.tween(scenery.scale.scale(magicNumber), ctx.vec2(1), conductor.beatInterval, (p) => {

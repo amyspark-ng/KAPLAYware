@@ -1,6 +1,6 @@
 import { Vec2 } from "kaplay";
-import { MicrogameContext } from "../../../src/core/context/context";
 import { createMicrogame } from "../../../src/core/game_registry";
+import { MicrogameContext } from "../../../src/core/context/game";
 
 function getHexagonShape(ctx: MicrogameContext) {
 	// some cool math
@@ -193,7 +193,7 @@ createMicrogame({
 			}
 		});
 
-		hexagon.onClick(() => {
+		game.onButtonPress("click", () => {
 			score += power;
 			clicksInSecond++;
 			game.tween(ctx.vec2(2.25), ctx.vec2(2), 0.75 / ctx.speed, (p) => scoreText.scale = p, ctx.easings.easeOutQuint);

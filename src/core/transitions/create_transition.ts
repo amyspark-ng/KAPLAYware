@@ -34,8 +34,10 @@ export function createTransition(
 			const jingle = ctx.play(jingleName, { speed: controller.speed });
 			parent.wait(conductor.beatInterval * durationInBeats, () => {
 				conductor.destroy();
-				act.destroy();
 				resolve(null);
+				// waits a little so you don't notice
+				// TODO: fix this
+				parent.wait(0.001, () => act.destroy());
 			});
 			action(act, ctx, controller, conductor, parent, jingle, scenery);
 		});

@@ -8,6 +8,7 @@ import { prepTransition } from "../core/transitions/prep";
 import { winTransition } from "../core/transitions/win";
 import { loseTransition } from "../core/transitions/lose";
 import { speedTransition } from "../core/transitions/speed";
+import { GAME_CURSOR } from "../objects/cursor";
 
 let canPause = true;
 let paused = false;
@@ -56,7 +57,7 @@ k.scene("game", () => {
 
 		switch (controller.state) {
 			case GameState.Preparing:
-				setCanPause(false);
+				GAME_CURSOR.grandparentCheck = transScenery.root;
 				controller.removePreviousGame();
 				controller.currentGame = controller.getGameFromHat();
 				controller.createCurrentAct();
@@ -68,13 +69,14 @@ k.scene("game", () => {
 				break;
 
 			case GameState.Playing:
-				setCanPause(true);
+				GAME_CURSOR.grandparentCheck = gameScenery.root;
 				const result = await controller.runCurrentAct();
 				dispatch({ type: "MICROGAME_END", result });
 
 				break;
 
 			case GameState.TransitionWin:
+				GAME_CURSOR.grandparentCheck = transScenery.root;
 				setCanPause(false);
 				controller.win();
 				winTransition(transScenery, controller).then(() => {
@@ -83,6 +85,7 @@ k.scene("game", () => {
 				break;
 
 			case GameState.TransitionLose:
+				GAME_CURSOR.grandparentCheck = transScenery.root;
 				setCanPause(false);
 				controller.lose();
 				loseTransition(transScenery, controller).then(() => {
@@ -91,12 +94,14 @@ k.scene("game", () => {
 				break;
 
 			case GameState.SpeedUp:
+				GAME_CURSOR.grandparentCheck = transScenery.root;
 				controller.speedUp();
 				speedTransition(transScenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
 				break;
 			case GameState.GameOver:
+				GAME_CURSOR.grandparentCheck = transScenery.root;
 				setCanPause(false);
 				// runGameOver();
 				break;

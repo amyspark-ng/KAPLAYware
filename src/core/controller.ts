@@ -5,10 +5,16 @@ import { addBomb, Bomb } from "../objects/gameplay/bomb";
 import { GameScenery } from "./scenery";
 import { createAct, GameAct } from "./act/game_act";
 import { getGameColor } from "./game_registry";
-import { buildGameContext } from "./context/context";
 import { onPauseChange } from "../scenes/game";
+import { buildGameContext } from "./context/game";
 
-// in charge of the flow and loop of the microgames
+/**
+ * In charge of the gameplay aspect of the game
+ *
+ * Keeps track of things outside of the game
+ *
+ * MicrogameContext depends on this, so games also depend on it
+ */
 export class MicrogameController {
 	state: GameState = GameState.Idle;
 	currentAct: GameAct = null;
@@ -38,7 +44,7 @@ export class MicrogameController {
 	 * @param passedGames Means the games that the controller was created with
 	 */
 	constructor(private scenery: GameScenery, private passedGames: Microgame[] = []) {
-		this.microgameHat = passedGames;
+		this.microgameHat = [...passedGames];
 		this.lives = 4;
 	}
 
@@ -52,10 +58,9 @@ export class MicrogameController {
 	}
 
 	getGameFromHat() {
-		if (this.microgameHat.length == 0) this.microgameHat = this.passedGames;
+		if (this.microgameHat.length == 0) this.microgameHat = [...this.passedGames];
 		const game = k.choose(this.microgameHat);
-		// TODO: figure out why not working
-		// this.microgameHat.splice(this.microgameHat.indexOf(game), 1);
+		this.microgameHat.splice(this.microgameHat.indexOf(game), 1);
 		return game;
 	}
 
@@ -94,7 +99,14 @@ export class MicrogameController {
 		this.currentGame = game;
 		this.currentAct = createAct(this.scenery);
 		this.currentAct.root.use(k.layer("2"));
+		// TODO: the moon problem in DONT is back, check how to fix this
+		// Everything from the game must be ran first and then paused
+		// runs one single frame so objects and stuff from updates can be set into place
 		this.currentAct.engine.pauseEverything(true);
+		this.currentAct.root.wait(0, () => this.currentAct.engine.pauseEverything(false));
+		this.currentAct.engine.pauseEverything(true);
+
+		// the other stuff
 		this.currentBomb = null;
 		const gameCtx = buildGameContext(this.currentAct, this);
 
@@ -135,8 +147,7 @@ export class MicrogameController {
 
 		onPauseChange((paused) => {
 			if (this.state != GameState.Playing) return;
-			this.currentAct.engine.setSoundsPaused(paused);
-			this.currentAct.root.paused = paused;
+			this.currentAct.engine.pauseEverything(paused);
 		});
 
 		this.currentGame.start(gameCtx);
@@ -144,7 +155,7 @@ export class MicrogameController {
 		return this.currentAct;
 	}
 
-	/** Runs the current act and returns the promised win/lose result */
+	/** Runs the current act and returns the promise for the win/lose result */
 	async runCurrentAct(): Promise<"win" | "lose"> {
 		return new Promise((resolve) => {
 			this.currentAct.engine.pauseEverything(false);

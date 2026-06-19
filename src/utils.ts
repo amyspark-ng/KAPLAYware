@@ -11,7 +11,7 @@ export function pickKeysInObj<T extends any, R extends keyof T>(obj: T, keys: R[
 	}, {} as Pick<T, R>);
 }
 
-/** Merge 2 objects and retrun a proper cool reference to both, also typed
+/** Merge 2 objects and returns a proper cool reference to both, also typed
  * @param obj1
  * @param obj2
  * @returns A merged object with proper typing

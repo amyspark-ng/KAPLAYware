@@ -35,6 +35,7 @@ createMicrogame({
 	start(ctx) {
 		const game = ctx.add([ctx.timer()]);
 		ctx.play("music", { speed: ctx.speed });
+		ctx.play("rustle", { detune: ctx.rand(-50, 50) });
 
 		// don't multiply by ctx.dt() ctx.move() already works with it
 		const SPEED = 450 * ctx.speed;
@@ -250,7 +251,6 @@ createMicrogame({
 			}
 		});
 
-		ctx.play("rustle", { detune: ctx.rand(-50, 50) });
 		bush.shake();
 		game.wait(0.01 / ctx.speed, () => {
 			if (ctx.isHardMode) {

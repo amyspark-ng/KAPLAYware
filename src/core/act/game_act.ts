@@ -5,14 +5,17 @@ import { pickKeysInObj } from "../../utils";
 import { GameScenery } from "../scenery";
 
 /**
- * Is the act that manages events, timers and sounds created by the microgame or function inside
+ * Is the ACT that manages events, timers and sounds created by the microgame or function inside
  *
- * NEEDS an scenery to exist
+ * It's like a mini KAPLAY engine
+ *
+ * NEEDS a {@link GameScenery} to exist
  */
 export interface GameAct {
 	scenery: GameScenery;
 	root: GameObj<TimerComp | ColorComp | RectComp>;
 	engine: {
+		time: number;
 		pauseEverything(val: boolean): void;
 		play: KAPLAYCtx["play"];
 		sounds: AudioPlay[];
@@ -24,6 +27,7 @@ export interface GameAct {
 	ctx: Pick<typeof k, typeof gameAPIs[number]>;
 }
 
+/** Creates a {@link GameAct} */
 export function createAct(scenery: GameScenery): GameAct {
 	let _soundsPaused = false;
 
@@ -90,9 +94,14 @@ export function createAct(scenery: GameScenery): GameAct {
 			const tween = act.root.tween(1, 0, fadeOutTime, (p) => obj.opacity = p);
 			return tween;
 		},
+
+		time() {
+			return act.engine.time;
+		},
 	};
 
 	act.engine = {
+		time: 0,
 		sounds: [],
 		disabledSounds: [],
 
@@ -122,6 +131,8 @@ export function createAct(scenery: GameScenery): GameAct {
 
 		play: (src, options) => {
 			const sound = k.play(src, options);
+
+			// TODO: account for sounds that are paused at definition
 			// options.paused is undefined, don't use it for checks
 
 			if (act.engine.getSoundsPaused() && sound.paused == false) {
@@ -139,7 +150,6 @@ export function createAct(scenery: GameScenery): GameAct {
 			return sound;
 		},
 
-		// TODO: make sure input events are also paused with this
 		pauseEverything(val) {
 			if (val) {
 				act.root.paused = true;
@@ -153,6 +163,9 @@ export function createAct(scenery: GameScenery): GameAct {
 	};
 
 	act.root = scenery.scene.add([k.timer(), k.color(), k.rect(act.ctx.width(), act.ctx.height())]);
+	act.root.onUpdate(() => {
+		act.engine.time += k.dt();
+	});
 	act.destroy = () => {
 		act.root.destroy();
 		act.engine.sounds.forEach((sound) => sound.stop());
