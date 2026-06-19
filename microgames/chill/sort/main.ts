@@ -46,9 +46,9 @@ createMicrogame({
 		ctx.loadSound("music", "sounds/music.mp3");
 	},
 	start(ctx) {
-		ctx.play("music", { speed: ctx.speed });
 		const game = ctx.add([ctx.timer()]);
-		ctx.add([ctx.sprite("bg"), ctx.z(0), ctx.pos(ctx.center()), ctx.anchor("center")]);
+		ctx.play("music", { speed: ctx.speed });
+		game.add([ctx.sprite("bg"), ctx.z(0), ctx.pos(ctx.center()), ctx.anchor("center")]);
 		let lost = false;
 
 		const shapes = ["circle", "triangle"];
@@ -232,7 +232,7 @@ createMicrogame({
 				ctx.pos(90, 340),
 				ctx.anchor("bot"),
 				ctx.z(1),
-				ctx.area({ scale: ctx.vec2(1.5) }),
+				ctx.area({ scale: ctx.vec2(1.5), cursor: "" }),
 				ctx.rotate(),
 				"item",
 				"cursor-hover",

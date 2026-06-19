@@ -1,8 +1,8 @@
 import { k } from "./kaplay";
 import { CONFIG } from "./config";
 import "./assets/load_ingscreen";
-import "./assets/load_microgames";
 import "./assets/load_assets";
+import "./assets/load_microgames";
 import "./objects/cursor";
 
 k.setVolume(0.4);

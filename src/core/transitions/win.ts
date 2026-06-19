@@ -1,79 +1,96 @@
-import { createConductor } from "../../../../conductor";
-import { k } from "../../../../kaplay";
-import { getKHandled, onPauseChange } from "../../game";
-import { MicrogameController } from "../controller";
-import { SandboxInstance } from "../instance/instance";
-import { Scenery } from "../scenery";
+import { GameObj } from "kaplay";
+import { createTransition } from "./create_transition";
 
-export async function runWinTransition(scenery: Scenery, controller: MicrogameController): Promise<string> {
-	return new Promise((resolve) => {
-		const instance = new SandboxInstance(scenery);
-		const ctx = instance.context;
-		const conductor = createConductor(140 * controller.speed);
-		const khandled = getKHandled();
-		// just in case
-		khandled.antennae.forEach((antenna) => antenna.sprite = "consoleantenna");
+export const winTransition = createTransition("jingle-win", 4, (act, ctx, controller, conductor, parent, jingle, scenery) => {
+	act.root.use(ctx.opacity());
+	// @ts-ignore
+	act.root.opacity = 0;
 
-		ctx.add([
-			ctx.rect(ctx.width(), ctx.height()),
-			ctx.color(ctx.mulfok.GREEN),
-		]);
+	const magicNumber = 25 / 16;
 
-		const statico = ctx.add([
-			ctx.sprite("static", { anim: "a" }),
-			ctx.scale(2.5),
-			ctx.z(100),
-			ctx.opacity(1),
-		]);
+	parent.add([
+		ctx.sprite("trans-background"),
+	]);
 
-		const pauseCheck = onPauseChange((paused) => {
-			conductor.paused = paused;
-			instance.soundsPaused = paused;
-			instance.root.paused = paused;
-		});
+	const plainBackground = parent.add([
+		ctx.rect(512, 384),
+		ctx.pos(ctx.center()),
+		ctx.color(ctx.mulfok.LIGHT_VIOLET),
+		ctx.anchor("center"),
+		ctx.opacity(0),
+	]);
 
-		khandled.root.tween(khandled.root.scale.x, 0.75, 0.75 / controller.speed, (p) => khandled.root.scale.x = p, ctx.easings.easeOutQuint);
-		khandled.root.tween(khandled.root.scale.y, 1.1, 0.75 / controller.speed, (p) => khandled.root.scale.y = p, ctx.easings.easeOutQuint);
+	const clock = parent.add([
+		ctx.sprite("trans-clock"),
+		ctx.pos(ctx.center()),
+		ctx.anchor("center"),
+		ctx.opacity(0),
+	]);
 
-		function winBop(beat: number) {
-			khandled.sideDot.flash(controller.speed, k.mulfok.GREEN);
-			const idx = beat % 4;
-			khandled.dots[idx].flash();
+	const minuteHand = parent.add([
+		ctx.rect(5, 75),
+		ctx.pos(ctx.center()),
+		ctx.anchor("bot"),
+		ctx.rotate(30 * (controller.progress)), // 30 full hour // 15 half hour
+		ctx.color(ctx.mulfok.VOID_VIOLET),
+		ctx.opacity(0),
+	]);
 
-			if (beat == 1) {
-				statico.opacity = 0;
-			}
-			else if (beat == 2) {
-				statico.opacity = 1;
-			}
-		}
+	const hourHand = parent.add([
+		ctx.rect(7, 45),
+		ctx.pos(ctx.center()),
+		ctx.anchor("bot"),
+		ctx.rotate(30 * (controller.progress)),
+		ctx.color(ctx.mulfok.VOID_VIOLET),
+		ctx.opacity(0),
+	]);
 
-		conductor.onBeat((beat, beatTime) => winBop(beat));
+	const hearts: GameObj[] = [];
+	const getHeartPos = (angle: number) => {
+		// X = magnitud * cos(angle)
+		const rad = ctx.deg2rad(-90 + angle);
+		const magnitude = 175;
+		const X = magnitude * Math.cos(rad);
+		const Y = magnitude * Math.sin(rad);
+		return ctx.center().add(ctx.vec2(X, Y));
+	};
 
-		let hasDepressed = false;
-		conductor.onUpdate(() => {
-			if (conductor.beatTime >= 1.4 && !hasDepressed) {
-				hasDepressed = true;
-				khandled.root.tween(khandled.root.scale.x, 1.1, 1 / controller.speed, (p) => khandled.root.scale.x = p, ctx.easings.easeOutQuint);
-				khandled.root.tween(khandled.root.scale.y, 0.7, 0.5 / controller.speed, (p) => khandled.root.scale.y = p, ctx.easings.easeOutQuint);
-			}
-		});
-
-		ctx.play("jingle-win").onEnd(() => {
-			conductor.destroy();
-			instance.destroy();
-			pauseCheck.cancel();
-			resolve("");
-
-			khandled.root.tween(khandled.root.scale.x, 1, 0.25 / controller.speed, (p) => khandled.root.scale.x = p, ctx.easings.easeOutQuint);
-			khandled.root.tween(khandled.root.scale.y, 1, 0.25 / controller.speed, (p) => khandled.root.scale.y = p, ctx.easings.easeOutQuint);
-		});
-
-		const bean = ctx.add([
-			ctx.sprite("bean"),
+	for (let i = 0; i < controller.lives; i++) {
+		const heart = parent.add([
+			ctx.sprite("heart"),
 			ctx.pos(ctx.center()),
-			ctx.scale(2),
 			ctx.anchor("center"),
+			ctx.scale(),
+			ctx.opacity(),
 		]);
+
+		heart.pos = getHeartPos((i + controller.heartTurns) * 90);
+		parent.wait(conductor.beatInterval * 2, () => {
+			parent.tween(heart.scale.scale(1.5), heart.scale.scale(-1, 1), conductor.beatInterval, (p) => heart.scale = p, ctx.easings.easeOutQuint);
+		});
+		hearts.push(heart);
+	}
+
+	const tvstatic = parent.add([
+		ctx.sprite("trans-static", { anim: "a" }),
+		ctx.pos(ctx.center()),
+		ctx.anchor("center"),
+		ctx.z(1),
+		ctx.opacity(0),
+	]);
+
+	parent.tween(scenery.scale.scale(magicNumber), ctx.vec2(1), conductor.beatInterval, (p) => {
+		scenery.scale = p;
+	}, ctx.easings.easeOutQuint);
+
+	parent.tween(minuteHand.angle, minuteHand.angle + 360, jingle.duration() / controller.speed, (p) => minuteHand.angle = p, ctx.easings.easeOutQuint);
+	parent.tween(0, 1, conductor.beatInterval * 2, (p) => clock.opacity = p, ctx.easings.easeOutQuint);
+	parent.tween(0, 1, conductor.beatInterval * 2, (p) => minuteHand.opacity = p, ctx.easings.easeOutQuint);
+	parent.tween(0, 1, conductor.beatInterval * 2, (p) => hourHand.opacity = p, ctx.easings.easeOutQuint);
+	parent.tween(0, 1, conductor.beatInterval * 2, (p) => plainBackground.opacity = p, ctx.easings.easeOutQuint);
+
+	parent.tween(0, 1, conductor.beatInterval, (p) => tvstatic.opacity = p, ctx.easings.easeOutQuint);
+	parent.wait(conductor.beatInterval, () => {
+		tvstatic.opacity = 0;
 	});
-}
+});

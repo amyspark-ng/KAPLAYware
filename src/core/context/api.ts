@@ -31,6 +31,7 @@ export const gameAPIs = [
 	"mask",
 	"animate",
 	"particles",
+	"layer",
 
 	// functions
 	"play",

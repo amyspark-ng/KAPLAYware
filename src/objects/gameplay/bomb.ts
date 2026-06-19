@@ -12,7 +12,7 @@ export function addBomb(act: GameAct) {
 	const bomb = act.root.add([
 		ctx.z(9999),
 		{
-			conductor: createConductor(140, true),
+			conductor: createConductor(140, act.root, true),
 		},
 	]);
 
@@ -109,7 +109,7 @@ export function addBomb(act: GameAct) {
 	function lit(bpm = 140) {
 		bomb.conductor.bpm = bpm;
 		bomb.conductor.paused = false;
-		bomb.conductor.onBeat((beat, beatTime) => {
+		bomb.conductor.onBeat((beat, beatDuration) => {
 			tick();
 			if (beat == 4) destroy();
 		});

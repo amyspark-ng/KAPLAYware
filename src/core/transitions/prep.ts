@@ -1,79 +1,116 @@
-import { createConductor } from "../../../../conductor";
-import { getKHandled, onPauseChange } from "../../game";
-import { MicrogameController } from "../controller";
-import { SandboxInstance } from "../instance/instance";
-import { Scenery } from "../scenery";
+import { GameObj } from "kaplay";
+import { createTransition } from "./create_transition";
 
-export async function runPrepTransition(scenery: Scenery, controller: MicrogameController): Promise<string> {
-	return new Promise((resolve) => {
-		const instance = new SandboxInstance(scenery);
-		const ctx = instance.context;
-		const conductor = createConductor(140 * controller.speed);
-		const khandled = getKHandled();
-		// just in case
-		khandled.antennae.forEach((antenna) => antenna.sprite = "consoleantenna");
+export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, controller, conductor, parent, jingle, scenery) => {
+	act.root.use(ctx.opacity());
+	// @ts-ignore
+	act.root.opacity = 0;
 
-		const bg = ctx.add([
-			ctx.rect(ctx.width(), ctx.height()),
-			ctx.color(ctx.WHITE),
-		]);
+	const magicNumber = 25 / 16;
+	const gameActScenery = controller.currentAct.scenery;
+	gameActScenery.scale = ctx.vec2(0.64, 0.64);
 
-		if (controller.isHard) bg.color = ctx.WHITE.lerp(ctx.mulfok.RED, 0.5);
+	parent.add([
+		ctx.sprite("trans-background"),
+	]);
 
-		const statico = ctx.add([
-			ctx.sprite("static", { anim: "a" }),
-			ctx.scale(2.5),
-			ctx.z(100),
-			ctx.opacity(1),
-		]);
+	const plainBackground = parent.add([
+		ctx.rect(512, 384),
+		ctx.pos(ctx.center()),
+		ctx.color(ctx.mulfok.LIGHT_VIOLET),
+		ctx.anchor("center"),
+		ctx.opacity(1),
+	]);
 
-		const pauseCheck = onPauseChange((paused) => {
-			conductor.paused = paused;
-			instance.soundsPaused = paused;
-			instance.root.paused = paused;
-		});
+	const clock = parent.add([
+		ctx.sprite("trans-clock"),
+		ctx.pos(ctx.center()),
+		ctx.anchor("center"),
+		ctx.opacity(1),
+	]);
 
-		// FOR SOME REASON CHANGING THE SPEED MAKES AUDIOPLAY.ONEND NOT WORK
-		const jingle = instance.play("jingle-prep", { speed: controller.speed });
-		instance.root.wait(jingle.duration() / controller.speed, () => {
-			conductor.destroy();
-			instance.destroy();
-			pauseCheck.cancel();
-			resolve("");
-		});
+	const minuteHand = parent.add([
+		ctx.rect(5, 75),
+		ctx.pos(ctx.center()),
+		ctx.anchor("bot"),
+		ctx.rotate(30 * (controller.progress)), // 30 full hour // 15 half hour
+		ctx.color(ctx.mulfok.VOID_VIOLET),
+		ctx.opacity(1),
+	]);
 
-		function prepBop(beat: number) {
-			khandled.root.bop(0.9);
-			khandled.antennae.forEach((antenna) => antenna.bop(0.8));
-			const skew = 2.5;
-			if (beat % 2 == 0) khandled.root.tween(-skew, 0, 0.5 / controller.speed, (p) => khandled.root.skew.x = p, ctx.easings.easeOutBack);
-			else khandled.root.tween(skew, 0, 0.5 / controller.speed, (p) => khandled.root.skew.x = p, ctx.easings.easeOutBack);
+	const hourHand = parent.add([
+		ctx.rect(7, 45),
+		ctx.pos(ctx.center()),
+		ctx.anchor("bot"),
+		ctx.rotate(30 * (controller.progress)),
+		ctx.color(ctx.mulfok.VOID_VIOLET),
+		ctx.opacity(1),
+	]);
 
-			const idx = beat % 4;
-			khandled.dots[idx].flash();
+	const hearts: GameObj[] = [];
+	const getHeartPos = (angle: number) => {
+		// X = magnitud * cos(angle)
+		const rad = ctx.deg2rad(-90 + angle);
+		const magnitude = 175;
+		const X = magnitude * Math.cos(rad);
+		const Y = magnitude * Math.sin(rad);
+		return ctx.center().add(ctx.vec2(X, Y));
+	};
 
-			if (beat == 1) {
-				statico.opacity = 0;
-			}
-			else if (beat == 2) {
-				statico.opacity = 1;
-			}
-		}
-
-		conductor.onBeat((beat) => {
-			prepBop(beat);
-		});
-
-		let promptString = "";
-		if (controller.currentGame.hardModeOpt && controller.currentGame.hardModeOpt.prompt) promptString = controller.currentGame.hardModeOpt.prompt;
-		else promptString = controller.currentGame.prompt;
-
-		const prompt = ctx.add([
-			ctx.text(promptString, { font: "happy" }),
+	for (let i = 0; i < controller.lives; i++) {
+		const heart = parent.add([
+			ctx.sprite("heart"),
 			ctx.pos(ctx.center()),
-			ctx.color(ctx.BLACK),
-			ctx.scale(2),
 			ctx.anchor("center"),
+			ctx.scale(),
+			ctx.opacity(),
 		]);
+
+		heart.pos = getHeartPos((i + controller.heartTurns) * 90);
+		hearts.push(heart);
+	}
+
+	const tvstatic = parent.add([
+		ctx.sprite("trans-static", { anim: "a" }),
+		ctx.pos(ctx.center()),
+		ctx.anchor("center"),
+		ctx.opacity(0),
+		ctx.z(2),
+	]);
+
+	// TODO: can heart turns be replaced by score? since it also doesn't decrease when losing
+	controller.heartTurns++;
+	conductor.onBeat((beat, beatDuration) => {
+		minuteHand.angle += 15;
+		if (beat == 1) {
+			hearts.forEach((heart, index) => {
+				let angle = (index + controller.heartTurns - 1) * 90;
+				let newAngle = (index + controller.heartTurns) * 90;
+				heart.onUpdate(() => {
+					angle = ctx.lerp(angle, newAngle, 0.3 * controller.speed);
+					heart.pos = getHeartPos(angle);
+				});
+			});
+		}
+		if (beat == 2) {
+			tvstatic.opacity = 1;
+		}
+		if (beat == 3) {
+			parent.tween(scenery.scale, scenery.scale.scale(magicNumber), beatDuration, (p) => scenery.scale = p, ctx.easings.easeOutQuint);
+			parent.tween(clock.opacity, 0, beatDuration, (p) => clock.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(minuteHand.opacity, 0, beatDuration, (p) => minuteHand.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(hourHand.opacity, 0, beatDuration, (p) => hourHand.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(plainBackground.opacity, 0, beatDuration, (p) => plainBackground.opacity = p, ctx.easings.easeOutQuint);
+			hearts.forEach((heart) => {
+				parent.tween(heart.opacity, 0, beatDuration, (p) => heart.opacity = p, ctx.easings.easeOutQuint);
+			});
+
+			parent.tween(1, 0, beatDuration, (p) => tvstatic.opacity = p, ctx.easings.easeOutQuint);
+
+			// make the game act normal again
+			parent.tween(gameActScenery.scale, ctx.vec2(1), beatDuration, (p) => {
+				gameActScenery.scale = p;
+			}, ctx.easings.easeOutExpo);
+		}
 	});
-}
+});

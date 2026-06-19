@@ -19,6 +19,10 @@ export class MicrogameController {
 	gameResult: "win" | "lose" = undefined;
 	finished: boolean;
 	currentGame: Microgame;
+	/** How many times have the hearts turned, doesn't get reduced when you lose unlike progress */
+	heartTurns: number = 0;
+	/** How many times have you progressed UP until boss */
+	progress: number = 0;
 	score: number = 0;
 	timeLeft: number;
 	speed: number = 1;
@@ -41,16 +45,13 @@ export class MicrogameController {
 		this.lives = 4;
 	}
 
-	prepareForGame() {
+	removePreviousGame() {
 		this.timeoutKEvent.clear();
 		this.finishKEvent.clear();
 		this.finished = false;
 		this.currentAct?.destroy();
 		this.currentBomb?.destroy();
 		this.gameResult = undefined;
-
-		// get game
-		this.currentGame = this.getGameFromHat();
 	}
 
 	getGameFromHat() {
@@ -69,55 +70,65 @@ export class MicrogameController {
 		return this.finishKEvent.add(action);
 	}
 
-	async runGame(game: Microgame): Promise<"win" | "lose"> {
-		return new Promise((resolve) => {
-			this.currentGame = game;
-			this.currentAct = createAct(this.scenery);
-			this.currentBomb = null;
-			const gameCtx = buildGameContext(this.currentAct, this);
+	/** Only creates the act where the game is gonna run and pauses it for future running */
+	createCurrentAct(game: Microgame = this.currentGame): GameAct {
+		this.currentGame = game;
+		this.currentAct = createAct(this.scenery);
+		this.currentAct.root.use(k.layer("2"));
+		this.currentAct.engine.pauseEverything(true);
+		this.currentBomb = null;
+		const gameCtx = buildGameContext(this.currentAct, this);
 
-			this.currentAct.root.color = getGameColor(this.currentGame.bgColor);
-			this.timeLeft = game.duration / gameCtx.speed;
+		this.currentAct.root.color = getGameColor(this.currentGame.bgColor);
+		this.timeLeft = this.currentGame.duration / this.speed;
 
-			if (this.isHard && this.currentGame.hardModeOpt) {
-				if (this.currentGame.hardModeOpt.bgColor) this.currentAct.root.color = getGameColor(this.currentGame.hardModeOpt.bgColor);
-				if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration / gameCtx.speed;
-				// Prompt not because that's created at PREP and not here
+		if (this.isHard && this.currentGame.hardModeOpt) {
+			if (this.currentGame.hardModeOpt.bgColor) this.currentAct.root.color = getGameColor(this.currentGame.hardModeOpt.bgColor);
+			if (this.currentGame.hardModeOpt.duration) this.timeLeft = this.currentGame.hardModeOpt.duration / gameCtx.speed;
+			// Prompt not because that's created at PREP and not here
+		}
+
+		let timeOver = false;
+
+		gameCtx.add([]).onUpdate(() => {
+			if (this.finished) return;
+
+			if (this.timeLeft > 0) {
+				this.timeLeft -= k.dt();
 			}
 
-			let timeOver = false;
+			if (this.timeLeft <= 0 && !timeOver) {
+				this.timeoutKEvent.trigger();
+				timeOver = true;
+			}
 
-			gameCtx.add([]).onUpdate(() => {
-				if (this.finished) return;
-
-				if (this.timeLeft > 0) {
-					this.timeLeft -= k.dt();
+			// if already won don't add the bomb
+			if (this.gameResult != "win") {
+				// 140 IT'S THE HARDCODED BPM
+				// TODO: make it more consistent with the timing of the game
+				const beatInterval = 60 / (140 * this.speed);
+				if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
+					this.currentBomb = addBomb(this.currentAct);
+					this.currentBomb.lit(140 * this.speed);
 				}
+			}
+		});
 
-				if (this.timeLeft <= 0 && !timeOver) {
-					this.timeoutKEvent.trigger();
-					timeOver = true;
-				}
+		onPauseChange((paused) => {
+			if (this.state != GameState.Playing) return;
+			this.currentAct.engine.setSoundsPaused(paused);
+			this.currentAct.root.paused = paused;
+		});
 
-				// if already won don't add the bomb
-				if (this.gameResult != "win") {
-					// 140 IT'S THE HARDCODED BPM
-					const beatInterval = 60 / (140 * this.speed);
-					if (this.timeLeft <= beatInterval * 4 && this.currentBomb == null) {
-						this.currentBomb = addBomb(this.currentAct);
-						this.currentBomb.lit(140 * this.speed);
-					}
-				}
-			});
+		this.currentGame.start(gameCtx);
 
-			onPauseChange((paused) => {
-				if (this.state != GameState.Playing) return;
-				this.currentAct.engine.setSoundsPaused(paused);
-				this.currentAct.root.paused = paused;
-			});
+		return this.currentAct;
+	}
 
-			game.start(gameCtx);
-
+	/** Runs the current act and returns the promised win/lose result */
+	async runCurrentAct(): Promise<"win" | "lose"> {
+		return new Promise((resolve) => {
+			this.currentAct.engine.pauseEverything(false);
 			this.onFinish((result) => {
 				resolve(result);
 			});

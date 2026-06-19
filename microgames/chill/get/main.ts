@@ -79,7 +79,7 @@ createMicrogame({
 		}
 
 		let basket = null as GameObj<SpriteComp>;
-		const bean = ctx.add([
+		const bean = game.add([
 			ctx.sprite("bean"),
 			ctx.pos(ctx.center()),
 			ctx.area({ isSensor: true, scale: ctx.vec2(1, 0.4), offset: ctx.vec2(0, 0) }),
@@ -101,7 +101,7 @@ createMicrogame({
 			]);
 		}
 
-		const trunk = ctx.add([
+		const trunk = game.add([
 			ctx.sprite("trunk"),
 			ctx.anchor("bot"),
 			ctx.scale(),
@@ -112,7 +112,7 @@ createMicrogame({
 		]);
 
 		let bushShake = 0;
-		const bush = ctx.add([
+		const bush = game.add([
 			ctx.sprite("bush"),
 			ctx.anchor("center"),
 			ctx.scale(),
@@ -266,7 +266,7 @@ createMicrogame({
 		});
 
 		function spawnApple(good: boolean) {
-			const apple = ctx.add([
+			const apple = game.add([
 				ctx.sprite(good ? "apple" : "badderapple"),
 				ctx.pos(bush.screenPos),
 				ctx.area({ scale: ctx.vec2(0.5), isSensor: true }),
@@ -313,13 +313,13 @@ createMicrogame({
 
 			apples.filter((apple) => apple.good).forEach((apple) => {
 				apple.destroy();
-				const badapple = ctx.add([ctx.sprite("badapple"), ctx.scale(), ctx.pos(apple.pos.sub(15, 0)), ctx.anchor("center")]);
+				const badapple = game.add([ctx.sprite("badapple"), ctx.scale(), ctx.pos(apple.pos.sub(15, 0)), ctx.anchor("center")]);
 				game.tween(ctx.vec2(1.5), ctx.vec2(1), 0.15 / ctx.speed, (p) => badapple.scale = p, ctx.easings.easeOutQuint);
 			});
 		});
 
 		for (let i = 0; i < 10; i++) {
-			ctx.add([
+			game.add([
 				ctx.circle(ctx.rand(1, 5)),
 				ctx.opacity(ctx.rand(0.1, 0.5)),
 				ctx.pos(getRandomPos()),

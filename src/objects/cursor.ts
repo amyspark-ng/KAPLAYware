@@ -14,7 +14,7 @@ k.onLoad(() => {
 	]);
 
 	cursor.onUpdate(() => {
-		const hoverObjects = k.get("area", { recursive: true }).filter((obj: GameObj<AreaComp>) => obj.area.cursor);
+		const hoverObjects = k.get("area", { only: "comps", recursive: true }).filter((obj) => obj.area.cursor != undefined);
 		const isThereHoveredObject = hoverObjects.some((obj) => obj.isHovering());
 		cursor.pos = k.mousePos().add(25);
 

@@ -36,16 +36,16 @@ createMicrogame({
 	start(ctx) {
 		ctx.play("music");
 		const game = ctx.add([ctx.timer()]);
-		const frame = ctx.add([ctx.sprite("frame"), ctx.z(1)]);
+		const frame = game.add([ctx.sprite("frame"), ctx.z(1)]);
 
-		const stars = ctx.add([ctx.sprite("stars"), ctx.pos()]);
-		const earth = ctx.add([ctx.sprite("earth"), ctx.pos(400, 480), ctx.anchor("center"), ctx.rotate(0)]);
-		const moon = ctx.add([ctx.sprite("moon"), ctx.pos(580, 290), ctx.anchor("center"), ctx.rotate(0)]);
-		const clock = ctx.add([ctx.sprite("clock"), ctx.pos(675, 404), ctx.anchor("center"), ctx.z(2)]);
-		ctx.add([ctx.sprite("cables"), ctx.pos(111, 71), ctx.anchor("center"), ctx.z(2)]);
-		ctx.add([ctx.sprite("panel"), ctx.pos(151, 460), ctx.anchor("center"), ctx.z(2)]);
+		const stars = game.add([ctx.sprite("stars"), ctx.pos()]);
+		const earth = game.add([ctx.sprite("earth"), ctx.pos(400, 480), ctx.anchor("center"), ctx.rotate(0)]);
+		const moon = game.add([ctx.sprite("moon"), ctx.pos(580, 290), ctx.anchor("center"), ctx.rotate(0)]);
+		const clock = game.add([ctx.sprite("clock"), ctx.pos(675, 404), ctx.anchor("center"), ctx.z(2)]);
+		game.add([ctx.sprite("cables"), ctx.pos(111, 71), ctx.anchor("center"), ctx.z(2)]);
+		game.add([ctx.sprite("panel"), ctx.pos(151, 460), ctx.anchor("center"), ctx.z(2)]);
 
-		const button = ctx.add([
+		const button = game.add([
 			ctx.sprite("button"),
 			ctx.anchor("center"),
 			ctx.pos(400, 436),
@@ -58,7 +58,7 @@ createMicrogame({
 			ctx.flash(ctx.WHITE, 0.2 / ctx.speed);
 			ctx.play("explode", { speed: 0.5 * ctx.speed });
 
-			const explosion = ctx.add([
+			const explosion = game.add([
 				ctx.sprite("explosion"),
 				ctx.anchor("bot"),
 				ctx.pos(406, 313),
@@ -80,7 +80,7 @@ createMicrogame({
 		if (ctx.chance(0.25)) {
 			if (ctx.chance(0.5)) {
 				game.wait(1 / ctx.speed, () => {
-					const shooting = ctx.add([
+					const shooting = game.add([
 						ctx.sprite("shooting"),
 						ctx.opacity(),
 						ctx.anchor("center"),
@@ -98,7 +98,7 @@ createMicrogame({
 				});
 			}
 			else {
-				const marky = ctx.add([
+				const marky = game.add([
 					ctx.sprite("marky"),
 					ctx.pos(ctx.center().add(ctx.rand(-50, 50), ctx.rand(-100, -50))),
 					ctx.anchor("center"),
@@ -177,13 +177,13 @@ createMicrogame({
 		});
 
 		if (ctx.isHardMode) {
-			const sign = ctx.add([
+			const sign = game.add([
 				ctx.sprite("sign"),
 				ctx.pos(512, 96),
 				ctx.z(2),
 			]);
 		}
 
-		game.onButtonPress("action", explodeEverything);
+		game.onButtonPress("click", explodeEverything);
 	},
 });

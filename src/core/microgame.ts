@@ -1,7 +1,3 @@
-// do cursor interface
-// should include wheter mouse should "action"
-// and if keyboard should move mouse
-
 import { LoadContext } from "../assets/load_microgames";
 import { MicrogameContext } from "./context/context";
 

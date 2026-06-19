@@ -175,7 +175,7 @@ createMicrogame({
 			ctx.opacity(),
 			ctx.pos(ctx.center().x, ctx.center().y + 50),
 			ctx.rotate(ctx.rand(0, 360)),
-			ctx.area({ scale: ctx.vec2(0.85), shape: getHexagonShape(ctx) }),
+			ctx.area({ scale: ctx.vec2(0.85), shape: getHexagonShape(ctx), cursor: "" }),
 			ctx.scale(),
 			"cursor-hover",
 		]);
@@ -210,7 +210,7 @@ createMicrogame({
 			plusScoreText.onUpdate(() => plusScoreText.move(0, ctx.rand(-80, -90) * ctx.speed));
 		});
 
-		game.onButtonRelease("action", () => {
+		game.onButtonRelease("click", () => {
 			if (!hexagon.isHovering()) return;
 			ctx.play("clickpress", { detune: ctx.rand(-400, -200) });
 		});
@@ -233,7 +233,7 @@ createMicrogame({
 						ctx.pos(pos),
 						ctx.opacity(0),
 						ctx.scale(0),
-						ctx.area(),
+						ctx.area({ cursor: "" }),
 						ctx.z(1),
 						ctx.color(),
 						{
@@ -316,10 +316,10 @@ createMicrogame({
 			if (score >= SCORE_TO_WIN) {
 				ctx.play("fullcombo", { detune: ctx.rand(-50, 50) });
 				ctx.setResult("win");
-				// addComboText(ctx);
-				// ctx.addConfetti({ pos: ctx.mousePos() });
-				// game.tween(1.1, 1, 1 / ctx.speed, (p) => ctx.setCamScale(p), ctx.easings.easeOutQuint);
-				// game.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
+				addComboText(ctx);
+				ctx.addConfetti({ pos: ctx.mousePos() });
+				game.tween(1.1, 1, 1 / ctx.speed, (p) => ctx.setCamScale(p), ctx.easings.easeOutQuint);
+				game.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
 			}
 			else {
 				ctx.shake();

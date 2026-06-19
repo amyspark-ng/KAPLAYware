@@ -84,8 +84,6 @@ export function buildLoadContext(game: Microgame) {
 	return loadCtx as LoadContext;
 }
 
-k.loadRoot("");
-
 if (!CONFIG.DEV_MICROGAME) {
 	const modules = import.meta.glob("/microgames/**/main.ts");
 	const loaders = Object.values(modules);

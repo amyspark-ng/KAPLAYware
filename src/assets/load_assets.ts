@@ -7,29 +7,27 @@ import "../scenes/game";
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 
-await k.loadSprite("cursor", "sprites/cursor.png", {
+k.loadSprite("cursor", "sprites/cursor.png", {
 	sliceX: 4,
 	sliceY: 1,
 });
 
+k.loadCrew("sprite", "heart");
 k.loadCrew("sprite", "beant");
 k.loadBean();
 
-k.loadSprite("reality", "sprites/reality.png");
-
-// khandled
-k.loadSprite("static", "sprites/static.png", { sliceX: 2, sliceY: 1, anims: { "a": { from: 0, to: 1, loop: true, speed: 15, pingpong: true } } });
-k.loadSprite("consolebody", "sprites/khandled/body.png");
-k.loadSprite("consoledot", "sprites/khandled/dot.png");
-k.loadSprite("consoleantenna", "sprites/khandled/antenna.png");
-k.loadSprite("consolebrokenantenna", "sprites/khandled/brokenantenna.png");
-k.loadSprite("reality", "sprites/realitysheet.png", {
-	sliceX: 6,
+// transition
+k.loadSprite("trans-background", "sprites/transition/background.png");
+k.loadSprite("trans-clock", "sprites/transition/clock.png");
+k.loadSprite("trans-static", "sprites/transition/static.png", {
+	sliceX: 2,
 	sliceY: 1,
 	anims: {
-		"yes": {
+		"a": {
 			from: 0,
-			to: 5,
+			to: 1,
+			loop: true,
+			pingpong: true,
 		},
 	},
 });

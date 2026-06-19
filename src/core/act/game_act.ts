@@ -1,4 +1,4 @@
-import { AudioPlay, GameObj, KAPLAYCtx } from "kaplay";
+import { AudioPlay, ColorComp, GameObj, KAPLAYCtx, PosComp, RectComp, ScaleComp, TimerComp } from "kaplay";
 import { k } from "../../kaplay";
 import { gameAPIs } from "../context/api";
 import { pickKeysInObj } from "../../utils";
@@ -11,8 +11,9 @@ import { GameScenery } from "../scenery";
  */
 export interface GameAct {
 	scenery: GameScenery;
-	root: GameObj;
+	root: GameObj<TimerComp | ColorComp | RectComp>;
 	engine: {
+		pauseEverything(val: boolean): void;
 		play: KAPLAYCtx["play"];
 		sounds: AudioPlay[];
 		disabledSounds: AudioPlay[];
@@ -26,27 +27,27 @@ export interface GameAct {
 export function createAct(scenery: GameScenery): GameAct {
 	let _soundsPaused = false;
 
-	const window: GameAct = {
+	const act: GameAct = {
 		scenery,
-		root: k.add([]),
+		root: null,
 		ctx: null,
 		engine: null,
 		destroy: null,
 	};
 
-	window.ctx = {
+	act.ctx = {
 		...pickKeysInObj(k, [...gameAPIs]),
 		// modified functions
-		add: (comps) => window.root.add(comps),
-		play: (src, options) => window.engine.play(src, options),
-		get: (tag, opts) => window.root.get(tag, opts),
+		add: (comps) => act.root.add(comps),
+		play: (src, options) => act.engine.play(src, options),
+		get: (tag, opts) => act.root.get(tag, opts),
 
 		opacity(o) {
 			const comp = k.opacity(o);
 			return {
 				...comp,
 				fadeOut(time: number, easeFunc = k.easings.linear) {
-					return window.root.tween(
+					return act.root.tween(
 						this.opacity,
 						0,
 						time,
@@ -55,7 +56,7 @@ export function createAct(scenery: GameScenery): GameAct {
 					);
 				},
 				fadeIn(time: number, easeFunc = k.easings.linear) {
-					return window.root.tween(
+					return act.root.tween(
 						0,
 						this.opacity,
 						time,
@@ -66,32 +67,32 @@ export function createAct(scenery: GameScenery): GameAct {
 			};
 		},
 
-		getCamRot: () => window.scenery.camera.angle,
-		setCamRot: (val: number) => window.scenery.camera.angle = val,
-		getCamPos: () => window.scenery.camera.pos,
-		setCamPos: (val) => window.scenery.camera.pos = k.vec2(val),
-		getCamScale: () => window.scenery.camera.scale,
-		setCamScale: (val) => window.scenery.camera.scale = k.vec2(val),
-		shake: (val: number = 12) => window.scenery.camera.shake += val,
+		getCamRot: () => act.scenery.camera.angle,
+		setCamRot: (val: number) => act.scenery.camera.angle = val,
+		getCamPos: () => act.scenery.camera.pos,
+		setCamPos: (val) => act.scenery.camera.pos = k.vec2(val),
+		getCamScale: () => act.scenery.camera.scale,
+		setCamScale: (val) => act.scenery.camera.scale = k.vec2(val),
+		shake: (val: number = 12) => act.scenery.camera.shake += val,
 		addConfetti: (opt) => {
 			const confetti = k.addConfetti(opt);
-			if (window.root.exists()) confetti.parent = window.root;
+			if (act.root.exists()) confetti.parent = act.root;
 			else confetti.destroy();
 			return confetti;
 		},
 		flash(flashColor, fadeOutTime) {
-			const obj = window.root.add([
-				this.rect(window.ctx.width(), window.ctx.height()),
-				window.ctx.color(flashColor),
-				window.ctx.opacity(),
-				window.ctx.z(99999999),
+			const obj = act.root.add([
+				act.ctx.rect(act.ctx.width(), act.ctx.height()),
+				act.ctx.color(flashColor),
+				act.ctx.opacity(),
+				act.ctx.z(99999999),
 			]);
-			const tween = window.root.tween(1, 0, fadeOutTime, (p) => obj.opacity = p);
+			const tween = act.root.tween(1, 0, fadeOutTime, (p) => obj.opacity = p);
 			return tween;
 		},
 	};
 
-	window.engine = {
+	act.engine = {
 		sounds: [],
 		disabledSounds: [],
 
@@ -102,19 +103,19 @@ export function createAct(scenery: GameScenery): GameAct {
 		setSoundsPaused(val: boolean) {
 			_soundsPaused = val;
 
-			if (window.engine.getSoundsPaused() == true) {
-				window.engine.sounds.forEach((sound) => {
+			if (act.engine.getSoundsPaused() == true) {
+				act.engine.sounds.forEach((sound) => {
 					if (sound.paused) return;
 					// sound is intended to play but sounds were disabled
-					window.engine.disabledSounds.push(sound);
+					act.engine.disabledSounds.push(sound);
 					sound.paused = true;
 				});
 			}
-			else if (window.engine.getSoundsPaused() == false) {
-				window.engine.disabledSounds.forEach((sound) => {
+			else if (act.engine.getSoundsPaused() == false) {
+				act.engine.disabledSounds.forEach((sound) => {
 					// re enable the good sounds
 					sound.paused = false;
-					window.engine.disabledSounds.splice(window.engine.disabledSounds.indexOf(sound), 1);
+					act.engine.disabledSounds.splice(act.engine.disabledSounds.indexOf(sound), 1);
 				});
 			}
 		},
@@ -123,27 +124,39 @@ export function createAct(scenery: GameScenery): GameAct {
 			const sound = k.play(src, options);
 			// options.paused is undefined, don't use it for checks
 
-			if (window.engine.getSoundsPaused() && sound.paused == false) {
+			if (act.engine.getSoundsPaused() && sound.paused == false) {
 				sound.paused = true;
-				window.engine.disabledSounds.push(sound);
+				act.engine.disabledSounds.push(sound);
 			}
 
-			window.engine.sounds.push(sound);
+			act.engine.sounds.push(sound);
 
 			sound.onEnd(() => {
-				window.engine.sounds.splice(window.engine.sounds.indexOf(sound), 1);
-				if (window.engine.disabledSounds.includes(sound)) window.engine.disabledSounds.splice(window.engine.disabledSounds.indexOf(sound), 1);
+				act.engine.sounds.splice(act.engine.sounds.indexOf(sound), 1);
+				if (act.engine.disabledSounds.includes(sound)) act.engine.disabledSounds.splice(act.engine.disabledSounds.indexOf(sound), 1);
 			});
 
 			return sound;
 		},
+
+		// TODO: make sure input events are also paused with this
+		pauseEverything(val) {
+			if (val) {
+				act.root.paused = true;
+				act.engine.setSoundsPaused(true);
+			}
+			else {
+				act.root.paused = false;
+				act.engine.setSoundsPaused(false);
+			}
+		},
 	};
 
-	window.root = scenery.scene.add([k.timer(), k.rect(window.ctx.width(), window.ctx.height()), k.color()]);
-	window.destroy = () => {
-		window.root.destroy();
-		window.engine.sounds.forEach((sound) => sound.stop());
+	act.root = scenery.scene.add([k.timer(), k.color(), k.rect(act.ctx.width(), act.ctx.height())]);
+	act.destroy = () => {
+		act.root.destroy();
+		act.engine.sounds.forEach((sound) => sound.stop());
 	};
 
-	return window;
+	return act;
 }

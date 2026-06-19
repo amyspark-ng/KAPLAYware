@@ -9,18 +9,18 @@ export type Conductor = {
 	paused: boolean;
 	readonly beatInterval: number;
 	destroy(): void;
-	onBeat(action: (beat: number, beatTime: number) => void): KEventController;
+	onBeat(action: (beat: number, beatDuration: number) => void): KEventController;
 	onUpdate: GameObj["onUpdate"];
 };
 
-export function createConductor(bpm: number, startPaused: boolean = false): Conductor {
+export function createConductor(bpm: number, parent?: GameObj, startPaused: boolean = false): Conductor {
 	const beatHitEv = new k.KEvent();
 	let currentBeat = 0;
 	let beatTime = 0;
 	let time = 0;
 	let beatInterval = 60 / bpm;
 	let paused = startPaused;
-	const obj = k.add([]);
+	const obj = parent ? parent.add([]) : k.add([]);
 
 	obj.onUpdate(() => {
 		if (paused) return;
@@ -31,12 +31,12 @@ export function createConductor(bpm: number, startPaused: boolean = false): Cond
 		const oldBeat = Math.floor(currentBeat);
 		currentBeat = Math.floor(beatTime);
 		if (currentBeat != oldBeat) {
-			beatHitEv.trigger(currentBeat, beatTime);
+			beatHitEv.trigger(currentBeat, beatInterval);
 		}
 	});
 
 	return {
-		onBeat(action: (beat: number, beatTime: number) => void) {
+		onBeat(action) {
 			return beatHitEv.add(action);
 		},
 		get beatTime() {

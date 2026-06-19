@@ -21,3 +21,9 @@ export const k = kaplay({
 		"return": { "keyboard": ["escape", "backspace"] },
 	},
 });
+
+// In order of drawing
+k.setLayers([
+	"2",
+	"1",
+], "1");

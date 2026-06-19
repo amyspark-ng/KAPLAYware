@@ -1,9 +1,11 @@
-import { GameObj, PosComp, RectComp, RotateComp, ScaleComp, Vec2 } from "kaplay";
+import { ColorComp, GameObj, PosComp, RectComp, RotateComp, ScaleComp, Vec2 } from "kaplay";
 import { k } from "../kaplay";
 
 /** Is the stage where the structure of the objects simply stand
  *
- * One single SCENERY exists per kaplay-scene
+ * Right now, there's an scene for the microgames AND a scene for the transitions
+ *
+ * This is done so they can be zoomed in sepparately
  *
  * An ACT simply creates a mini-engine that manages things like
  *
@@ -16,6 +18,7 @@ export interface GameScenery {
 	scale: Vec2;
 	pos: Vec2;
 	root: GameObj;
+	gameBox: GameObj<RectComp | ColorComp | ScaleComp | PosComp>;
 	camera: GameObj<PosComp | ScaleComp | RotateComp | RectComp | { shake: number; }>;
 	scene: GameObj<PosComp>;
 }
@@ -29,11 +32,12 @@ export function createScenery(parent = k.getTreeRoot()) {
 		pos: k.center(),
 		scale: k.vec2(1),
 		root: k.add([]),
+		gameBox: null,
 		scene: null,
 		camera: null,
 	};
 
-	const gameBox = scenery.root.add([
+	scenery.gameBox = scenery.root.add([
 		k.rect(k.width(), k.height()),
 		k.color(k.BLUE.lighten(100)),
 		k.scale(1),
@@ -41,7 +45,7 @@ export function createScenery(parent = k.getTreeRoot()) {
 		k.anchor("center"),
 	]);
 
-	const maskObj = gameBox.add([
+	const maskObj = scenery.gameBox.add([
 		k.rect(k.width(), k.height()),
 		k.pos(-k.width() / 2, -k.height() / 2),
 		k.mask("intersect"),
@@ -70,8 +74,8 @@ export function createScenery(parent = k.getTreeRoot()) {
 
 	scenery.root.onUpdate(() => {
 		// gamebox stuff
-		gameBox.pos = scenery.pos;
-		gameBox.scale = scenery.scale;
+		scenery.gameBox.pos = scenery.pos;
+		scenery.gameBox.scale = scenery.scale;
 
 		// mask obj stuff
 		maskObj.width = k.width();

@@ -1,9 +1,12 @@
 import { createScenery } from "../core/scenery";
-import { createAct } from "../core/act/game_act";
 import { k } from "../kaplay";
 import { KEvent } from "kaplay";
 import { MicrogameController } from "../core/controller";
-import { getGame } from "../core/game_registry";
+import { CONFIG } from "../config";
+import { GameEvent, GameState, nextState } from "../core/state/state";
+import { prepTransition } from "../core/transitions/prep";
+import { winTransition } from "../core/transitions/win";
+import { loseTransition } from "../core/transitions/lose";
 
 let canPause = true;
 let paused = false;
@@ -29,22 +32,92 @@ export let changeZoom = (newZoom: boolean) => {
 };
 
 k.scene("game", () => {
-	// i would prefer if running a game didn't depend on a controller
-	const scenery = createScenery();
-	const act = createAct(scenery);
-	act.scenery.scale = k.vec2(0.5);
+	canPause = true;
+	paused = false;
+	zoomedIn = false;
+	pauseKEvent.clear();
 
-	// const ctx = act.ctx;
-	// const bean = ctx.add([
-	// 	ctx.sprite("bean"),
-	// 	ctx.pos(),
-	// 	ctx.area({ cursor: "" }),
-	// ]);
-	// bean.pos = ctx.vec2(ctx.width() - bean.width, 0);
-	// bean.onButtonPress("click", () => {
-	// 	if (bean.isHovering()) ctx.debug.log();
-	// });
+	const gameScenery = createScenery();
+	const transScenery = createScenery();
+	transScenery.gameBox.use(k.opacity());
+	// @ts-ignore
+	transScenery.gameBox.opacity = 0;
 
-	const controller = new MicrogameController(scenery);
-	controller.runGame(getGame("amyspark-ng:get"));
+	const controller = new MicrogameController(gameScenery, CONFIG.microgames);
+	if (CONFIG.DEV_MICROGAME) {
+		controller.isHard = CONFIG.DEV_HARD;
+		controller.speed = CONFIG.DEV_SPEED;
+	}
+
+	/** Runs the code necessary on the states and events of the game scene */
+	const dispatch = async (event: GameEvent) => {
+		controller.state = nextState(controller.state, event, controller);
+
+		switch (controller.state) {
+			case GameState.Preparing:
+				setCanPause(false);
+				controller.removePreviousGame();
+				controller.currentGame = controller.getGameFromHat();
+				controller.createCurrentAct();
+
+				prepTransition(transScenery, controller).then(() => {
+					dispatch({ type: "TRANSITION_DONE" });
+				});
+
+				break;
+
+			case GameState.Playing:
+				setCanPause(true);
+				const result = await controller.runCurrentAct();
+				dispatch({ type: "MICROGAME_END", result });
+
+				break;
+
+			case GameState.TransitionWin:
+				setCanPause(false);
+				controller.currentAct.engine.pauseEverything(true);
+
+				controller.score++;
+				controller.progress++;
+				winTransition(transScenery, controller).then(() => {
+					dispatch({ type: "TRANSITION_DONE" });
+				});
+				break;
+
+			case GameState.TransitionLose:
+				setCanPause(false);
+				controller.currentAct?.destroy();
+
+				controller.progress--;
+				controller.lives--;
+				loseTransition(transScenery, controller).then(() => {
+					dispatch({ type: "TRANSITION_DONE" });
+				});
+				break;
+
+			case GameState.SpeedUp:
+				// runSpeedUpTransition().then(() => {
+				// 	dispatch({ type: "TRANSITION_DONE" });
+				// });
+				// break;
+			case GameState.GameOver:
+				setCanPause(false);
+				// runGameOver();
+				break;
+		}
+	};
+
+	const lerpValue = 0.35;
+	k.onUpdate(() => {
+		// cursor
+		const shouldMouseBeVisible = controller.currentGame.input == "mouse" || controller.currentGame.input == "mouseclick";
+		if (shouldMouseBeVisible) {
+			// cursor.hidden = false;
+		}
+		else {
+			// cursor.hidden = true;
+		}
+	});
+
+	dispatch({ type: "START" });
 });
