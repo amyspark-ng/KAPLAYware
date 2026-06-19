@@ -46,7 +46,7 @@ export function nextState(
 
 		case GameState.TransitionWin:
 			if (event.type === "TRANSITION_DONE") {
-				return controller.shouldSpeedUp
+				return controller.score == controller.nextSpeedUpScore
 					? GameState.SpeedUp
 					: GameState.Preparing;
 			}
@@ -58,6 +58,7 @@ export function nextState(
 			}
 			break;
 
+			// TODO: should also check for speed up?
 		case GameState.TransitionLose:
 			if (event.type === "TRANSITION_DONE") {
 				return controller.lives <= 0

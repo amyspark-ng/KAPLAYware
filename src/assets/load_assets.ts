@@ -43,6 +43,7 @@ k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
 k.loadSound("jingle-prep", "sounds/jingles/prep.ogg");
 k.loadSound("jingle-win", "sounds/jingles/win.ogg");
 k.loadSound("jingle-lose", "sounds/jingles/loss.ogg");
+k.loadSound("jingle-speed", "sounds/jingles/speedUp.ogg");
 
 k.loadSound("bomb-tick", "sounds/bomb/tick.mp3");
 k.loadSound("bomb-explosion", "sounds/bomb/explosion.mp3");

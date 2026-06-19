@@ -29,13 +29,10 @@ export class MicrogameController {
 	lives: number = 4;
 	isHard: boolean = false;
 	microgameHat: Microgame[] = [];
-	turnsWithoutLosing: number = 0;
+	/** The next time you'll speed up */
+	nextSpeedUpScore: number = k.randi(5, 7);
 
 	currentBomb: Bomb = null;
-
-	get shouldSpeedUp() {
-		return false; // MAX 1.3
-	}
 
 	/**
 	 * @param passedGames Means the games that the controller was created with
@@ -68,6 +65,28 @@ export class MicrogameController {
 
 	onFinish(action: (result: "win" | "lose") => void) {
 		return this.finishKEvent.add(action);
+	}
+
+	lose() {
+		this.currentAct?.destroy();
+		this.progress--;
+		this.lives--;
+	}
+
+	win() {
+		this.currentAct.engine.pauseEverything(true);
+		this.score++;
+		this.progress++;
+	}
+
+	speedUp() {
+		this.nextSpeedUpScore += 2;
+		if (this.speed < 1.3) {
+			this.speed += k.rand(0.015, 0.02);
+		}
+		else {
+			this.speed += k.rand(0.0025, 0.005);
+		}
 	}
 
 	/** Only creates the act where the game is gonna run and pauses it for future running */

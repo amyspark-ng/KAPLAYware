@@ -7,6 +7,7 @@ import { GameEvent, GameState, nextState } from "../core/state/state";
 import { prepTransition } from "../core/transitions/prep";
 import { winTransition } from "../core/transitions/win";
 import { loseTransition } from "../core/transitions/lose";
+import { speedTransition } from "../core/transitions/speed";
 
 let canPause = true;
 let paused = false;
@@ -75,10 +76,7 @@ k.scene("game", () => {
 
 			case GameState.TransitionWin:
 				setCanPause(false);
-				controller.currentAct.engine.pauseEverything(true);
-
-				controller.score++;
-				controller.progress++;
+				controller.win();
 				winTransition(transScenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
@@ -86,20 +84,18 @@ k.scene("game", () => {
 
 			case GameState.TransitionLose:
 				setCanPause(false);
-				controller.currentAct?.destroy();
-
-				controller.progress--;
-				controller.lives--;
+				controller.lose();
 				loseTransition(transScenery, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
 				break;
 
 			case GameState.SpeedUp:
-				// runSpeedUpTransition().then(() => {
-				// 	dispatch({ type: "TRANSITION_DONE" });
-				// });
-				// break;
+				controller.speedUp();
+				speedTransition(transScenery, controller).then(() => {
+					dispatch({ type: "TRANSITION_DONE" });
+				});
+				break;
 			case GameState.GameOver:
 				setCanPause(false);
 				// runGameOver();

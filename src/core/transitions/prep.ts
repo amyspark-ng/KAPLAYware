@@ -75,12 +75,12 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 		ctx.pos(ctx.center()),
 		ctx.anchor("center"),
 		ctx.opacity(0),
-		ctx.z(2),
+		ctx.z(1),
 	]);
 
 	// TODO: can heart turns be replaced by score? since it also doesn't decrease when losing
 	controller.heartTurns++;
-	conductor.onBeat((beat, beatDuration) => {
+	conductor.onBeat((beat, beatInterval) => {
 		minuteHand.angle += 15;
 		if (beat == 1) {
 			hearts.forEach((heart, index) => {
@@ -94,21 +94,43 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 		}
 		if (beat == 2) {
 			tvstatic.opacity = 1;
+
+			// added to scenery.scene so it stays for just a bit longer
+			const prepText = scenery.scene.add([
+				ctx.text(controller.currentGame.prompt, {
+					transform: (idx, ch) => ({
+						pos: ctx.vec2(0, ctx.wave(-4, 4, ctx.time() * 4 + idx * 0.5)),
+						scale: ctx.wave(1, 1.2, ctx.time() * 3 + idx),
+						angle: ctx.wave(-9, 9, ctx.time() * 3 + idx),
+					}),
+				}),
+				ctx.scale(0),
+				ctx.anchor("center"),
+				ctx.pos(ctx.center()),
+				ctx.opacity(1),
+				ctx.z(2),
+				ctx.timer(),
+			]);
+
+			prepText.tween(ctx.vec2(0), ctx.vec2(2), beatInterval, (p) => prepText.scale = p, ctx.easings.easeOutElastic);
+			prepText.wait(beatInterval, () => {
+				prepText.tween(1, 0, beatInterval * 2, (p) => prepText.opacity = p, ctx.easings.easeOutQuint);
+			});
 		}
 		if (beat == 3) {
-			parent.tween(scenery.scale, scenery.scale.scale(magicNumber), beatDuration, (p) => scenery.scale = p, ctx.easings.easeOutQuint);
-			parent.tween(clock.opacity, 0, beatDuration, (p) => clock.opacity = p, ctx.easings.easeOutQuint);
-			parent.tween(minuteHand.opacity, 0, beatDuration, (p) => minuteHand.opacity = p, ctx.easings.easeOutQuint);
-			parent.tween(hourHand.opacity, 0, beatDuration, (p) => hourHand.opacity = p, ctx.easings.easeOutQuint);
-			parent.tween(plainBackground.opacity, 0, beatDuration, (p) => plainBackground.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(scenery.scale, scenery.scale.scale(magicNumber), beatInterval, (p) => scenery.scale = p, ctx.easings.easeOutQuint);
+			parent.tween(clock.opacity, 0, beatInterval, (p) => clock.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(minuteHand.opacity, 0, beatInterval, (p) => minuteHand.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(hourHand.opacity, 0, beatInterval, (p) => hourHand.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(plainBackground.opacity, 0, beatInterval, (p) => plainBackground.opacity = p, ctx.easings.easeOutQuint);
 			hearts.forEach((heart) => {
-				parent.tween(heart.opacity, 0, beatDuration, (p) => heart.opacity = p, ctx.easings.easeOutQuint);
+				parent.tween(heart.opacity, 0, beatInterval, (p) => heart.opacity = p, ctx.easings.easeOutQuint);
 			});
 
-			parent.tween(1, 0, beatDuration, (p) => tvstatic.opacity = p, ctx.easings.easeOutQuint);
+			parent.tween(1, 0, beatInterval, (p) => tvstatic.opacity = p, ctx.easings.easeOutQuint);
 
 			// make the game act normal again
-			parent.tween(gameActScenery.scale, ctx.vec2(1), beatDuration, (p) => {
+			parent.tween(gameActScenery.scale, ctx.vec2(1), beatInterval, (p) => {
 				gameActScenery.scale = p;
 			}, ctx.easings.easeOutExpo);
 		}
