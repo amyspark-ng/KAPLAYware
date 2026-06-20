@@ -1,9 +1,8 @@
 import { k } from "../../kaplay";
 import { createConductor } from "../conductor";
-import { onPauseChange } from "../../scenes/game";
-import { GameAct } from "../../core/act/game_act";
+import { Act } from "../../core/act/act";
 
-export function addBomb(act: GameAct) {
+export function addBomb(act: Act) {
 	const ctx = act.ctx;
 
 	const BOMB_POS = ctx.vec2(40, ctx.height() - 40);
@@ -11,6 +10,7 @@ export function addBomb(act: GameAct) {
 
 	const bomb = act.root.add([
 		ctx.z(9999),
+		ctx.pos(),
 		{
 			conductor: createConductor(140, act.root, true),
 		},
@@ -71,14 +71,14 @@ export function addBomb(act: GameAct) {
 		}
 	});
 
-	const pauseCheckEv = onPauseChange((paused) => {
-		bomb.conductor.paused = paused;
-	});
+	// const pauseCheckEv = onPauseChange((paused) => {
+	// 	bomb.conductor.paused = paused;
+	// });
 
 	function destroy() {
 		if (bomb.exists()) bomb.destroy();
 		bomb.conductor.destroy();
-		pauseCheckEv.cancel();
+		// pauseCheckEv.cancel();
 	}
 
 	let hasExploded = false;
@@ -91,6 +91,17 @@ export function addBomb(act: GameAct) {
 		hasExploded = true;
 	}
 
+	const numberText = bomb.add([
+		ctx.text("", { align: "center" }),
+		ctx.pos(bombSpr.pos.sub(5, 40)),
+		ctx.color(ctx.BLACK),
+		ctx.opacity(0),
+		ctx.anchor("center"),
+		ctx.scale(),
+		ctx.rotate(),
+		ctx.z(999),
+	]);
+
 	function tick() {
 		if (!bombSpr.exists()) return;
 		if (beatsLeft > 0) {
@@ -101,6 +112,16 @@ export function addBomb(act: GameAct) {
 			if (beatsLeft == 2) bombSpr.color = ctx.YELLOW;
 			else if (beatsLeft == 1) bombSpr.color = ctx.RED.lerp(ctx.YELLOW, 0.5);
 			else if (beatsLeft == 0) bombSpr.color = ctx.RED;
+
+			numberText.opacity = 1;
+			numberText.color = bombSpr.color;
+			numberText.text = (beatsLeft + 1).toString();
+			numberText.pos = numberText.pos.sub(1, 0);
+			numberText.onUpdate(() => {
+				if (beatsLeft <= 1) numberText.angle = ctx.lerp(numberText.angle, ctx.wave(-25, 25, ctx.time() * 15), 0.5);
+				if (beatsLeft == 0) numberText.scale = ctx.lerp(numberText.scale, ctx.vec2(1, ctx.wave(0.75, 1.5, ctx.time() * 30)), 0.5);
+			});
+			act.root.tween(ctx.vec2(1).add(0.16 * tweenMult), ctx.vec2(1).add((0.16 * tweenMult) / 2), 0.5 / 3, (p) => numberText.scale = p, ctx.easings.easeOutQuint);
 		}
 		else explode();
 	}
@@ -121,10 +142,12 @@ export function addBomb(act: GameAct) {
 		// which access fuse, which it shouldn't because when it explodes the parent is destroyed
 		if (hasExploded) return;
 		bomb.conductor.paused = true;
-		fuse.fadeOut(0.5 / 3).onEnd(() => fuse.destroy());
+		fuse.fadeOut(bomb.conductor.beatInterval / 3).onEnd(() => fuse.destroy());
+		numberText?.fadeOut(bomb.conductor.beatInterval / 3).onEnd(() => numberText.destroy());
 	}
 
 	return {
+		root: bomb,
 		destroy,
 		lit,
 		extinguish,

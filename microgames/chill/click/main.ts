@@ -194,6 +194,7 @@ createMicrogame({
 		});
 
 		game.onButtonPress("click", () => {
+			if (!hexagon.isHovering()) return;
 			score += power;
 			clicksInSecond++;
 			game.tween(ctx.vec2(2.25), ctx.vec2(2), 0.75 / ctx.speed, (p) => scoreText.scale = p, ctx.easings.easeOutQuint);

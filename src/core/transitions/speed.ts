@@ -1,7 +1,8 @@
 import { GameObj } from "kaplay";
 import { createTransition } from "./create_transition";
 
-export const speedTransition = createTransition("jingle-speed", 10, (act, ctx, controller, conductor, parent, jingle, transScenery) => {
+export const speedTransition = createTransition("jingle-speed", 10, (act, controller, conductor, parent, transScenery, gameAct) => {
+	const ctx = act.ctx;
 	act.root.use(ctx.opacity());
 	// @ts-ignore
 	act.root.opacity = 0;
@@ -25,7 +26,7 @@ export const speedTransition = createTransition("jingle-speed", 10, (act, ctx, c
 		ctx.rect(5, 75),
 		ctx.pos(ctx.center()),
 		ctx.anchor("bot"),
-		ctx.rotate(30 * (controller.progress)), // 30 full hour // 15 half hour
+		ctx.rotate(0), // 30 full hour // 15 half hour
 		ctx.color(ctx.mulfok.VOID_VIOLET),
 		ctx.opacity(1),
 	]);
@@ -34,8 +35,17 @@ export const speedTransition = createTransition("jingle-speed", 10, (act, ctx, c
 		ctx.rect(7, 45),
 		ctx.pos(ctx.center()),
 		ctx.anchor("bot"),
-		ctx.rotate(30 * (controller.progress)),
+		ctx.rotate(30 * (controller.progress - 1)),
 		ctx.color(ctx.mulfok.VOID_VIOLET),
+		ctx.opacity(1),
+	]);
+
+	const secondHand = parent.add([
+		ctx.rect(4, 75),
+		ctx.pos(ctx.center()),
+		ctx.anchor("bot"),
+		ctx.rotate(0), // 30 full hour // 15 half hour
+		ctx.color(ctx.RED),
 		ctx.opacity(1),
 	]);
 
@@ -72,6 +82,19 @@ export const speedTransition = createTransition("jingle-speed", 10, (act, ctx, c
 	parent.add([
 		ctx.sprite("trans-background"),
 	]);
+
+	// second hand
+	parent.tween(0, 360, conductor.beatInterval * 1.95, (p) => secondHand.angle = p, ctx.easings.linear).onEnd(() => {
+		parent.tween(0, 360, conductor.beatInterval * 1.95, (p) => secondHand.angle = p, ctx.easings.linear).onEnd(() => {
+			parent.tween(0, 360, conductor.beatInterval * 1.25, (p) => secondHand.angle = p, ctx.easings.linear).onEnd(() => {
+				parent.tween(0, 360, conductor.beatInterval * 1.25, (p) => secondHand.angle = p, ctx.easings.linear).onEnd(() => {
+					parent.tween(0, 360, conductor.beatInterval * 1.25, (p) => secondHand.angle = p, ctx.easings.linear).onEnd(() => {
+						parent.tween(0, 360, conductor.beatInterval * 1.25, (p) => secondHand.angle = p, ctx.easings.linear);
+					});
+				});
+			});
+		});
+	});
 
 	conductor.onBeat((beat, beatInterval) => {
 		parent.tween(ctx.vec2(2, 2.5), ctx.vec2(2, 2), beatInterval / 2, (p) => text.scale = p, ctx.easings.easeOutQuint);

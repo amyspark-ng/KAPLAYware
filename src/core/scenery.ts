@@ -13,7 +13,7 @@ import { k } from "../kaplay";
  *
  * An ACT would be created when a microgame or transition starts running and destroyed when it ends
  */
-export interface GameScenery {
+export interface Scenery {
 	/** The scenery will always have a certain width, you can just change the scale */
 	scale: Vec2;
 	pos: Vec2;
@@ -24,11 +24,11 @@ export interface GameScenery {
 }
 
 /**
- * Creates a {@link GameScenery}
+ * Creates a {@link Scenery}
  * @param parent
  */
 export function createScenery(parent = k.getTreeRoot()) {
-	const scenery: GameScenery = {
+	const scenery: Scenery = {
 		pos: k.center(),
 		scale: k.vec2(1),
 		root: k.add([]),

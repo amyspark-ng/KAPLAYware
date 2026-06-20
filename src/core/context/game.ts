@@ -4,7 +4,8 @@ import { MicrogameController } from "../controller";
 import { getGameID } from "../game_registry";
 import { assets } from "@kaplayjs/crew";
 import { gameAPIs } from "./api";
-import { GameAct } from "../act/game_act";
+import { Act } from "../act/act";
+import { Microgame } from "../microgame";
 
 /** The KAPLAYCtx modified for the context of Microgame developing */
 export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
@@ -19,8 +20,8 @@ export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
 };
 
 /** Creates a {@link MicrogameContext} */
-export function buildGameContext(act: GameAct, controller: MicrogameController): MicrogameContext {
-	const id = getGameID(controller.currentGame);
+export function buildGameContext(act: Act, game: Microgame, controller: MicrogameController): MicrogameContext {
+	const id = getGameID(game);
 
 	return {
 		...act.ctx,
@@ -69,12 +70,11 @@ export function buildGameContext(act: GameAct, controller: MicrogameController):
 		},
 
 		setResult(result) {
-			controller.gameResult = result;
-			if (result == "win" && controller.currentBomb && 4 - controller.currentBomb.conductor.beats > 1) controller.currentBomb.extinguish();
+			controller.lastGameResult = result;
 		},
 
 		getResult() {
-			return controller.gameResult;
+			return controller.lastGameResult;
 		},
 
 		onTimeout(action) {
@@ -83,7 +83,7 @@ export function buildGameContext(act: GameAct, controller: MicrogameController):
 
 		finishGame() {
 			controller.finished = true;
-			controller.finishKEvent.trigger(controller.gameResult);
+			controller.finishKEvent.trigger(controller.lastGameResult);
 		},
 	};
 }

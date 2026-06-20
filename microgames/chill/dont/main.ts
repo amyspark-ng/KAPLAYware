@@ -11,7 +11,7 @@ createMicrogame({
 	},
 	bgColor: "1f102a",
 	urlPrefix: "microgames/chill/dont/",
-	input: "arrowkeys",
+	input: "all",
 	boss: false,
 	load(ctx) {
 		ctx.loadSprite("explosion", "sprites/explosion.png", { sliceX: 7, sliceY: 1, anims: { "a": { from: 0, to: 6 } } });

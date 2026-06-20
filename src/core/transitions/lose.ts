@@ -1,7 +1,8 @@
 import { GameObj } from "kaplay";
 import { createTransition } from "./create_transition";
 
-export const loseTransition = createTransition("jingle-lose", 5, (act, ctx, controller, conductor, parent, jingle, scenery) => {
+export const loseTransition = createTransition("jingle-lose", 5, (act, controller, conductor, parent, transScenery, gameAct) => {
+	const ctx = act.ctx;
 	act.root.use(ctx.opacity());
 	// @ts-ignore
 	act.root.opacity = 0;
@@ -91,8 +92,8 @@ export const loseTransition = createTransition("jingle-lose", 5, (act, ctx, cont
 		ctx.sprite("trans-background"),
 	]);
 
-	parent.tween(scenery.scale.scale(magicNumber), ctx.vec2(1), conductor.beatInterval, (p) => {
-		scenery.scale = p;
+	parent.tween(transScenery.scale.scale(magicNumber), ctx.vec2(1), conductor.beatInterval, (p) => {
+		transScenery.scale = p;
 	}, ctx.easings.easeOutQuint);
 
 	parent.wait(conductor.beatInterval * 3.8, () => {

@@ -1,6 +1,5 @@
 import { createScenery } from "../core/scenery";
 import { k } from "../kaplay";
-import { KEvent } from "kaplay";
 import { MicrogameController } from "../core/controller";
 import { CONFIG } from "../config";
 import { GameEvent, GameState, nextState } from "../core/state/state";
@@ -9,47 +8,19 @@ import { winTransition } from "../core/transitions/win";
 import { loseTransition } from "../core/transitions/lose";
 import { speedTransition } from "../core/transitions/speed";
 import { GAME_CURSOR } from "../objects/cursor";
-
-let canPause = true;
-let paused = false;
-let pauseKEvent: KEvent = new k.KEvent();
-
-export let setCanPause = (newCanPause: boolean) => {
-	canPause = newCanPause;
-};
-
-export let setPaused = (newPause: boolean) => {
-	if (!canPause) return;
-	if (paused != newPause) pauseKEvent.trigger(newPause);
-	paused = newPause;
-};
-
-export let onPauseChange = (action: (paused: boolean) => void) => {
-	return pauseKEvent.add(action);
-};
-
-let zoomedIn: boolean = true;
-export let changeZoom = (newZoom: boolean) => {
-	zoomedIn = newZoom;
-};
+import { getGameColor } from "../core/game_registry";
+import { createGameAct, GameAct } from "../core/act/game_act";
 
 k.scene("game", () => {
-	canPause = true;
-	paused = false;
-	zoomedIn = false;
-	pauseKEvent.clear();
-
+	// creates the scenerys
 	const gameScenery = createScenery();
 	const transScenery = createScenery();
 	transScenery.gameBox.use(k.opacity());
 	// @ts-ignore
 	transScenery.gameBox.opacity = 0;
 
-	const controller = new MicrogameController(gameScenery, CONFIG.microgames);
-	if (CONFIG.DEV_MICROGAME) {
-		controller.isHard = CONFIG.DEV_HARD;
-		controller.speed = CONFIG.DEV_SPEED;
-	}
+	const controller = new MicrogameController(CONFIG.microgames);
+	let currentGameAct: GameAct = null;
 
 	/** Runs the code necessary on the states and events of the game scene */
 	const dispatch = async (event: GameEvent) => {
@@ -58,11 +29,21 @@ k.scene("game", () => {
 		switch (controller.state) {
 			case GameState.Preparing:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
-				controller.removePreviousGame();
-				controller.currentGame = controller.getGameFromHat();
-				controller.createCurrentAct();
+				controller.clearFromPrevious();
+				currentGameAct?.clear();
+				currentGameAct = createGameAct(gameScenery, controller.getGameFromHat(), controller);
+				currentGameAct.root.use(k.layer("2"));
+				currentGameAct.root.color = getGameColor(currentGameAct.game.bgColor);
+				currentGameAct.bomb.root.pos = currentGameAct.ctx.vec2(0, 70);
 
-				prepTransition(transScenery, controller).then(() => {
+				if (controller.isHard && currentGameAct.game.hardModeOpt) {
+					if (currentGameAct.game.hardModeOpt.bgColor) currentGameAct.root.color = getGameColor(currentGameAct.game.hardModeOpt.bgColor);
+				}
+
+				currentGameAct.game.start(currentGameAct.ctx);
+				currentGameAct.root.wait(0, () => currentGameAct.engine.pauseEverything(true));
+
+				prepTransition(transScenery, currentGameAct, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
 
@@ -70,25 +51,73 @@ k.scene("game", () => {
 
 			case GameState.Playing:
 				GAME_CURSOR.grandparentCheck = gameScenery.root;
-				const result = await controller.runCurrentAct();
-				dispatch({ type: "MICROGAME_END", result });
+				let timeOver = false;
+				let hasBombLit = false;
+				let hasBombAppeared = false;
+
+				controller.timeLeft = currentGameAct.game.duration / controller.speed;
+				if (controller.isHard && currentGameAct.game.hardModeOpt) {
+					if (currentGameAct.game.hardModeOpt.duration) controller.timeLeft = currentGameAct.game.hardModeOpt.duration / controller.speed;
+				}
+
+				currentGameAct.ctx.add([]).onUpdate(() => {
+					if (controller.finished) return;
+
+					if (controller.timeLeft > 0) {
+						controller.timeLeft -= k.dt();
+					}
+
+					if (controller.timeLeft <= 0 && !timeOver) {
+						controller.timeoutKEvent.trigger();
+						timeOver = true;
+					}
+
+					// if already won don't add the bomb
+					if (controller.lastGameResult != "win") {
+						// 140 IT'S THE HARDCODED BPM
+						// TODO: make it more consistent with the timing of the game
+						const beatInterval = 60 / (140 * controller.speed);
+
+						if (controller.timeLeft <= beatInterval * 5 && !hasBombAppeared) {
+							hasBombAppeared = true;
+							const ctx = currentGameAct.ctx;
+							currentGameAct.root.tween(
+								currentGameAct.bomb.root.pos,
+								ctx.vec2(0, -10),
+								beatInterval,
+								(p) => currentGameAct.bomb.root.pos = p,
+								ctx.easings.easeOutQuint,
+							);
+						}
+
+						if (controller.timeLeft <= beatInterval * 4 && !hasBombLit) {
+							hasBombLit = true;
+							currentGameAct.bomb.lit(140 * controller.speed);
+						}
+					}
+				});
+
+				currentGameAct.engine.pauseEverything(false);
+				controller.onFinish((result) => {
+					dispatch({ type: "MICROGAME_END", result });
+				});
 
 				break;
 
 			case GameState.TransitionWin:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
-				setCanPause(false);
 				controller.win();
-				winTransition(transScenery, controller).then(() => {
+				currentGameAct.engine.pauseEverything(true);
+				winTransition(transScenery, currentGameAct, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
 				break;
 
 			case GameState.TransitionLose:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
-				setCanPause(false);
 				controller.lose();
-				loseTransition(transScenery, controller).then(() => {
+				currentGameAct.engine.pauseEverything(true);
+				loseTransition(transScenery, currentGameAct, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
 				break;
@@ -96,29 +125,17 @@ k.scene("game", () => {
 			case GameState.SpeedUp:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
 				controller.speedUp();
-				speedTransition(transScenery, controller).then(() => {
+				speedTransition(transScenery, currentGameAct, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
 				});
 				break;
 			case GameState.GameOver:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
-				setCanPause(false);
+				// setCanPause(false);
 				// runGameOver();
 				break;
 		}
 	};
-
-	const lerpValue = 0.35;
-	k.onUpdate(() => {
-		// cursor
-		const shouldMouseBeVisible = controller.currentGame.input == "mouse" || controller.currentGame.input == "mouseclick";
-		if (shouldMouseBeVisible) {
-			// cursor.hidden = false;
-		}
-		else {
-			// cursor.hidden = true;
-		}
-	});
 
 	dispatch({ type: "START" });
 });

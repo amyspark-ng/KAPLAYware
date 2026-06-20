@@ -1,14 +1,15 @@
 import { GameObj } from "kaplay";
 import { createTransition } from "./create_transition";
 
-export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, controller, conductor, parent, jingle, scenery) => {
+export const prepTransition = createTransition("jingle-prep", 4, (act, controller, conductor, parent, transScenery, gameAct) => {
+	const ctx = act.ctx;
+	const gameScenery = gameAct.scenery;
 	act.root.use(ctx.opacity());
 	// @ts-ignore
 	act.root.opacity = 0;
 
 	const magicNumber = 25 / 16;
-	const gameActScenery = controller.currentAct.scenery;
-	gameActScenery.scale = ctx.vec2(0.64, 0.64);
+	gameScenery.scale = ctx.vec2(0.64, 0.64);
 
 	const plainBackground = parent.add([
 		ctx.rect(512, 384),
@@ -96,8 +97,8 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 			tvstatic.opacity = 1;
 
 			// added to scenery.scene so it stays for just a bit longer
-			const prepText = scenery.scene.add([
-				ctx.text(controller.currentGame.prompt, {
+			const prepText = transScenery.scene.add([
+				ctx.text(gameAct.game.prompt, {
 					transform: (idx, ch) => ({
 						pos: ctx.vec2(0, ctx.wave(-4, 4, ctx.time() * 4 + idx * 0.5)),
 						scale: ctx.wave(1, 1.2, ctx.time() * 3 + idx),
@@ -118,7 +119,7 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 			});
 		}
 		if (beat == 3) {
-			parent.tween(scenery.scale, scenery.scale.scale(magicNumber), beatInterval, (p) => scenery.scale = p, ctx.easings.easeOutQuint);
+			parent.tween(transScenery.scale, transScenery.scale.scale(magicNumber), beatInterval, (p) => transScenery.scale = p, ctx.easings.easeOutQuint);
 			parent.tween(clock.opacity, 0, beatInterval, (p) => clock.opacity = p, ctx.easings.easeOutQuint);
 			parent.tween(minuteHand.opacity, 0, beatInterval, (p) => minuteHand.opacity = p, ctx.easings.easeOutQuint);
 			parent.tween(hourHand.opacity, 0, beatInterval, (p) => hourHand.opacity = p, ctx.easings.easeOutQuint);
@@ -130,8 +131,8 @@ export const prepTransition = createTransition("jingle-prep", 4, (act, ctx, cont
 			parent.tween(1, 0, beatInterval, (p) => tvstatic.opacity = p, ctx.easings.easeOutQuint);
 
 			// make the game act normal again
-			parent.tween(gameActScenery.scale, ctx.vec2(1), beatInterval, (p) => {
-				gameActScenery.scale = p;
+			parent.tween(gameScenery.scale, ctx.vec2(1), beatInterval, (p) => {
+				gameScenery.scale = p;
 			}, ctx.easings.easeOutExpo);
 		}
 	});
