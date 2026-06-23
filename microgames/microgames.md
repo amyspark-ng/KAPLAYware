@@ -96,10 +96,9 @@ HARDMODE: The operation gets harder (bigger numbers, maybe division)
 INPUT: MouseClick
 DESCRIPTION: You have to erase the board, may use info from the previous math game (will try to)
 
-21. GRILL ❌
+21. DRESS ❌
 INPUT: ArrowKeys
-DESCRIPTION: There's patties on the grill and you have to make none of them burn by moving the arrows and flipping them
-HARDMODE: Other types of meat that require more sides?
+DESCRIPTION: Juicy Edit
 
 22. SIMON ❌
 INPUT: MouseClick
@@ -115,7 +114,7 @@ DESCRIPTION: Paint house styled puzzles you have to cover the whole bread
 
 25. CUE ❌
 INPUT: MouseClick
-DESCRIPTION: some form of billiard game TODO
+DESCRIPTION: Some form of putt similar thing but you have to put a ball to a pocket by shooting the white one
 
 26. WAIT -> SHOOT ❌
 INPUT: ArrowKeys
@@ -155,9 +154,9 @@ DESCRIPTION: You look at a weird ass captcha in the screen and you have to input
 INPUT: Mouse
 DESCRIPTION: You have to move something in a circular motion to stir in a pot
 
-35. BLAST ❌
+35. GUESS ❌
 INPUT: ArrowKeys
-DESCRIPTION: Side to side with input and up to shoot, alien invaders type shi
+DESCRIPTION: Coin moves from cup to cup and you have to guess where it is
 
 36. SIMON ❌
 INPUT: ArrowKeys
@@ -185,6 +184,4 @@ HARDMODE: // TODO
 BOSSES COULD BE LONG PLAY GAMES THAT HAVE NO END UNTIL YOU REACH SOMETHING
 
 POSSIBLE ONES: 
-dress, like juicy edit
-guess the cup the coin was in
 50/50 side of coin (only hard)
