@@ -11,26 +11,27 @@ createMicrogame({
 	input: "arrowkeys",
 	bgColor: "6bc96c",
 	urlPrefix: "microgames/chill/get/",
-	load(ctx) {
-		ctx.loadCrew("sprite", "bean");
-		ctx.loadCrew("sprite", "beant");
-		ctx.loadCrew("sprite", "apple");
-		ctx.loadCrew("sprite", "skuller");
+	async load(ctx) {
+		return Promise.all([
+			ctx.loadCrew("sprite", "bean"),
+			ctx.loadCrew("sprite", "beant"),
+			ctx.loadCrew("sprite", "apple"),
+			ctx.loadCrew("sprite", "skuller"),
 
-		ctx.loadSprite("grass", "sprites/grass.png");
-		ctx.loadSprite("trunk", "sprites/trunk.png");
-		ctx.loadSprite("bush", "sprites/bush.png");
-		ctx.loadSprite("badapple", "../../assets/sprites/badapple.png"); // cool reference (not related to reference at all)
-		ctx.loadSprite("badderapple", "../../assets/sprites/badderapple.png");
+			ctx.loadSprite("grass", "sprites/grass.png"),
+			ctx.loadSprite("trunk", "sprites/trunk.png"),
+			ctx.loadSprite("bush", "sprites/bush.png"),
+			ctx.loadSprite("badapple", "../../assets/sprites/badapple.png"),
+			ctx.loadSprite("badderapple", "../../assets/sprites/badderapple.png"),
 
-		ctx.loadSprite("treeflowers", "sprites/treeflowers.png");
-		ctx.loadSprite("flowers", "sprites/flowers.png");
-		ctx.loadSprite("basket", "sprites/basket.png", { sliceX: 3, sliceY: 1 });
-
-		ctx.loadSound("rustle", "sounds/bushrustle.mp3");
-		ctx.loadSound("box", "../../assets/sounds/box.ogg");
-		ctx.loadSound("crunch", "../../assets/sounds/crunch.mp3");
-		ctx.loadSound("music", "sounds/music.mp3");
+			ctx.loadSprite("treeflowers", "sprites/treeflowers.png"),
+			ctx.loadSprite("flowers", "sprites/flowers.png"),
+			ctx.loadSprite("basket", "sprites/basket.png", { sliceX: 3, sliceY: 1 }),
+			ctx.loadSound("rustle", "sounds/bushrustle.mp3"),
+			ctx.loadSound("box", "../../assets/sounds/box.ogg"),
+			ctx.loadSound("crunch", "../../assets/sounds/crunch.mp3"),
+			ctx.loadSound("music", "sounds/music.mp3"),
+		]);
 	},
 	start(ctx) {
 		const game = ctx.add([ctx.timer()]);

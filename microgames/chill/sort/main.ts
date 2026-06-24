@@ -14,36 +14,40 @@ createMicrogame({
 	urlPrefix: "microgames/chill/sort/",
 	input: "mouseclick",
 	boss: false,
-	load(ctx) {
-		const list = ["bag", "money_bag", "bobo", "sukomi", "bean", "zombean", "kat", "marroc", "apple", "cake"] as const;
-		list.forEach((a) => {
-			ctx.loadCrew("sprite", a);
-			// @ts-ignore
-			ctx.loadCrew("sprite", a + "-o");
-		});
+	async load(ctx) {
+		return Promise.all([
+			...["bag", "money_bag", "bobo", "sukomi", "bean", "zombean", "kat", "marroc", "apple", "cake"].flatMap((a) => [
+				// @ts-ignore
+				ctx.loadCrew("sprite", a),
+				// @ts-ignore
+				ctx.loadCrew("sprite", `${a}-o`),
+			]),
 
-		ctx.loadCrew("sprite", "trash-o");
-		ctx.loadCrew("sprite", "egg_crack");
-		ctx.loadSprite("badapple", "../../assets/sprites/badapple.png");
-		ctx.loadSprite("badderapple", "../../assets/sprites/badderapple.png");
+			ctx.loadCrew("sprite", "trash-o"),
+			ctx.loadCrew("sprite", "egg_crack"),
 
-		ctx.loadSprite("bg", "sprites/background.png");
-		ctx.loadSprite("machineback", "sprites/machineback.png");
-		ctx.loadSprite("machinefront", "sprites/machinefront.png");
-		ctx.loadSprite("conveyor", "sprites/conveyor.png", { sliceX: 2, sliceY: 1 });
-		ctx.loadSprite("boxback", "sprites/boxback.png");
-		ctx.loadSprite("boxfront", "sprites/boxfront.png");
-		ctx.loadSprite("circle", "sprites/circle.png");
-		ctx.loadSprite("circle-o", "sprites/circle-o.png");
-		ctx.loadSprite("triangle", "sprites/triangle.png");
-		ctx.loadSprite("triangle-o", "sprites/triangle-o.png");
-		ctx.loadSprite("littleguy", "sprites/littleguy.png", { sliceX: 3, sliceY: 1 });
-		ctx.loadSprite("daystext", "sprites/daystext.png", { sliceX: 3, sliceY: 1 });
-		ctx.loadSound("conveyor", "sounds/conveyor.ogg");
-		ctx.loadSound("box", "sounds/box.ogg");
-		ctx.loadSound("buzzer", "../../assets/sounds/buzzer.mp3");
-		ctx.loadSound("confetti", "../../assets/sounds/confetti.mp3");
-		ctx.loadSound("music", "sounds/music.mp3");
+			ctx.loadSprite("badapple", "../../assets/sprites/badapple.png"),
+			ctx.loadSprite("badderapple", "../../assets/sprites/badderapple.png"),
+
+			ctx.loadSprite("bg", "sprites/background.png"),
+			ctx.loadSprite("machineback", "sprites/machineback.png"),
+			ctx.loadSprite("machinefront", "sprites/machinefront.png"),
+			ctx.loadSprite("conveyor", "sprites/conveyor.png", { sliceX: 2, sliceY: 1 }),
+			ctx.loadSprite("boxback", "sprites/boxback.png"),
+			ctx.loadSprite("boxfront", "sprites/boxfront.png"),
+			ctx.loadSprite("circle", "sprites/circle.png"),
+			ctx.loadSprite("circle-o", "sprites/circle-o.png"),
+			ctx.loadSprite("triangle", "sprites/triangle.png"),
+			ctx.loadSprite("triangle-o", "sprites/triangle-o.png"),
+			ctx.loadSprite("littleguy", "sprites/littleguy.png", { sliceX: 3, sliceY: 1 }),
+			ctx.loadSprite("daystext", "sprites/daystext.png", { sliceX: 3, sliceY: 1 }),
+
+			ctx.loadSound("conveyor", "sounds/conveyor.ogg"),
+			ctx.loadSound("box", "sounds/box.ogg"),
+			ctx.loadSound("buzzer", "../../assets/sounds/buzzer.mp3"),
+			ctx.loadSound("confetti", "../../assets/sounds/confetti.mp3"),
+			ctx.loadSound("music", "sounds/music.mp3"),
+		]);
 	},
 	start(ctx) {
 		const game = ctx.add([ctx.timer()]);

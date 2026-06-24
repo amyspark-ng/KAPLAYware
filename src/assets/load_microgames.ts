@@ -84,33 +84,32 @@ export function buildLoadContext(game: Microgame) {
 	return loadCtx as LoadContext;
 }
 
-if (!CONFIG.DEV_MICROGAME) {
+// if not devving load all of the microgames
+if (CONFIG.DEV_MICROGAME == undefined) {
 	const modules = import.meta.glob("/microgames/**/main.ts");
 	const loaders = Object.values(modules);
 
-	const loadedModules = await Promise.all(
-		loaders.map(loader => loader()),
+	// this runs their content so they're added to the list
+	Promise.all(loaders.map(loader => loader()));
+
+	// creates a promise to load all microgame assets
+	const t = Promise.all(
+		CONFIG.microgames.filter(game => game.load).map((game) =>
+			new Promise(async (resolve) => {
+				k.loadRoot(game.urlPrefix);
+				await game.load(buildLoadContext(game));
+				resolve(null);
+			})
+		),
 	);
-
-	CONFIG.microgames.forEach((game) => {
-		if (game.load) {
-			k.loadRoot(game.urlPrefix);
-			game.load(buildLoadContext(game));
-		}
-	});
+	// sends it so the game waits for it
+	k.load(t);
 }
-// import 1 single microgame
-else {
-	const modules = import.meta.glob("../../**/main.ts");
 
-	const name = CONFIG.DEV_MICROGAME.split(":")[1];
-	const module = modules[`../../microgames/chill/${name}/main.ts`];
-	if (module) {
-		await module();
-		const game = CONFIG.microgames[0];
-		if (game.load) {
-			k.loadRoot(game.urlPrefix);
-			game.load(buildLoadContext(game));
-		}
-	}
+// // if devving only add them to the list so they exist but don't load their assets
+if (CONFIG.DEV_MICROGAME != undefined) {
+	const modules = import.meta.glob("/microgames/**/main.ts");
+	const loaders = Object.values(modules);
+	// this runs their content so they're added to the list
+	Promise.all(loaders.map(loader => loader()));
 }

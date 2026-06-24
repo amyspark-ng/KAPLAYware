@@ -29,6 +29,6 @@ export interface Microgame {
 	 * ctx.loadSprite("circle", "circle.png")
 	 * ```
 	 */
-	load?: (ctx: LoadContext) => void;
+	load?: (ctx: LoadContext) => Promise<any>;
 	start: (ctx: MicrogameContext) => void;
 }

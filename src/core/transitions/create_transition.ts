@@ -39,9 +39,7 @@ export function createTransition(
 			parent.wait(conductor.beatInterval * durationInBeats, () => {
 				conductor.destroy();
 				resolve(null);
-				// waits a little so you don't notice
-				// TODO: fix this
-				parent.wait(0.001, () => act.destroy());
+				parent.wait(0.025, () => act.destroy());
 			});
 			action(act, controller, conductor, parent, transScenery, gameAct);
 		});

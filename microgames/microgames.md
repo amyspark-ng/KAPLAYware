@@ -149,7 +149,6 @@ HARDMODE: The numbers are erased, you have to know the positions
 INPUT: MouseClick
 DESCRIPTION: You look at a weird ass captcha in the screen and you have to input it in keyboard
 
-<!-- 4 missing -->
 34. STIR ❌
 INPUT: Mouse
 DESCRIPTION: You have to move something in a circular motion to stir in a pot
@@ -169,19 +168,17 @@ DESCRIPTION: Computer doesn't work, spam keys so it works now
 38. SHOOTER ❌
 INPUT: All
 DESCRIPTION: // TODO first person 3d game something shooter?
-HARDMODE: // TODO
 
 39. RHYTHM ❌
 INPUT: All
 DESCRIPTION: osu styled game?
-HARDMODE: // TODO
 
 40. // TODO ❌
 INPUT: All
 DESCRIPTION: // TODO
-HARDMODE: // TODO
 
 BOSSES COULD BE LONG PLAY GAMES THAT HAVE NO END UNTIL YOU REACH SOMETHING
 
 POSSIBLE ONES: 
 50/50 side of coin (only hard)
+minesweeper microgame

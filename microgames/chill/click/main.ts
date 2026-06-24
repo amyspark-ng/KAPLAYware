@@ -115,28 +115,29 @@ createMicrogame({
 	urlPrefix: "microgames/chill/click/",
 	input: "mouseclick",
 	boss: false,
-	load(ctx) {
-		ctx.loadSprite("hexagon", "sprites/hexagon.png");
-		ctx.loadSprite("background", "sprites/background.png");
-		ctx.loadSprite("powerup", "sprites/powerup.png");
-		ctx.loadSprite("blur", "sprites/blur.png");
-		ctx.loadSprite("part_star", "sprites/part_star.png");
-		ctx.loadSprite("explosion", "../../assets/sprites/explosion.png", {
-			sliceX: 17,
-			sliceY: 1,
-			anims: {
-				"a": {
-					from: 0,
-					to: 16,
+	async load(ctx) {
+		return await Promise.all([
+			ctx.loadSprite("hexagon", "sprites/hexagon.png"),
+			ctx.loadSprite("background", "sprites/background.png"),
+			ctx.loadSprite("powerup", "sprites/powerup.png"),
+			ctx.loadSprite("blur", "sprites/blur.png"),
+			ctx.loadSprite("part_star", "sprites/part_star.png"),
+			ctx.loadSprite("explosion", "../../assets/sprites/explosion.png", {
+				sliceX: 17,
+				sliceY: 1,
+				anims: {
+					"a": {
+						from: 0,
+						to: 16,
+					},
 				},
-			},
-		});
-
-		ctx.loadSound("fullcombo", "sounds/clickeryfullcombo.ogg");
-		ctx.loadSound("explode", "../../assets/sounds/explodedr.mp3");
-		ctx.loadSound("clickpress", "sounds/clickPress.ogg");
-		ctx.loadSound("powerup", "sounds/powerup.ogg");
-		ctx.loadSound("music", "sounds/music.mp3");
+			}),
+			ctx.loadSound("fullcombo", "sounds/clickeryfullcombo.ogg"),
+			ctx.loadSound("explode", "../../assets/sounds/explodedr.mp3"),
+			ctx.loadSound("clickpress", "sounds/clickPress.ogg"),
+			ctx.loadSound("powerup", "sounds/powerup.ogg"),
+			ctx.loadSound("music", "sounds/music.mp3"),
+		]);
 	},
 	start(ctx) {
 		const game = ctx.add([ctx.timer()]);

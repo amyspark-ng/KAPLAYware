@@ -32,13 +32,9 @@ export default defineConfig({
 	define: {
 		__GAME_CONFIG__: JSON.stringify({
 			DEV_MICROGAME: process.env.DEV_MICROGAME === undefined
-					|| process.env.DEV_MICROGAME === "null"
-				? null
+					|| process.env.DEV_MICROGAME === "undefined"
+				? undefined
 				: process.env.DEV_MICROGAME,
-
-			DEV_SPEED: Number(process.env.DEV_SPEED ?? 1),
-
-			DEV_HARD: process.env.DEV_HARD === "true",
 		}),
 	},
 });

@@ -1,9 +1,5 @@
 import { k } from "../kaplay";
 
-// scenes
-import "../scenes/focus";
-import "../scenes/game";
-
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 
@@ -51,3 +47,8 @@ k.loadSound("bomb-explosion", "sounds/bomb/explosion.mp3");
 // fonts
 k.loadBitmapFont("happy", "fonts/happy.png", 28, 37);
 k.loadBitmapFont("happy-o", "fonts/happy-o.png", 36, 45);
+
+// scenes
+import "../scenes/focus";
+import "../scenes/game";
+import "../scenes/gametest";

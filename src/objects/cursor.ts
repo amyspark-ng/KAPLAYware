@@ -1,5 +1,5 @@
 import { k } from "../kaplay";
-import { AreaComp, GameObj } from "kaplay";
+import { GameObj } from "kaplay";
 
 export let GAME_CURSOR: GameObj<{
 	/** Wheter the frame of animation should be override by any other */

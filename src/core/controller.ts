@@ -1,11 +1,6 @@
 import { Microgame } from "./microgame";
 import { GameState } from "./state/state";
 import { k } from "../kaplay";
-import { addBomb, Bomb } from "../objects/gameplay/bomb";
-import { Scenery } from "./scenery";
-import { Act, createAct } from "./act/act";
-import { getGameColor } from "./game_registry";
-import { buildGameContext } from "./context/game";
 
 /**
  * In charge of the gameplay aspect of the game

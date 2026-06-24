@@ -13,25 +13,26 @@ createMicrogame({
 	urlPrefix: "microgames/chill/dont/",
 	input: "all",
 	boss: false,
-	load(ctx) {
-		ctx.loadSprite("explosion", "sprites/explosion.png", { sliceX: 7, sliceY: 1, anims: { "a": { from: 0, to: 6 } } });
-		ctx.loadSprite("button", "sprites/button.png", { sliceX: 2, sliceY: 1 });
-		ctx.loadSprite("earth", "sprites/earth.png");
-		ctx.loadSprite("frame", "sprites/frame.png");
-		ctx.loadSprite("marky", "sprites/marky.png");
-		ctx.loadSprite("moon", "sprites/moon.png");
-		ctx.loadSprite("shooting", "sprites/shooting.png");
-		ctx.loadSprite("stars", "sprites/stars.png");
-		ctx.loadSprite("clock", "sprites/clock.png");
-		ctx.loadSprite("line", "sprites/line.png");
-		ctx.loadSprite("panel", "sprites/panel.png");
-		ctx.loadSprite("cables", "sprites/cables.png");
+	async load(ctx) {
+		return Promise.all([
+			ctx.loadSprite("explosion", "sprites/explosion.png", { sliceX: 7, sliceY: 1, anims: { "a": { from: 0, to: 6 } } }),
+			ctx.loadSprite("button", "sprites/button.png", { sliceX: 2, sliceY: 1 }),
+			ctx.loadSprite("earth", "sprites/earth.png"),
+			ctx.loadSprite("frame", "sprites/frame.png"),
+			ctx.loadSprite("marky", "sprites/marky.png"),
+			ctx.loadSprite("moon", "sprites/moon.png"),
+			ctx.loadSprite("shooting", "sprites/shooting.png"),
+			ctx.loadSprite("stars", "sprites/stars.png"),
+			ctx.loadSprite("clock", "sprites/clock.png"),
+			ctx.loadSprite("line", "sprites/line.png"),
+			ctx.loadSprite("panel", "sprites/panel.png"),
+			ctx.loadSprite("cables", "sprites/cables.png"),
+			ctx.loadSprite("sign", "sprites/sign.png"),
 
-		ctx.loadSprite("sign", "sprites/sign.png");
-
-		ctx.loadSound("music", "sounds/music.ogg");
-		ctx.loadSound("tick", "sounds/tick.ogg");
-		ctx.loadSound("explode", "../../assets/sounds/explode.mp3");
+			ctx.loadSound("music", "sounds/music.ogg"),
+			ctx.loadSound("tick", "sounds/tick.ogg"),
+			ctx.loadSound("explode", "../../assets/sounds/explode.mp3"),
+		]);
 	},
 	start(ctx) {
 		ctx.play("music");
