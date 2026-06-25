@@ -1,3 +1,4 @@
+import { CONFIG } from "../config";
 import { k } from "../kaplay";
 
 // Starts the loading process of regular assets
@@ -34,6 +35,12 @@ k.loadSprite("bomb-cord-start", "sprites/bomb/cord-start.png");
 k.loadSprite("bomb-cord", "sprites/bomb/cord.png");
 k.loadSprite("bomb-cord-tip", "sprites/bomb/cord-tip.png");
 k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
+
+// test
+if (CONFIG.DEV_MICROGAME != undefined) {
+	k.loadSprite("test-resume", "sprites/test/resume.png");
+	k.loadSprite("test-restart", "sprites/test/restart.png");
+}
 
 // sounds
 k.loadSound("jingle-prep", "sounds/jingles/prep.ogg");

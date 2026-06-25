@@ -113,6 +113,7 @@ createMicrogame({
 	},
 	bgColor: "291834",
 	urlPrefix: "microgames/chill/click/",
+	iconPath: "sprites/icon.png",
 	input: "mouseclick",
 	boss: false,
 	async load(ctx) {

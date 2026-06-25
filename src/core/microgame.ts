@@ -12,6 +12,7 @@ export interface Microgame {
 	bgColor: [number, number, number] | string;
 	boss: boolean;
 	input: "arrowkeys" | "mouse" | "mouseclick" | "all";
+	iconPath: string;
 
 	/** Additional options for the HARD MODE version of the microgame
 	 *

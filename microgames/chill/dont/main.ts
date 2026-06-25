@@ -11,6 +11,7 @@ createMicrogame({
 	},
 	bgColor: "1f102a",
 	urlPrefix: "microgames/chill/dont/",
+	iconPath: "sprites/icon.png",
 	input: "all",
 	boss: false,
 	async load(ctx) {
@@ -185,6 +186,12 @@ createMicrogame({
 			]);
 		}
 
-		game.onButtonPress("click", explodeEverything);
+		game.wait(0.1, () => {
+			game.onButtonPress("click", explodeEverything);
+			game.onButtonPress("left", explodeEverything);
+			game.onButtonPress("right", explodeEverything);
+			game.onButtonPress("down", explodeEverything);
+			game.onButtonPress("up", explodeEverything);
+		});
 	},
 });

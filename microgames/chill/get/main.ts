@@ -11,6 +11,7 @@ createMicrogame({
 	input: "arrowkeys",
 	bgColor: "6bc96c",
 	urlPrefix: "microgames/chill/get/",
+	iconPath: "sprites/icon.png",
 	async load(ctx) {
 		return Promise.all([
 			ctx.loadCrew("sprite", "bean"),
