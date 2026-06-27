@@ -21,7 +21,6 @@ export const gameAPIs = [
 	"offscreen",
 	"follow",
 	"shader",
-	"timer",
 	"fixed",
 	"stay",
 	"health",
@@ -148,4 +147,7 @@ export const gameAPIs = [
 	"addConfetti",
 	"posSetter",
 	"drag",
+	"tween",
+	"loop",
+	"wait",
 ] as const;

@@ -35,10 +35,83 @@ export function createAct(scenery: Scenery): Act {
 
 	const act: Act = {
 		scenery,
-		root: null,
+		root: scenery.scene.add([k.timer(), k.color(), k.rect(k.width(), k.height()), {
+			update() {
+				act.engine.time += k.dt();
+			},
+		}]),
+		engine: {
+			time: 0,
+			sounds: [],
+			disabledSounds: [],
+
+			isPaused() {
+				return _isEnginePaused;
+			},
+
+			getSoundsPaused() {
+				return _soundsPaused;
+			},
+
+			setSoundsPaused(val: boolean) {
+				_soundsPaused = val;
+
+				if (act.engine.getSoundsPaused() == true) {
+					act.engine.sounds.forEach((sound) => {
+						// if it's already paused it's being managed by the actual game
+						if (sound.paused) return;
+
+						// sound is intended to play but sounds were disabled
+						act.engine.disabledSounds.push(sound);
+						sound.paused = true;
+					});
+				}
+				else if (act.engine.getSoundsPaused() == false) {
+					// have to do this because modifying the array while it's doing a forEach
+					// it's not a good idea
+					let newArray = [...act.engine.disabledSounds];
+					act.engine.disabledSounds.forEach((sound, index) => {
+						// re enable the good sounds
+						newArray.splice(index, 1)[0];
+						sound.paused = false;
+					});
+					act.engine.disabledSounds = newArray;
+				}
+			},
+
+			play: (src, options) => {
+				const sound = k.play(src, options);
+
+				// this is for sounds that start paused
+				if (options && options.paused) sound.paused = true;
+
+				// if sounds are currently paused by the engine, pause it and add it to disabled sounds
+				if (act.engine.getSoundsPaused() && sound.paused == false) {
+					sound.paused = true;
+					act.engine.disabledSounds.push(sound);
+				}
+
+				act.engine.sounds.push(sound);
+
+				sound.onEnd(() => {
+					act.engine.sounds.splice(act.engine.sounds.indexOf(sound), 1);
+					if (act.engine.disabledSounds.includes(sound)) act.engine.disabledSounds.splice(act.engine.disabledSounds.indexOf(sound), 1);
+				});
+
+				return sound;
+			},
+
+			pauseEverything(val) {
+				_isEnginePaused = val;
+				act.root.paused = _isEnginePaused;
+				act.engine.setSoundsPaused(_isEnginePaused);
+			},
+		},
+		destroy: () => {
+			act.root.destroy();
+			act.engine.sounds.forEach((sound) => sound.stop());
+		},
 		ctx: null,
-		engine: null,
-		destroy: null,
 	};
 
 	act.ctx = {
@@ -100,83 +173,9 @@ export function createAct(scenery: Scenery): Act {
 		time() {
 			return act.engine.time;
 		},
-	};
-
-	act.engine = {
-		time: 0,
-		sounds: [],
-		disabledSounds: [],
-
-		isPaused() {
-			return _isEnginePaused;
-		},
-
-		getSoundsPaused() {
-			return _soundsPaused;
-		},
-
-		setSoundsPaused(val: boolean) {
-			_soundsPaused = val;
-
-			if (act.engine.getSoundsPaused() == true) {
-				act.engine.sounds.forEach((sound) => {
-					// if it's already paused it's being managed by the actual game
-					if (sound.paused) return;
-
-					// sound is intended to play but sounds were disabled
-					act.engine.disabledSounds.push(sound);
-					sound.paused = true;
-				});
-			}
-			else if (act.engine.getSoundsPaused() == false) {
-				// have to do this because modifying the array while it's doing a forEach
-				// it's not a good idea
-				let newArray = [...act.engine.disabledSounds];
-				act.engine.disabledSounds.forEach((sound, index) => {
-					// re enable the good sounds
-					newArray.splice(index, 1)[0];
-					sound.paused = false;
-				});
-				act.engine.disabledSounds = newArray;
-			}
-		},
-
-		play: (src, options) => {
-			const sound = k.play(src, options);
-
-			// this is for sounds that start paused
-			if (options && options.paused) sound.paused = true;
-
-			// if sounds are currently paused by the engine, pause it and add it to disabled sounds
-			if (act.engine.getSoundsPaused() && sound.paused == false) {
-				sound.paused = true;
-				act.engine.disabledSounds.push(sound);
-			}
-
-			act.engine.sounds.push(sound);
-
-			sound.onEnd(() => {
-				act.engine.sounds.splice(act.engine.sounds.indexOf(sound), 1);
-				if (act.engine.disabledSounds.includes(sound)) act.engine.disabledSounds.splice(act.engine.disabledSounds.indexOf(sound), 1);
-			});
-
-			return sound;
-		},
-
-		pauseEverything(val) {
-			_isEnginePaused = val;
-			act.root.paused = _isEnginePaused;
-			act.engine.setSoundsPaused(_isEnginePaused);
-		},
-	};
-
-	act.root = scenery.scene.add([k.timer(), k.color(), k.rect(act.ctx.width(), act.ctx.height())]);
-	act.root.onUpdate(() => {
-		act.engine.time += k.dt();
-	});
-	act.destroy = () => {
-		act.root.destroy();
-		act.engine.sounds.forEach((sound) => sound.stop());
+		tween: act.root.tween,
+		loop: act.root.loop,
+		wait: act.root.wait,
 	};
 
 	return act;

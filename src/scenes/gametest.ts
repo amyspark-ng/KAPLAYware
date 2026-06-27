@@ -51,6 +51,7 @@ k.scene("gametest", async () => {
 	let currentGameAct: GameAct = null;
 	const setActPause = (val: boolean) => currentGameAct?.engine?.pauseEverything(val);
 
+	/** Changes the selected game */
 	function scrollGames(side: -1 | 1) {
 		k.randSeed(currentSeed);
 		gameIndex = scrollIndex(gameIndex, side, orderedGames.length);
@@ -196,7 +197,6 @@ k.scene("gametest", async () => {
 	// #endregion
 
 	// #region GENERAL UI
-	// TODO: do animation where all the characters are removed one by one and change to new one
 	const nameScreen = UI.add([
 		k.rect(180, 60, { radius: 5 }),
 		k.anchor("center"),
@@ -636,6 +636,7 @@ k.scene("gametest", async () => {
 
 	// #endregion
 
+	// #region GENERAL
 	gameScenery.scene.onDraw(() => {
 		if (!zoomedOut) return;
 
@@ -739,6 +740,7 @@ k.scene("gametest", async () => {
 			gameScenery.pos = k.lerp(gameScenery.pos, k.center(), 0.5);
 		}
 	});
+	// #endregion
 
 	await loadGame(selectedGame());
 	testGame(selectedGame());
