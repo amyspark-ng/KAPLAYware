@@ -1,54 +1,107 @@
-import { Color } from "kaplay";
 import { buildLoadContext } from "../assets/load_microgames";
 import { CONFIG } from "../config";
-import { Act, createAct } from "../core/act/act";
-import { createGameAct, GameAct } from "../core/act/game_act";
+import { GameAct } from "../core/act/game_act";
 import { MicrogameController } from "../core/controller";
-import { getGameColor, getGameID } from "../core/game_registry";
+import { getGameID } from "../core/game_registry";
 import { Microgame } from "../core/microgame";
 import { createScenery } from "../core/scenery";
 import { k } from "../kaplay";
 import { GAME_CURSOR } from "../objects/cursor";
+import { scrollIndex } from "../utils";
+import { addTimeSetup, prepGame } from "../core/game_actions";
 
-function scrollIndex(index: number, change: number, totalAmount: number) {
-	if (totalAmount == 0) throw new Error("Something must be wrong with your code, scrollIndex amount is 0");
-	// why was this so hard to figure out??
-	if (change > 0) {
-		if (index + change > totalAmount - 1) index = 0;
-		else index += change;
-	}
-	else if (change < 0) {
-		if (index - Math.abs(change) < 0) index = totalAmount - 1;
-		else index -= Math.abs(change);
-	}
-
-	return index;
-}
+// TODO: when there's more microgames add a way to scroll through them
+// TODO: add game speed thing
+// TODO: add hard mode gamecheck
+// make nicer to look at
 
 k.scene("gametest", async () => {
+	/** Wheter it's zoomed out */
 	let zoomedOut = true;
-	const orderedGames = CONFIG.microgames.toSorted((a, b) => getGameID(a).localeCompare(getGameID(b)));
+	/** Wheter there's a game added and running (regardless if paused) */
+	let isPlaying = false;
+	/** Wheter it's loading a game */
+	let isLoadingGame = false;
+
+	/** All the microgames sordered in alphabetical order by name */
+	const orderedGames = CONFIG.microgames.toSorted((a, b) => a.name.localeCompare(b.name));
+	const currentGame = () => orderedGames[gameIndex];
+
+	/** The index of the currently selected microgame */
 	let gameIndex = orderedGames.findIndex((game) => getGameID(game) == CONFIG.DEV_MICROGAME);
 
+	/** All the games loaded right now */
 	const loadedMicrogames: Microgame[] = [];
 	const isGameLoaded = (game: Microgame) => loadedMicrogames.includes(game);
 
-	// has to be created before so it's drawn before gameScenery
+	/** The controller for the microgames */
+	const controller = new MicrogameController();
+
+	// The root object where uis is added to, has to be created before so it's drawn before gameScenery
 	const UI = k.add([]);
 
-	// the scenery in which game and ending screen run
+	// GAME SCREEN
+	/** The gameScenery where the game is added to */
 	const gameScenery = createScenery(k.getTreeRoot());
 	gameScenery.scale = k.vec2(0.7);
 	gameScenery.pos = gameScenery.pos.add(-90, 35);
-	const pauseOverlay = gameScenery.scene.add([k.rect(800, 600), k.opacity(0.5), k.color(k.BLACK)]);
 
-	const fakeController = new MicrogameController();
+	/** The act for the game */
 	let currentGameAct: GameAct = null;
-	let overlayAct: Act = null;
+	const setActPause = (val: boolean) => currentGameAct?.engine?.pauseEverything(val);
 
-	let isRunningGame = false;
-	let loadingGame = false;
+	/** Adds a simple static effect to the gameScenery */
+	function addStatic() {
+		const tvstatic = gameScenery.scene.add([
+			k.sprite("trans-static", { anim: "a" }),
+			k.z(2),
+			k.pos(k.center()),
+			k.anchor("center"),
+			k.scale(2),
+			k.opacity(1),
+		]);
+		tvstatic.fadeOut(0.25, k.easings.easeOutQuint).onEnd(() => tvstatic.destroy());
+		return tvstatic;
+	}
 
+	/** Loads a microgame */
+	async function loadGame(game: Microgame) {
+		await new Promise(async (resolve) => {
+			k.loadRoot(game.urlPrefix);
+			await game.load(buildLoadContext(game));
+			resolve(null);
+		});
+		loadedMicrogames.push(game);
+		addStatic();
+	}
+
+	function testGame(game: Microgame) {
+		isPlaying = false;
+		addStatic();
+		currentGameAct?.clear();
+		currentGameAct = prepGame(gameScenery, controller, game);
+		addTimeSetup(controller, currentGameAct);
+		controller.onFinish(() => {
+			zoomedOut = true;
+			isPlaying = false;
+			// have to do this because prepGame clears it and i need it
+			let oldWinLoseState = controller.lastGameResult;
+			// can't call testGame because recursive reasons for some reason
+			addStatic();
+			currentGameAct.clear();
+			currentGameAct = prepGame(gameScenery, controller, game);
+			addTimeSetup(controller, currentGameAct);
+			controller.lastGameResult = oldWinLoseState;
+		});
+	}
+
+	/** Function that runs when you tap "return", toggles pause */
+	function togglePause() {
+		if (isPlaying) zoomedOut = !zoomedOut;
+		setActPause(zoomedOut);
+	}
+
+	// #region TOP ICONS
 	orderedGames.forEach((game, i) => {
 		const name = getGameID(game).split(":")[1];
 
@@ -79,79 +132,9 @@ k.scene("gametest", async () => {
 			else gameIcon.color = k.WHITE;
 		});
 	});
+	// #endregion
 
-	function addActWithText(text: string, color: Color) {
-		overlayAct?.destroy();
-		overlayAct = createAct(gameScenery);
-		const ctx = overlayAct.ctx;
-		ctx.add([
-			ctx.rect(ctx.width(), ctx.height()),
-			ctx.color(color),
-		]);
-		ctx.add([
-			ctx.text(text),
-			ctx.pos(ctx.center()),
-			ctx.anchor("center"),
-		]);
-	}
-
-	function addStatic() {
-		const tvstatic = gameScenery.scene.add([
-			k.sprite("trans-static", { anim: "a" }),
-			k.z(2),
-			k.pos(k.center()),
-			k.anchor("center"),
-			k.scale(2),
-			k.opacity(1),
-		]);
-		tvstatic.fadeOut(0.25, k.easings.easeOutQuint).onEnd(() => tvstatic.destroy());
-	}
-
-	async function loadGame(game: Microgame) {
-		await new Promise(async (resolve) => {
-			k.loadRoot(game.urlPrefix);
-			await game.load(buildLoadContext(game));
-			resolve(null);
-		});
-		loadedMicrogames.push(game);
-		addStatic();
-	}
-
-	function addGame(game: Microgame) {
-		overlayAct?.destroy();
-		currentGameAct?.destroy();
-		currentGameAct = createGameAct(gameScenery, game, fakeController);
-		currentGameAct.root.use(k.layer("2"));
-
-		currentGameAct.bomb.root.pos = currentGameAct.bomb.root.pos.add(0, 100);
-		currentGameAct.root.color = getGameColor(currentGameAct.game.bgColor);
-
-		if (fakeController.isHard && currentGameAct.game.hardModeOpt) {
-			if (currentGameAct.game.hardModeOpt.bgColor) currentGameAct.root.color = getGameColor(currentGameAct.game.hardModeOpt.bgColor);
-		}
-
-		currentGameAct.game.start(currentGameAct.ctx);
-		k.wait(0, () => currentGameAct.engine.pauseEverything(true));
-	}
-
-	function runGame() {
-		isRunningGame = true;
-		zoomedOut = false;
-		k.wait(0, () => currentGameAct.engine.pauseEverything(false));
-	}
-
-	function endGame(result: "win" | "lose") {
-		currentGameAct?.destroy();
-		zoomedOut = true;
-		isRunningGame = false;
-		addActWithText(result == "win" ? "YOU WON" : "YOU LOST", result == "win" ? k.mulfok.GREEN : k.mulfok.RED);
-	}
-
-	function togglePause() {
-		if (isRunningGame) zoomedOut = !zoomedOut;
-		currentGameAct.engine.pauseEverything(zoomedOut);
-	}
-
+	// #region UI NOT LOADED
 	const UINotLoaded = UI.add([]);
 	const loadButton = UINotLoaded.add([
 		k.rect(180, 60, { radius: 10 }),
@@ -174,20 +157,21 @@ k.scene("gametest", async () => {
 
 	loadButton.onButtonPress("click", async () => {
 		if (!loadButton.isHovering()) return;
-		if (loadingGame) return;
-		loadingGame = true;
+		if (isLoadingGame) return;
+		isLoadingGame = true;
 		loadButton.area.cursor = null;
 		loadButton.opacity = 0.5;
-		const selectedGame = orderedGames[gameIndex];
-		await loadGame(selectedGame);
+		await loadGame(currentGame());
 		loadButton.opacity = 1;
 		loadButton.area.cursor = "";
-		loadingGame = false;
-		addGame(selectedGame);
+		isLoadingGame = false;
+		testGame(currentGame());
 	});
+	// #endregion
 
-	const UINotRunning = UI.add([]);
-	const playButton = UINotRunning.add([
+	// #region UI NOT PLAYING
+	const UINotPlaying = UI.add([]);
+	const playButton = UINotPlaying.add([
 		k.rect(180, 60, { radius: 10 }),
 		k.anchor("center"),
 		k.pos(700, 510),
@@ -208,12 +192,15 @@ k.scene("gametest", async () => {
 
 	playButton.onButtonPress("click", () => {
 		if (!playButton.isHovering()) return;
-		const currentGame = orderedGames[gameIndex];
-		runGame();
+		setActPause(false);
+		zoomedOut = false;
+		isPlaying = true;
 	});
+	// #endregion
 
-	const UIRunning = UI.add([]);
-	const stopButton = UIRunning.add([
+	// #region UI PLAYING
+	const UIPlaying = UI.add([]);
+	const stopButton = UIPlaying.add([
 		k.rect(180, 60, { radius: 10 }),
 		k.anchor("center"),
 		k.pos(700, 430),
@@ -232,7 +219,7 @@ k.scene("gametest", async () => {
 		},
 	]);
 
-	const restartButton = UIRunning.add([
+	const restartButton = UIPlaying.add([
 		k.rect(80, 70, { radius: 10 }),
 		k.anchor("center"),
 		k.pos(650, 510),
@@ -252,7 +239,7 @@ k.scene("gametest", async () => {
 		},
 	]);
 
-	const resumeButton = UIRunning.add([
+	const resumeButton = UIPlaying.add([
 		k.rect(80, 70, { radius: 10 }),
 		k.anchor("center"),
 		k.pos(750, 510),
@@ -275,72 +262,119 @@ k.scene("gametest", async () => {
 	stopButton.onButtonPress("click", () => {
 		if (!stopButton.isHovering()) return;
 		currentGameAct?.destroy();
-		isRunningGame = false;
-		addGame(orderedGames[gameIndex]);
+		isPlaying = false;
+		testGame(currentGame());
 		addStatic();
 	});
 
 	restartButton.onButtonPress("click", () => {
 		if (!restartButton.isHovering()) return;
-		addGame(orderedGames[gameIndex]);
+		testGame(currentGame());
 		addStatic();
+		isPlaying = true;
 	});
 
 	resumeButton.onButtonPress("click", () => {
 		if (!resumeButton.isHovering()) return;
 		togglePause();
 	});
+	// #endregion
 
-	fakeController.onFinish((result) => endGame(result));
+	gameScenery.scene.onDraw(() => {
+		if (!zoomedOut) return;
+
+		if (!isGameLoaded(currentGame())) {
+			k.drawRect({
+				width: k.width(),
+				height: k.height(),
+				color: k.BLACK,
+			});
+
+			k.drawText({
+				text: "GAME NOT LOADED",
+				pos: k.center(),
+				anchor: "center",
+			});
+		}
+		else {
+			let bgColor = k.rgb();
+			let text = "";
+			if (controller.lastGameResult == "win") {
+				bgColor = k.mulfok.GREEN;
+				text = "WON";
+			}
+			else if (controller.lastGameResult == "lose") {
+				bgColor = k.mulfok.RED;
+				text = "LOSE";
+			}
+			else {
+				bgColor = k.BLACK;
+				if (isPlaying) text = "PAUSED";
+				else text = "READY";
+			}
+
+			k.drawRect({
+				width: k.width(),
+				height: k.height(),
+				color: bgColor,
+				opacity: controller.lastGameResult ? 1 : 0.5,
+			});
+
+			k.drawText({
+				text: text,
+				pos: k.center(),
+				anchor: "center",
+			});
+		}
+	});
 
 	k.onUpdate(() => {
-		UI.paused = isRunningGame && !zoomedOut;
+		UI.paused = isPlaying && !zoomedOut;
 
-		const selectedGame = orderedGames[gameIndex];
-		if (!isGameLoaded(selectedGame)) {
-			UIRunning.hidden = true;
-			UIRunning.paused = true;
-			UINotRunning.hidden = true;
-			UINotRunning.paused = true;
+		if (!isGameLoaded(currentGame())) {
+			UIPlaying.hidden = true;
+			UIPlaying.paused = true;
+			UINotPlaying.hidden = true;
+			UINotPlaying.paused = true;
 
 			UINotLoaded.hidden = false;
 			UINotLoaded.paused = false;
 			GAME_CURSOR.grandparentCheck = UINotLoaded;
 		}
-		else if (isGameLoaded(selectedGame) && zoomedOut) {
+		else if (isGameLoaded(currentGame()) && zoomedOut) {
 			UINotLoaded.hidden = true;
 			UINotLoaded.paused = true;
 
-			if (isRunningGame) {
-				UINotRunning.hidden = true;
-				UINotRunning.paused = true;
-				UIRunning.hidden = false;
-				UIRunning.paused = false;
-				GAME_CURSOR.grandparentCheck = UIRunning;
+			if (isPlaying) {
+				UINotPlaying.hidden = true;
+				UINotPlaying.paused = true;
+				UIPlaying.hidden = false;
+				UIPlaying.paused = false;
+				GAME_CURSOR.grandparentCheck = UIPlaying;
 			}
 			else {
-				UIRunning.hidden = true;
-				UIRunning.paused = true;
-				UINotRunning.hidden = false;
-				UINotRunning.paused = false;
-				GAME_CURSOR.grandparentCheck = UINotRunning;
+				UIPlaying.hidden = true;
+				UIPlaying.paused = true;
+				UINotPlaying.hidden = false;
+				UINotPlaying.paused = false;
+				GAME_CURSOR.grandparentCheck = UINotPlaying;
 			}
 		}
 		else GAME_CURSOR.grandparentCheck = gameScenery.root;
 
 		// have to do it sepparately because isRunning game pauses UI
 		if (k.isButtonPressed("return")) togglePause();
-		if (zoomedOut && !isRunningGame) {
+		if (zoomedOut && !isPlaying) {
 			if (k.isButtonPressed("left")) {
 				gameIndex = scrollIndex(gameIndex, -1, orderedGames.length);
-				if (isGameLoaded(orderedGames[gameIndex])) addGame(orderedGames[gameIndex]);
-				else addActWithText("GAME NOT LOADED", k.mulfok.BLACK);
+				if (isGameLoaded(currentGame())) testGame(currentGame());
+				else currentGameAct?.clear();
 				addStatic();
 			}
 			else if (k.isButtonPressed("right")) {
 				gameIndex = scrollIndex(gameIndex, 1, orderedGames.length);
-				if (isGameLoaded(orderedGames[gameIndex])) addGame(orderedGames[gameIndex]);
-				else addActWithText("GAME NOT LOADED", k.mulfok.BLACK);
+				if (isGameLoaded(currentGame())) testGame(currentGame());
+				else currentGameAct?.clear();
 				addStatic();
 			}
 		}
@@ -348,16 +382,13 @@ k.scene("gametest", async () => {
 		if (zoomedOut) {
 			gameScenery.scale = k.lerp(gameScenery.scale, k.vec2(0.7), 0.5);
 			gameScenery.pos = k.lerp(gameScenery.pos, k.center().add(-90, 35), 0.5);
-			pauseOverlay.opacity = k.lerp(pauseOverlay.opacity, 0.5, 0.5);
 		}
-		else if (isRunningGame) {
+		else if (isPlaying) {
 			gameScenery.scale = k.lerp(gameScenery.scale, k.vec2(1), 0.5);
 			gameScenery.pos = k.lerp(gameScenery.pos, k.center(), 0.5);
-			pauseOverlay.opacity = k.lerp(pauseOverlay.opacity, 0, 0.5);
 		}
 	});
 
-	await loadGame(orderedGames[gameIndex]);
-	addGame(orderedGames[gameIndex]);
-	togglePause();
+	await loadGame(currentGame());
+	testGame(currentGame());
 });

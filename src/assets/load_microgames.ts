@@ -89,21 +89,16 @@ if (CONFIG.DEV_MICROGAME == undefined) {
 	const modules = import.meta.glob("/microgames/**/main.ts");
 	const loaders = Object.values(modules);
 
-	// this runs their content so they're added to the list
-	Promise.all(loaders.map(loader => loader()));
-
-	// creates a promise to load all microgame assets
-	const t = Promise.all(
-		CONFIG.microgames.filter(game => game.load).map((game) =>
-			new Promise(async (resolve) => {
+	const runGames = Promise.all(loaders.map(loader => loader())).then(() => {
+		k.load(Promise.all(CONFIG.microgames.map((game) => {
+			return new Promise(async (res) => {
 				k.loadRoot(game.urlPrefix);
+				k.loadSprite(`icon-${getGameID(game)}`, game.iconPath);
 				await game.load(buildLoadContext(game));
-				resolve(null);
-			})
-		),
-	);
-	// sends it so the game waits for it
-	k.load(t);
+				res(null);
+			});
+		})));
+	});
 }
 
 // if devving only add them to the list so they exist but don't load their assets
@@ -111,18 +106,13 @@ if (CONFIG.DEV_MICROGAME != undefined) {
 	const modules = import.meta.glob("/microgames/**/main.ts");
 	const loaders = Object.values(modules);
 
-	// this runs their content so they're added to the list
-	Promise.all(loaders.map(loader => loader())).then(() => {
-		const t = Promise.all(
-			CONFIG.microgames.map((game) =>
-				new Promise(async (resolve) => {
-					k.loadRoot(game.urlPrefix);
-					await k.loadSprite(`icon-${getGameID(game)}`, game.iconPath);
-					resolve(null);
-				})
-			),
-		);
-		// sends it so the game waits for it
-		k.load(t);
+	const runGames = Promise.all(loaders.map(loader => loader())).then(() => {
+		k.load(Promise.all(CONFIG.microgames.map((game) => {
+			return new Promise(async (res) => {
+				k.loadRoot(game.urlPrefix);
+				k.loadSprite(`icon-${getGameID(game)}`, game.iconPath);
+				res(null);
+			});
+		})));
 	});
 }

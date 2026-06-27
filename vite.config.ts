@@ -32,7 +32,7 @@ export default defineConfig({
 	define: {
 		__GAME_CONFIG__: JSON.stringify({
 			DEV_MICROGAME: process.env.DEV_MICROGAME === undefined
-					|| process.env.DEV_MICROGAME === "undefined"
+					|| process.env.DEV_MICROGAME === "undefined" || process.env.DEV_MICROGAME === "null" || process.env.DEV_MICROGAME === null
 				? undefined
 				: process.env.DEV_MICROGAME,
 		}),

@@ -27,3 +27,18 @@ export function mergeWithRef<T extends any, R extends any>(obj1: T, obj2: R) {
 
 	return result;
 }
+
+export function scrollIndex(index: number, change: number, totalAmount: number) {
+	if (totalAmount == 0) throw new Error("Something must be wrong with your code, scrollIndex amount is 0");
+	// why was this so hard to figure out??
+	if (change > 0) {
+		if (index + change > totalAmount - 1) index = 0;
+		else index += change;
+	}
+	else if (change < 0) {
+		if (index - Math.abs(change) < 0) index = totalAmount - 1;
+		else index -= Math.abs(change);
+	}
+
+	return index;
+}

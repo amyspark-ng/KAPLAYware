@@ -42,7 +42,6 @@ createMicrogame({
 			ctx.loadSprite("triangle-o", "sprites/triangle-o.png"),
 			ctx.loadSprite("littleguy", "sprites/littleguy.png", { sliceX: 3, sliceY: 1 }),
 			ctx.loadSprite("daystext", "sprites/daystext.png", { sliceX: 3, sliceY: 1 }),
-
 			ctx.loadSound("conveyor", "sounds/conveyor.ogg"),
 			ctx.loadSound("box", "sounds/box.ogg"),
 			ctx.loadSound("buzzer", "../../assets/sounds/buzzer.mp3"),

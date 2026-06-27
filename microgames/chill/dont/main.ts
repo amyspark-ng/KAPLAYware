@@ -29,10 +29,9 @@ createMicrogame({
 			ctx.loadSprite("panel", "sprites/panel.png"),
 			ctx.loadSprite("cables", "sprites/cables.png"),
 			ctx.loadSprite("sign", "sprites/sign.png"),
-
-			ctx.loadSound("music", "sounds/music.ogg"),
 			ctx.loadSound("tick", "sounds/tick.ogg"),
 			ctx.loadSound("explode", "../../assets/sounds/explode.mp3"),
+			ctx.loadSound("music", "sounds/music.ogg"),
 		]);
 	},
 	start(ctx) {

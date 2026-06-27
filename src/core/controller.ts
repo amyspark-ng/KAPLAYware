@@ -42,6 +42,7 @@ export class MicrogameController {
 		this.timeoutKEvent.clear();
 		this.finishKEvent.clear();
 		this.finished = false;
+		this.timeLeft = undefined;
 		this.lastGameResult = undefined;
 	}
 

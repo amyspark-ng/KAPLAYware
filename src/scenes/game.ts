@@ -8,8 +8,8 @@ import { winTransition } from "../core/transitions/win";
 import { loseTransition } from "../core/transitions/lose";
 import { speedTransition } from "../core/transitions/speed";
 import { GAME_CURSOR } from "../objects/cursor";
-import { getGameColor } from "../core/game_registry";
-import { createGameAct, GameAct } from "../core/act/game_act";
+import { GameAct } from "../core/act/game_act";
+import { addTimeSetup, prepGame } from "../core/game_actions";
 
 k.scene("game", () => {
 	// creates the scenerys
@@ -29,19 +29,8 @@ k.scene("game", () => {
 		switch (controller.state) {
 			case GameState.Preparing:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
-				controller.clearFromPrevious();
 				currentGameAct?.clear();
-				currentGameAct = createGameAct(gameScenery, controller.getGameFromHat(), controller);
-				currentGameAct.root.use(k.layer("2"));
-				currentGameAct.root.color = getGameColor(currentGameAct.game.bgColor);
-				currentGameAct.bomb.root.pos = currentGameAct.ctx.vec2(0, 70);
-
-				if (controller.isHard && currentGameAct.game.hardModeOpt) {
-					if (currentGameAct.game.hardModeOpt.bgColor) currentGameAct.root.color = getGameColor(currentGameAct.game.hardModeOpt.bgColor);
-				}
-
-				currentGameAct.game.start(currentGameAct.ctx);
-				currentGameAct.root.wait(0, () => currentGameAct.engine.pauseEverything(true));
+				currentGameAct = prepGame(gameScenery, controller, controller.getGameFromHat());
 
 				prepTransition(transScenery, currentGameAct, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
@@ -51,53 +40,7 @@ k.scene("game", () => {
 
 			case GameState.Playing:
 				GAME_CURSOR.grandparentCheck = gameScenery.root;
-				let timeOver = false;
-				let hasBombLit = false;
-				let hasBombAppeared = false;
-
-				controller.timeLeft = currentGameAct.game.duration / controller.speed;
-				if (controller.isHard && currentGameAct.game.hardModeOpt) {
-					if (currentGameAct.game.hardModeOpt.duration) controller.timeLeft = currentGameAct.game.hardModeOpt.duration / controller.speed;
-				}
-
-				currentGameAct.ctx.add([]).onUpdate(() => {
-					if (controller.finished) return;
-
-					if (controller.timeLeft > 0) {
-						controller.timeLeft -= k.dt();
-					}
-
-					if (controller.timeLeft <= 0 && !timeOver) {
-						controller.timeoutKEvent.trigger();
-						timeOver = true;
-					}
-
-					// if already won don't add the bomb
-					if (controller.lastGameResult != "win") {
-						// 140 IT'S THE HARDCODED BPM
-						// TODO: make it more consistent with the timing of the game
-						const beatInterval = 60 / (140 * controller.speed);
-
-						if (controller.timeLeft <= beatInterval * 5 && !hasBombAppeared) {
-							hasBombAppeared = true;
-							const ctx = currentGameAct.ctx;
-							currentGameAct.root.tween(
-								currentGameAct.bomb.root.pos,
-								ctx.vec2(0, -10),
-								beatInterval,
-								(p) => currentGameAct.bomb.root.pos = p,
-								ctx.easings.easeOutQuint,
-							);
-						}
-
-						if (controller.timeLeft <= beatInterval * 4 && !hasBombLit) {
-							hasBombLit = true;
-							currentGameAct.bomb.lit(140 * controller.speed);
-						}
-					}
-				});
-
-				currentGameAct.engine.pauseEverything(false);
+				addTimeSetup(controller, currentGameAct);
 				controller.onFinish((result) => {
 					dispatch({ type: "MICROGAME_END", result });
 				});
