@@ -9,7 +9,6 @@ import { k } from "../kaplay";
 import { GAME_CURSOR } from "../objects/cursor";
 import { scrollIndex } from "../utils";
 import { addTimeSetup, prepGame } from "../core/game_actions";
-import { AreaComp } from "kaplay";
 
 k.scene("gametest", async () => {
 	/** Wheter it's zoomed out */
