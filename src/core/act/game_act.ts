@@ -1,5 +1,4 @@
 import { addBomb, Bomb } from "../../objects/gameplay/bomb";
-import { mergeWithRef } from "../../utils";
 import { buildGameContext, MicrogameContext } from "../context/game";
 import { MicrogameController } from "../controller";
 import { Microgame } from "../microgame";

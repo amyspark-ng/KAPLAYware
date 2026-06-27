@@ -40,6 +40,10 @@ k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
 if (CONFIG.DEV_MICROGAME != undefined) {
 	k.loadSprite("test-resume", "sprites/test/resume.png");
 	k.loadSprite("test-restart", "sprites/test/restart.png");
+	k.loadSprite("test-arrow", "sprites/test/arrow.png");
+	k.loadSprite("test-background", "sprites/test/background.png");
+	k.loadSprite("test-checkmark", "sprites/test/checkmark.png");
+	k.loadSprite("test-iconcursor", "sprites/test/iconcursor.png");
 }
 
 // sounds
@@ -54,6 +58,7 @@ k.loadSound("bomb-explosion", "sounds/bomb/explosion.mp3");
 // fonts
 k.loadBitmapFont("happy", "fonts/happy.png", 28, 37);
 k.loadBitmapFont("happy-o", "fonts/happy-o.png", 36, 45);
+k.loadBitmapFont("seven-segment", "fonts/seven-segment.png", 15, 30);
 
 // scenes
 import "../scenes/focus";
