@@ -5,9 +5,9 @@ createMicrogame({
 	author: "amyspark-ng",
 	name: "dont",
 	prompt: "DON'T!",
-	duration: 4,
+	duration: 5,
 	hardModeOpt: {
-		duration: 5,
+		duration: 4,
 	},
 	bgColor: "1f102a",
 	urlPrefix: "microgames/chill/dont/",
@@ -17,16 +17,17 @@ createMicrogame({
 	async load(ctx) {
 		return Promise.all([
 			ctx.loadSprite("explosion", "sprites/explosion.png", { sliceX: 7, sliceY: 1, anims: { "a": { from: 0, to: 6 } } }),
+			ctx.loadSprite("mug", "sprites/mug.png", { sliceX: 7, sliceY: 1, anims: { "a": { from: 0, to: 6, loop: true, speed: 5 } } }),
+			ctx.loadSprite("moon", "sprites/moon.png", { sliceX: 2, sliceY: 1 }),
 			ctx.loadSprite("button", "sprites/button.png", { sliceX: 2, sliceY: 1 }),
-			ctx.loadSprite("earth", "sprites/earth.png"),
+			ctx.loadSprite("panel", "sprites/panel.png", { sliceX: 2, sliceY: 1 }),
+			ctx.loadSprite("earth", "sprites/earth.png", { sliceX: 2, sliceY: 1 }),
 			ctx.loadSprite("frame", "sprites/frame.png"),
 			ctx.loadSprite("marky", "sprites/marky.png"),
-			ctx.loadSprite("moon", "sprites/moon.png"),
 			ctx.loadSprite("shooting", "sprites/shooting.png"),
 			ctx.loadSprite("stars", "sprites/stars.png"),
 			ctx.loadSprite("clock", "sprites/clock.png"),
 			ctx.loadSprite("line", "sprites/line.png"),
-			ctx.loadSprite("panel", "sprites/panel.png"),
 			ctx.loadSprite("cables", "sprites/cables.png"),
 			ctx.loadSprite("sign", "sprites/sign.png"),
 			ctx.loadSound("tick", "sounds/tick.ogg"),
@@ -41,10 +42,11 @@ createMicrogame({
 
 		const stars = game.add([ctx.sprite("stars"), ctx.pos()]);
 		const earth = game.add([ctx.sprite("earth"), ctx.pos(400, 480), ctx.anchor("center"), ctx.rotate(0)]);
-		const moon = game.add([ctx.sprite("moon"), ctx.pos(580, 290), ctx.anchor("center"), ctx.rotate(0)]);
+		const moon = game.add([ctx.sprite("moon", { frame: 0 }), ctx.pos(580, 290), ctx.anchor("center"), ctx.rotate(0)]);
 		const clock = game.add([ctx.sprite("clock"), ctx.pos(675, 404), ctx.anchor("center"), ctx.z(2)]);
+		const mug = game.add([ctx.sprite("mug", { anim: "a" }), ctx.pos(550, 360), ctx.anchor("center"), ctx.z(2)]);
+		const panel = game.add([ctx.sprite("panel"), ctx.pos(165, 470), ctx.anchor("center"), ctx.z(2)]);
 		game.add([ctx.sprite("cables"), ctx.pos(111, 71), ctx.anchor("center"), ctx.z(2)]);
-		game.add([ctx.sprite("panel"), ctx.pos(151, 460), ctx.anchor("center"), ctx.z(2)]);
 
 		const button = game.add([
 			ctx.sprite("button"),
@@ -54,10 +56,15 @@ createMicrogame({
 		]);
 
 		function explodeEverything() {
-			if (ctx.getResult() == "lose") return;
+			if (ctx.getResult() != undefined) return;
 			ctx.setResult("lose");
 			ctx.flash(ctx.WHITE, 0.2 / ctx.speed);
 			ctx.play("explode", { speed: 0.5 * ctx.speed });
+
+			button.frame = 1;
+			moon.frame = 1;
+			panel.frame = 1;
+			earth.frame = 1;
 
 			const explosion = game.add([
 				ctx.sprite("explosion"),
@@ -122,7 +129,6 @@ createMicrogame({
 		let moonRotation = ctx.randi(179.5, 181);
 		game.onUpdate(() => {
 			moonRotation += ctx.dt() / 15 * ctx.speed;
-			button.frame = ctx.isButtonDown("click") ? 1 : 0;
 			stars.move(-ctx.rand(5, 10) * ctx.speed, 0);
 			earth.angle -= ctx.rand(0.005, 0.05) * ctx.speed;
 
@@ -186,11 +192,7 @@ createMicrogame({
 		}
 
 		game.wait(0.1, () => {
-			game.onButtonPress("click", explodeEverything);
-			game.onButtonPress("left", explodeEverything);
-			game.onButtonPress("right", explodeEverything);
-			game.onButtonPress("down", explodeEverything);
-			game.onButtonPress("up", explodeEverything);
+			game.onButtonPress(["click", "left", "right", "down", "up"], explodeEverything);
 		});
 	},
 });
