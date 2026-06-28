@@ -12,6 +12,12 @@ export function prepGame(scenery: Scenery, controller: MicrogameController, game
 	gameAct.root.color = getGameColor(gameAct.game.bgColor);
 	gameAct.bomb.root.pos = gameAct.ctx.vec2(0, 70);
 
+	// timeLeft has to be set so timeLeft is never undefined in gameContext
+	controller.timeLeft = gameAct.game.duration / controller.speed;
+	if (controller.isHard && gameAct.game.hardModeOpt) {
+		if (gameAct.game.hardModeOpt.duration) controller.timeLeft = gameAct.game.hardModeOpt.duration / controller.speed;
+	}
+
 	if (controller.isHard && gameAct.game.hardModeOpt) {
 		if (gameAct.game.hardModeOpt.bgColor) gameAct.root.color = getGameColor(gameAct.game.hardModeOpt.bgColor);
 	}
@@ -27,16 +33,11 @@ export function addTimeSetup(controller: MicrogameController, gameAct: GameAct) 
 	let hasBombLit = false;
 	let hasBombAppeared = false;
 
-	controller.timeLeft = gameAct.game.duration / controller.speed;
-	if (controller.isHard && gameAct.game.hardModeOpt) {
-		if (gameAct.game.hardModeOpt.duration) controller.timeLeft = gameAct.game.hardModeOpt.duration / controller.speed;
-	}
-
 	gameAct.ctx.add([]).onUpdate(() => {
 		if (controller.finished) return;
 
 		if (controller.timeLeft > 0) {
-			controller.timeLeft -= gameAct.ctx.dt();
+			controller.timeLeft = gameAct.ctx.clamp(controller.timeLeft - gameAct.ctx.dt(), 0, 20);
 		}
 
 		if (controller.timeLeft <= 0 && !timeOver) {

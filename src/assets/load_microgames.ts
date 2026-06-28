@@ -62,21 +62,30 @@ export function buildLoadContext(game: Microgame) {
 	];
 
 	for (const loader of loaders) {
-		loadCtx[loader] = (name: string, ...args: any) => {
-			if (typeof name === "string") {
-				if (!Object.keys(assets).includes(name)) {
-					name = `${getGameID(game)}-${name}`;
-				}
-			}
-			return k[loader](name, ...args);
-		};
-
 		if (loader == "loadSpriteAtlas") {
-			loadCtx[loader] = (path: string, data: SpriteAtlasData) => {
+			loadCtx["loadSpriteAtlas"] = (path: string, data: SpriteAtlasData) => {
 				Object.keys(data).forEach((key) => {
 					delete Object.assign(data, { [`${getGameID(game)}-${key}`]: data[key] })[key]; // renames the keys
 				});
 				return k.loadSpriteAtlas(path, data);
+			};
+		}
+		else if (loader == "loadCrew") {
+			loadCtx["loadCrew"] = async (kind: string, crew: string, name: string) => {
+				const asset = await k.getAsset(crew);
+				if (asset) console.warn(`LoadCrew: Loading the crew ${crew} is already loaded, you can remove this line`);
+				// @ts-ignore
+				else k.loadCrew(kind, crew, name);
+			};
+		}
+		else {
+			loadCtx[loader] = (name: string, ...args: any) => {
+				if (typeof name === "string") {
+					if (!Object.keys(assets).includes(name)) {
+						name = `${getGameID(game)}-${name}`;
+					}
+				}
+				return k[loader](name, ...args);
 			};
 		}
 	}

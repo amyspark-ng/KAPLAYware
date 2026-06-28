@@ -9,9 +9,11 @@ import { Microgame } from "../microgame";
 
 /** The KAPLAYCtx modified for the context of Microgame developing */
 export type MicrogameContext = Pick<typeof k, typeof gameAPIs[number]> & {
-	readonly timeLeft: number;
 	readonly speed: number;
 	readonly isHardMode: boolean;
+	readonly lives: number;
+	/** Has to be done like this because it wouldn't update otherwise */
+	timeLeft(): number;
 
 	setResult(result: "win" | "lose"): void;
 	getResult(): "win" | "lose" | undefined;
@@ -26,8 +28,10 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 	return {
 		...act.ctx,
 		sprite: (spr, opt) => {
-			const keys = Object.keys(assets).concat(Object.keys(assets).map((a) => a + "-o"));
-			if (typeof spr == "string" && !keys.includes(spr)) {
+			const crewKeys = Object.keys(assets).concat(Object.keys(assets).map((a) => a + "-o"));
+
+			// if not crew and doesnt start with @
+			if (typeof spr == "string" && !crewKeys.includes(spr) && !spr.startsWith("@")) {
 				spr = `${id}-${spr}`;
 			}
 
@@ -38,7 +42,7 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 					return spriteComp.sprite.replace(id + "-", "");
 				},
 				set sprite(val: string) {
-					if (!keys.includes(val)) spriteComp.sprite = `${id}-${val}`;
+					if (!crewKeys.includes(val)) spriteComp.sprite = `${id}-${val}`;
 					spriteComp.sprite = val;
 				},
 			});
@@ -52,21 +56,23 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 			return sound;
 		},
 
-		/**
-		 * Microgame specific functions here
-		 *
-		 * These would not be on the KAPLAYCtx
-		 */
+		// # Microgame specific functions here
+		// These would not be on the KAPLAYCtx
+
 		get speed() {
 			return controller.speed;
 		},
 
-		get timeLeft() {
+		timeLeft() {
 			return controller.timeLeft;
 		},
 
 		get isHardMode() {
 			return controller.isHard;
+		},
+
+		get lives() {
+			return controller.lives;
 		},
 
 		setResult(result) {

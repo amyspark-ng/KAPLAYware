@@ -80,7 +80,6 @@ function addComboText(ctx: MicrogameContext) {
 		ctx.scale(),
 		ctx.opacity(),
 		ctx.anchor("center"),
-		ctx.timer(),
 		{
 			update() {
 				this.pos.y -= 1;
@@ -93,10 +92,10 @@ function addComboText(ctx: MicrogameContext) {
 	]);
 
 	let timeToDie = 2;
-	maxComboText.tween(ctx.vec2(0.5), ctx.vec2(1), 0.1, (p) => maxComboText.scale = p, ctx.easings.easeOutQuad);
-	maxComboText.tween(0.5, 1, 0.1, (p) => maxComboText.opacity = p, ctx.easings.easeOutQuint).onEnd(() => {
-		maxComboText.tween(maxComboText.opacity, 0, timeToDie, (p) => maxComboText.opacity = p, ctx.easings.easeOutQuint);
-		maxComboText.wait(timeToDie, () => {
+	ctx.tween(ctx.vec2(0.5), ctx.vec2(1), 0.1, (p) => maxComboText.scale = p, ctx.easings.easeOutQuad);
+	ctx.tween(0.5, 1, 0.1, (p) => maxComboText.opacity = p, ctx.easings.easeOutQuint).onEnd(() => {
+		ctx.tween(maxComboText.opacity, 0, timeToDie, (p) => maxComboText.opacity = p, ctx.easings.easeOutQuint);
+		ctx.wait(timeToDie, () => {
 			maxComboText.destroy();
 		});
 	});
@@ -118,6 +117,7 @@ createMicrogame({
 	boss: false,
 	async load(ctx) {
 		return await Promise.all([
+			ctx.loadCrew("sprite", "cursor", "cursory"),
 			ctx.loadSprite("hexagon", "sprites/hexagon.png"),
 			ctx.loadSprite("background", "sprites/background.png"),
 			ctx.loadSprite("powerup", "sprites/powerup.png"),
@@ -141,17 +141,15 @@ createMicrogame({
 		]);
 	},
 	start(ctx) {
-		const game = ctx.add([ctx.timer()]);
 		ctx.play("music", { speed: ctx.speed });
 
-		// TODO: base difficulty AROUND speed
-
-		const SCORE_TO_WIN = ctx.isHardMode ? ctx.randi(30, 40) : ctx.randi(12, 20);
+		const SCORE_TO_WIN = ctx.isHardMode ? Math.round(ctx.randi(30, 40) / ctx.speed) : Math.round(ctx.randi(12, 25) / ctx.speed);
 		let score = 0;
 		let power = 1;
 		let spinspeed = ctx.speed;
 		let clicksInSecond = 0;
 		let secondTimer = 0;
+		let duration = ctx.timeLeft();
 
 		addBackground(ctx);
 
@@ -184,6 +182,8 @@ createMicrogame({
 
 		hexagon.onUpdate(() => {
 			const hexagonClicked = hexagon.isHovering() && ctx.isButtonDown("click");
+			if (ctx.getResult() == "lose") return;
+
 			hexagon.scale = ctx.lerp(hexagon.scale, hexagonClicked ? ctx.vec2(0.95) : ctx.vec2(1), 0.25);
 			hexagon.angle = ctx.lerp(hexagon.angle, hexagon.angle + 0.1 + (score / 8 * spinspeed), 0.5);
 			scoreText.angle = ctx.wave(-15, 15, ctx.time() * ctx.speed);
@@ -195,11 +195,11 @@ createMicrogame({
 			}
 		});
 
-		game.onButtonPress("click", () => {
+		hexagon.onButtonPress("click", () => {
 			if (!hexagon.isHovering()) return;
 			score += power;
 			clicksInSecond++;
-			game.tween(ctx.vec2(2.25), ctx.vec2(2), 0.75 / ctx.speed, (p) => scoreText.scale = p, ctx.easings.easeOutQuint);
+			ctx.tween(ctx.vec2(2.25), ctx.vec2(2), 0.75 / ctx.speed, (p) => scoreText.scale = p, ctx.easings.easeOutQuint);
 			ctx.play("clickpress", { detune: ctx.rand(-100, 100) });
 			scoreText.text = `${score.toString()}/${SCORE_TO_WIN}`;
 			const plusScoreText = ctx.add([
@@ -213,9 +213,99 @@ createMicrogame({
 			plusScoreText.onUpdate(() => plusScoreText.move(0, ctx.rand(-80, -90) * ctx.speed));
 		});
 
-		game.onButtonRelease("click", () => {
+		hexagon.onButtonRelease("click", () => {
 			if (!hexagon.isHovering()) return;
 			ctx.play("clickpress", { detune: ctx.rand(-400, -200) });
+		});
+
+		const clicksText = ctx.add([
+			ctx.text("1", {
+				styles: {
+					"blue": {
+						color: ctx.mulfok.BLUE,
+						scale: ctx.vec2(0.75),
+					},
+				},
+			}),
+			ctx.anchor("left"),
+			ctx.pos(15, 560),
+			ctx.scale(1),
+			ctx.scale(1.5),
+			{
+				draw() {
+					ctx.drawSprite({
+						sprite: "cursory",
+						scale: ctx.vec2(1.25),
+						pos: ctx.vec2(ctx.formatText({ text: this.text }).width, 0),
+						anchor: "center",
+					});
+				},
+			},
+		]);
+
+		clicksText.onUpdate(() => {
+			if (power > 1) clicksText.text = `1[blue](+${power})[/blue]`;
+			else clicksText.text = `1`;
+			clicksText.pos = ctx.vec2(10, ctx.lerp(clicksText.pos.y, ctx.wave(560, 570, ctx.time() * ctx.speed * 2), 0.5));
+		});
+
+		const uselessFold = ctx.add([
+			ctx.rect(60, 60, { radius: 10 }),
+			ctx.anchor("center"),
+			ctx.pos(750, 560),
+			ctx.outline(7.5, ctx.mulfok.VOID_VIOLET),
+			{
+				draw() {
+					ctx.drawSprite({
+						sprite: "test-arrow",
+						scale: ctx.vec2(0.7, 0.6),
+						anchor: "center",
+						color: ctx.mulfok.VOID_VIOLET,
+						opacity: 1,
+					});
+				},
+			},
+		]);
+
+		// combo bar
+		const comboBarCheck = hexagon.onButtonPress("click", () => {
+			if (!hexagon.isHovering()) return;
+			comboBarCheck.cancel();
+			const barFrame = scoreText.add([
+				ctx.rect(100, 10, { fill: false, radius: 3 }),
+				ctx.outline(3, ctx.mulfok.VOID_VIOLET),
+				ctx.pos(),
+				ctx.anchor("left"),
+				ctx.opacity(),
+				ctx.z(1),
+			]);
+
+			const barContent = scoreText.add([
+				ctx.rect(0, 10),
+				ctx.pos(),
+				ctx.anchor("left"),
+				ctx.opacity(),
+				ctx.z(0),
+				ctx.color(),
+			]);
+
+			barFrame.onUpdate(() => {
+				barFrame.pos = ctx.vec2(-50, 23);
+				barContent.pos = barFrame.pos;
+
+				// wil only reach the percentage if both the time and score ir accurate
+				const timeProgress = (duration - ctx.timeLeft()) / duration;
+				const scoreProgress = score / SCORE_TO_WIN;
+
+				const barProgress = Math.min(timeProgress, scoreProgress);
+
+				barContent.width = 100 * barProgress;
+				barContent.color = ctx.WHITE.lerp(ctx.hsl2rgb((ctx.time() * 0.2 * 0.1) % 1, 1.5, 0.8), barContent.width / 100);
+			});
+
+			barContent.fadeIn(0.15 / ctx.speed);
+			barFrame.fadeIn(0.15 / ctx.speed);
+			ctx.tween(cpsText.pos, cpsText.pos.add(0, 12), 0.35 / ctx.speed, (p) => cpsText.pos = p, ctx.easings.easeOutQuint);
 		});
 
 		if (ctx.isHardMode) {
@@ -224,7 +314,7 @@ createMicrogame({
 			let powerupTimer = 0;
 			let theresPowerup = false;
 
-			game.onUpdate(() => {
+			hexagon.onUpdate(() => {
 				powerupTimer += ctx.dt() * ctx.speed;
 				if (powerupTimer > 0.65 && !theresPowerup) {
 					theresPowerup = true;
@@ -244,8 +334,8 @@ createMicrogame({
 						},
 					]);
 
-					game.tween(ctx.vec2(0), ctx.vec2(1), 0.15 / ctx.speed, (p) => powerup.scale = p, ctx.easings.easeOutBack);
-					game.tween(0, 1, 0.15 / ctx.speed, (p) => powerup.opacity = p, ctx.easings.easeOutQuad);
+					ctx.tween(ctx.vec2(0), ctx.vec2(1), 0.15 / ctx.speed, (p) => powerup.scale = p, ctx.easings.easeOutBack);
+					ctx.tween(0, 1, 0.15 / ctx.speed, (p) => powerup.opacity = p, ctx.easings.easeOutQuad);
 
 					powerup.onUpdate(() => {
 						if (powerup.dead) return;
@@ -261,17 +351,17 @@ createMicrogame({
 						ctx.play("powerup", { speed: ctx.speed, detune: ctx.rand(-50, 50) });
 						powerup.dead = true;
 
-						game.tween(0, 1, 0.15 / ctx.speed, (p) => blur.opacity = p, ctx.easings.easeOutQuad);
-						game.tween(powerup.pos.y, powerup.pos.y - 100, 2 / ctx.speed, (p) => powerup.pos.y = p, ctx.easings.easeOutQuad);
-						game.tween(ctx.WHITE, ctx.mulfok.LIGHT_BLUE, 0.15 / ctx.speed, (p) => powerup.color = p, ctx.easings.easeOutQuad);
-						game.tween(powerup.opacity, 0, 0.15 / ctx.speed, (p) => powerup.opacity = p, ctx.easings.easeOutCubic).onEnd(() => {
+						ctx.tween(0, 1, 0.15 / ctx.speed, (p) => blur.opacity = p, ctx.easings.easeOutQuad);
+						ctx.tween(powerup.pos.y, powerup.pos.y - 100, 2 / ctx.speed, (p) => powerup.pos.y = p, ctx.easings.easeOutQuad);
+						ctx.tween(ctx.WHITE, ctx.mulfok.LIGHT_BLUE, 0.15 / ctx.speed, (p) => powerup.color = p, ctx.easings.easeOutQuad);
+						ctx.tween(powerup.opacity, 0, 0.15 / ctx.speed, (p) => powerup.opacity = p, ctx.easings.easeOutCubic).onEnd(() => {
 							powerup.destroy();
 						});
 
 						let powerClicksLeft = ctx.randi(1, 3);
 						power = 2;
 						const test = hexagon.onClick(() => {
-							game.tween(1, 0, 0.15 / ctx.speed, (p) => blur.opacity = p, ctx.easings.easeOutQuad).onEnd(() => blur.destroy());
+							ctx.tween(1, 0, 0.15 / ctx.speed, (p) => blur.opacity = p, ctx.easings.easeOutQuad).onEnd(() => blur.destroy());
 							powerClicksLeft--;
 							if (powerClicksLeft == 0) {
 								power = 1;
@@ -281,11 +371,10 @@ createMicrogame({
 						});
 					});
 
-					const loop = game.loop(0.5, () => {
+					const loop = ctx.loop(0.5, () => {
 						let shimmer = ctx.add([
 							ctx.pos(powerup.pos.add(0, 10)),
 							ctx.opacity(1),
-							ctx.timer(),
 							ctx.particles({
 								max: 20,
 								speed: [50, 100],
@@ -321,13 +410,13 @@ createMicrogame({
 				ctx.setResult("win");
 				addComboText(ctx);
 				ctx.addConfetti({ pos: ctx.mousePos() });
-				game.tween(1.1, 1, 1 / ctx.speed, (p) => ctx.setCamScale(p), ctx.easings.easeOutQuint);
-				game.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
+				ctx.tween(1.1, 1, 1 / ctx.speed, (p) => ctx.setCamScale(p), ctx.easings.easeOutQuint);
+				ctx.tween(-25, 0, 1 / ctx.speed, (p) => ctx.setCamRot(p), ctx.easings.easeOutQuint);
 			}
 			else {
 				ctx.shake();
 				ctx.setResult("lose");
-				game.tween(spinspeed, spinspeed * 2, 1 / ctx.speed, (p) => spinspeed = p, ctx.easings.easeOutExpo);
+				ctx.tween(spinspeed, spinspeed * 2, 1 / ctx.speed, (p) => spinspeed = p, ctx.easings.easeOutExpo);
 
 				ctx.play("explode", { detune: ctx.rand(-25, 25), speed: ctx.speed });
 				ctx.add([
@@ -338,10 +427,24 @@ createMicrogame({
 					ctx.anchor("center"),
 				]);
 
-				hexagon.fadeOut(1 / ctx.speed, ctx.easings.easeOutQuint);
+				hexagon.area.scale = ctx.vec2(0);
+				ctx.tween(hexagon.opacity, 0, 1 / ctx.speed, (p) => hexagon.opacity = p, ctx.easings.easeOutCirc);
+				ctx.tween(hexagon.scale, ctx.vec2(0), 0.35 / ctx.speed, (p) => hexagon.scale = p, ctx.easings.easeOutCirc);
+				ctx.tween(hexagon.angle, 360, 0.5 / ctx.speed, (p) => hexagon.angle = p, ctx.easings.easeOutCirc);
+				ctx.tween(hexagon.pos.x, hexagon.pos.x + 250, 0.35 / ctx.speed, (p) => hexagon.pos.x = p, ctx.easings.easeOutCirc);
+				let elapsed = 0;
+				let startY = hexagon.pos.y - 200;
+				let endY = hexagon.pos.y;
+				hexagon.onUpdate(() => {
+					elapsed += ctx.dt() * ctx.speed;
+					const t = elapsed / 0.5 / ctx.speed;
+					const baseY = ctx.lerp(startY, endY, t);
+					const jumpY = -Math.sin(t * Math.PI) * 100;
+					hexagon.pos.y = baseY + jumpY;
+				});
 			}
 
-			game.wait(1.5 / ctx.speed, () => {
+			ctx.wait(1.5 / ctx.speed, () => {
 				ctx.finishGame();
 			});
 		});
