@@ -161,10 +161,11 @@ export function createAct(scenery: Scenery): Act {
 		},
 		flash(flashColor, fadeOutTime) {
 			const obj = act.root.add([
-				act.ctx.rect(act.ctx.width(), act.ctx.height()),
+				act.ctx.rect(act.ctx.width() * 2, act.ctx.height() * 2),
 				act.ctx.color(flashColor),
 				act.ctx.opacity(),
 				act.ctx.z(99999999),
+				act.ctx.fixed(),
 			]);
 			const tween = act.root.tween(1, 0, fadeOutTime, (p) => obj.opacity = p);
 			return tween;

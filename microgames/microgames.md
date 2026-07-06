@@ -60,9 +60,9 @@ DESCRIPTION: You have to move forward and avoid moving when they're looking at y
 INPUT: ArrowKeys
 DESCRIPTION: Coin moves from cup to cup and you have to guess where it is
 
-14. SIMON ❌
+14. REPEAT ❌
 INPUT: ArrowKeys
-DESCRIPTION: VOICE and glow tells you a sequence of arrows and you have to input them in that order
+DESCRIPTION: maracas in front of you do a pattern and you have to repeat it at the end
 
 15. SPAM ❌
 INPUT: ArrowKeys
@@ -166,7 +166,7 @@ INPUT: Mouse
 DESCRIPTION:
 HARDMODE: 
 
-<!-- DON'T gets its own category, not a boss, not a singular input microgame -->
+<!-- DON'T gets its own category, not a boss (all inputs), not a singular input microgame -->
 <!-- something in between -->
 
 37. DONT ✅
@@ -185,7 +185,7 @@ DESCRIPTION: // TODO first person 3d game something shooter?
 INPUT: All
 DESCRIPTION: RHYTHM GAME
 
-40. // TODO ❌
+40. // POINT-N-CLICK ❌
 INPUT: All
 DESCRIPTION: // TODO
 
@@ -196,3 +196,4 @@ juicy dress thing (mouse)
 super hexagon type shi (arrow keys)
 swat fly (mouse)
 chase (arrow keys): simply chase the mouse with no hiding or whatever
+pizza microgame (mouse)

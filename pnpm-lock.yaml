@@ -12,8 +12,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(typescript@5.9.3)
       kaplay:
-        specifier: github:kaplayjs/kaplay#master
-        version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/61a429b784dc106465fa4400501d8c7073764936
+        specifier: github:kaplayjs/kaplay#eef3effd93ac6c97e8baccdfa40ba669237b95b0
+        version: https://codeload.github.com/kaplayjs/kaplay/tar.gz/eef3effd93ac6c97e8baccdfa40ba669237b95b0
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -463,8 +463,8 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/61a429b784dc106465fa4400501d8c7073764936:
-    resolution: {gitHosted: true, integrity: sha512-1ghrJB0epMAAUNKkDkeE3nwwEYNGJ6zEjnW8yb8v9bbZciLDiLW8a8fKQSMcbTu6TuGvFK0D0MAuDYQyAH3QUQ==, tarball: https://codeload.github.com/kaplayjs/kaplay/tar.gz/61a429b784dc106465fa4400501d8c7073764936}
+  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/eef3effd93ac6c97e8baccdfa40ba669237b95b0:
+    resolution: {gitHosted: true, integrity: sha512-wkjyJTJfnHD/7US8H5m/80OgVs1rrhME59icRzRieoP4i+MrzWyUhsT46U/NCMPrG/kzUabvRvcyk8nCZXhw/w==, tarball: https://codeload.github.com/kaplayjs/kaplay/tar.gz/eef3effd93ac6c97e8baccdfa40ba669237b95b0}
     version: 4000.0.0-alpha.27.1
     engines: {node: '>=24.0.0'}
 
@@ -884,7 +884,7 @@ snapshots:
 
   is-number@7.0.0: {}
 
-  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/61a429b784dc106465fa4400501d8c7073764936: {}
+  kaplay@https://codeload.github.com/kaplayjs/kaplay/tar.gz/eef3effd93ac6c97e8baccdfa40ba669237b95b0: {}
 
   merge2@1.4.1: {}
 

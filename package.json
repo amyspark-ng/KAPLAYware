@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@kaplayjs/crew": "^2.1.0",
-		"kaplay": "github:kaplayjs/kaplay#master"
+		"kaplay": "github:kaplayjs/kaplay#eef3effd93ac6c97e8baccdfa40ba669237b95b0"
 	},
 	"devDependencies": {
 		"@types/node": "^25.0.3",
