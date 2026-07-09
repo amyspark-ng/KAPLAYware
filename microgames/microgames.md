@@ -184,6 +184,7 @@ DESCRIPTION: // TODO first person 3d game something shooter?
 39. RHYTHM ❌
 INPUT: All
 DESCRIPTION: RHYTHM GAME
+could be small microgames to changed and fit into using rhythm
 
 40. // POINT-N-CLICK ❌
 INPUT: All

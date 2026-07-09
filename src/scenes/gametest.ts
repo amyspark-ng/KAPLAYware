@@ -687,6 +687,7 @@ k.scene("gametest", async () => {
 
 	k.onUpdate(() => {
 		UI.paused = isPlaying && !zoomedOut;
+		GAME_CURSOR.hide = !zoomedOut && selectedGame().hideCursor;
 
 		if (UI.paused) GAME_CURSOR.grandparentCheck = gameScenery.root;
 		else GAME_CURSOR.grandparentCheck = UI;

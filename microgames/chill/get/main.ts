@@ -15,6 +15,7 @@ createMicrogame({
 	},
 	urlPrefix: "microgames/chill/get/",
 	iconPath: "sprites/icon.png",
+	hideCursor: true,
 	async load(ctx) {
 		return Promise.all([
 			ctx.loadCrew("sprite", "bean"),

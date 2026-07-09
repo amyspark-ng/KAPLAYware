@@ -6,6 +6,7 @@ export let GAME_CURSOR: GameObj<{
 	overrideFrame: number;
 	/** The parent object on which to check hovers */
 	grandparentCheck: GameObj;
+	hide: boolean;
 }> = null;
 k.onLoad(() => {
 	let cursor = k.add([
@@ -15,8 +16,10 @@ k.onLoad(() => {
 		k.stay(),
 		k.z(999999),
 		k.scale(1.5),
+		k.opacity(),
 		k.fixed(),
 		{
+			hide: false,
 			overrideFrame: null,
 			grandparentCheck: k.getTreeRoot(),
 		},
@@ -24,6 +27,7 @@ k.onLoad(() => {
 
 	cursor.onUpdate(() => {
 		cursor.pos = k.mousePos().add(25);
+		cursor.opacity = k.lerp(cursor.opacity, cursor.hide ? 0 : 1, 0.5);
 
 		if (cursor.overrideFrame != null) {
 			cursor.frame = cursor.overrideFrame;

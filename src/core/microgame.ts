@@ -13,6 +13,7 @@ export interface Microgame {
 	boss: boolean;
 	input: "arrowkeys" | "mouse" | "mouseclick" | "all";
 	iconPath: string;
+	hideCursor: boolean;
 
 	/** Additional options for the HARD MODE version of the microgame
 	 *

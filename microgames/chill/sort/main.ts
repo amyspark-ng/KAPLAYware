@@ -15,6 +15,7 @@ createMicrogame({
 	iconPath: "sprites/icon.png",
 	input: "mouseclick",
 	boss: false,
+	hideCursor: false,
 	async load(ctx) {
 		return Promise.all([
 			...["bag", "money_bag", "bobo", "sukomi", "bean", "zombean", "kat", "marroc", "apple", "cake"].flatMap((a) => [
@@ -69,6 +70,7 @@ createMicrogame({
 				},
 			}),
 
+			// TODO: the sprite was bigger than the screen because when shaking the sides are empty OF COURSEE
 			ctx.loadSprite("bg", "sprites/background.png"),
 			ctx.loadSprite("bg2", "sprites/background2.png"),
 			ctx.loadSprite("alarm", "sprites/alarm.png"),
