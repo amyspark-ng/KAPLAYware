@@ -34,6 +34,7 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 			if (typeof spr == "string" && !crewKeys.includes(spr) && !spr.startsWith("@")) {
 				spr = `${id}-${spr}`;
 			}
+			else if (typeof spr == "string" && spr.startsWith("@")) spr = spr.slice(1);
 
 			const spriteComp = k.sprite(spr, opt);
 
@@ -43,12 +44,14 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 				},
 				set sprite(val: string) {
 					if (!crewKeys.includes(val)) spriteComp.sprite = `${id}-${val}`;
-					spriteComp.sprite = val;
+					else spriteComp.sprite = val;
 				},
 			});
 		},
 
 		getSprite: (name) => k.getSprite(`${id}-${name}`),
+
+		drawSprite: (opt) => k.drawSprite({ ...opt, sprite: `${id}-${opt.sprite}` }),
 
 		play: (src, options) => {
 			src = typeof src == "string" ? (src.startsWith("@") ? src : `${id}-${src}`) : src;

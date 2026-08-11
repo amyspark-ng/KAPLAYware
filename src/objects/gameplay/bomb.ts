@@ -1,23 +1,25 @@
 import { k } from "../../kaplay";
 import { createConductor } from "../conductor";
-import { Act } from "../../core/act/act";
+import { GameAct } from "../../core/act/game_act";
 
-export function addBomb(act: Act) {
-	const ctx = act.ctx;
+export function addBomb(gameAct: GameAct) {
+	const ctx = gameAct.ctx;
+	let isLit = false;
 
 	const BOMB_POS = ctx.vec2(40, ctx.height() - 40);
 	let beatsLeft = 3;
 
-	const bomb = act.root.add([
+	const bomb = gameAct.root.add([
 		ctx.z(9999),
 		ctx.pos(),
 		{
-			conductor: createConductor(140, act.root, true),
+			conductor: createConductor(140, gameAct.root, true),
 		},
 	]);
 
+	// Have to use @ or else it'll look inside the gameAct sprite comp
 	const bombSpr = bomb.add([
-		ctx.sprite("bomb"),
+		ctx.sprite("@bomb"),
 		ctx.pos(BOMB_POS),
 		ctx.anchor("center"),
 		ctx.scale(),
@@ -26,19 +28,19 @@ export function addBomb(act: Act) {
 	]);
 
 	const cordstart = bomb.add([
-		ctx.sprite("bomb-cord-start"),
+		ctx.sprite("@bomb-cord-start"),
 		ctx.pos(29, 528),
 		ctx.z(998),
 	]);
 
 	const cord = bomb.add([
-		ctx.sprite("bomb-cord", { tiled: true, width: ctx.width() / 2 }),
+		ctx.sprite("@bomb-cord", { tiled: true, width: ctx.width() / 2 }),
 		ctx.pos(69, 528),
 		ctx.z(998),
 	]);
 
 	const cordtip = cord.add([
-		ctx.sprite("bomb-cord-tip"),
+		ctx.sprite("@bomb-cord-tip"),
 		ctx.pos(cord.width, 0),
 		ctx.anchor("center"),
 		ctx.opacity(),
@@ -47,7 +49,7 @@ export function addBomb(act: Act) {
 	cordtip.pos.y += cordtip.height / 2;
 
 	const fuse = cordtip.add([
-		ctx.sprite("bomb-fuse"),
+		ctx.sprite("@bomb-fuse"),
 		ctx.pos(0, 22),
 		ctx.anchor("center"),
 		ctx.scale(),
@@ -67,7 +69,7 @@ export function addBomb(act: Act) {
 			if (cordstart.exists()) cordstart.destroy();
 			cordtip.opacity = 0;
 			movingFuse = true;
-			act.root.tween(fuse.pos.y, fuse.pos.y - 30, bomb.conductor.beatInterval, (p) => fuse.pos.y = p);
+			gameAct.root.tween(fuse.pos.y, fuse.pos.y - 30, bomb.conductor.beatInterval, (p) => fuse.pos.y = p);
 		}
 	});
 
@@ -86,8 +88,8 @@ export function addBomb(act: Act) {
 		if (hasExploded) return;
 		destroy();
 		const kaboom = k.addKaboom(bombSpr.pos, { comps: [k.z(1000)] });
-		if (kaboom.exists()) kaboom.parent = act.root;
-		act.engine.play("bomb-explosion");
+		if (kaboom.exists()) kaboom.parent = gameAct.root;
+		gameAct.engine.play("bomb-explosion");
 		hasExploded = true;
 	}
 
@@ -107,8 +109,8 @@ export function addBomb(act: Act) {
 		if (beatsLeft > 0) {
 			beatsLeft--;
 			const tweenMult = 2 - beatsLeft + 1; // goes from 1 to 3;
-			act.root.tween(ctx.vec2(1).add(0.33 * tweenMult), ctx.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, ctx.easings.easeOutQuint);
-			act.engine.play("bomb-tick", { detune: 25 * 2 - beatsLeft });
+			gameAct.root.tween(ctx.vec2(1).add(0.33 * tweenMult), ctx.vec2(1).add((0.33 * tweenMult) / 2), 0.5 / 3, (p) => bombSpr.scale = p, ctx.easings.easeOutQuint);
+			gameAct.engine.play("bomb-tick", { detune: 25 * 2 - beatsLeft });
 			if (beatsLeft == 2) bombSpr.color = ctx.YELLOW;
 			else if (beatsLeft == 1) bombSpr.color = ctx.RED.lerp(ctx.YELLOW, 0.5);
 			else if (beatsLeft == 0) bombSpr.color = ctx.RED;
@@ -121,13 +123,14 @@ export function addBomb(act: Act) {
 				if (beatsLeft <= 1) numberText.angle = ctx.lerp(numberText.angle, ctx.wave(-25, 25, ctx.time() * 15), 0.5);
 				if (beatsLeft == 0) numberText.scale = ctx.lerp(numberText.scale, ctx.vec2(1, ctx.wave(0.75, 1.5, ctx.time() * 30)), 0.5);
 			});
-			act.root.tween(ctx.vec2(1).add(0.16 * tweenMult), ctx.vec2(1).add((0.16 * tweenMult) / 2), 0.5 / 3, (p) => numberText.scale = p, ctx.easings.easeOutQuint);
+			gameAct.root.tween(ctx.vec2(1).add(0.16 * tweenMult), ctx.vec2(1).add((0.16 * tweenMult) / 2), 0.5 / 3, (p) => numberText.scale = p, ctx.easings.easeOutQuint);
 		}
 		else explode();
 	}
 
 	/** Will start a conductor which will explode the bomb in 4 beats (tick, tick, tick, BOOM!) */
 	function lit(bpm = 140) {
+		isLit = true;
 		bomb.conductor.bpm = bpm;
 		bomb.conductor.paused = false;
 		bomb.conductor.onBeat((beat, beatDuration) => {
@@ -136,11 +139,14 @@ export function addBomb(act: Act) {
 		});
 	}
 
+	// TODO: add a sound for when it exintguishes
+	// TODO: get new bomb sound effects, these are just from warioware
 	/** Turns off the bomb */
 	function extinguish() {
 		// when timeOut and you win, it explodes and since you won it runs extinguish
 		// which access fuse, which it shouldn't because when it explodes the parent is destroyed
 		if (hasExploded) return;
+		isLit = false;
 		bomb.conductor.paused = true;
 		fuse.fadeOut(bomb.conductor.beatInterval / 3).onEnd(() => fuse.destroy());
 		numberText?.fadeOut(bomb.conductor.beatInterval / 3).onEnd(() => numberText.destroy());
@@ -152,6 +158,9 @@ export function addBomb(act: Act) {
 		lit,
 		extinguish,
 		explode,
+		get isLit() {
+			return isLit;
+		},
 
 		get conductor() {
 			return bomb.conductor;

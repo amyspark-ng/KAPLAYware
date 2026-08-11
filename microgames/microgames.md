@@ -1,4 +1,5 @@
 <!-- THERE SHOULD BE 18 ON KEYBOARD AND 18 ON OTHER WHICH AMOUNTS TO 36 + 4 BOSSES ALL OF THIS EQUALS TO 40 MICROGAMES -->
+<!-- AT LEAST 9 HARD MODE ON EACH MODE -->
 <!-- EVERY CATEGORY SHOULD HAVE AT LEAST 9 HARD ONES WITH NEWER GAMEPLAY-->
 
 <!-- KEYBOARD GAMES 20 -->
@@ -63,15 +64,15 @@ DESCRIPTION: Coin moves from cup to cup and you have to guess where it is
 14. REPEAT ❌
 INPUT: ArrowKeys
 DESCRIPTION: maracas in front of you do a pattern and you have to repeat it at the end
+HARDMODE: The same but with up and down, making a character dance, instead of only left and right
 
 15. SPAM ❌
 INPUT: ArrowKeys
 DESCRIPTION: Computer doesn't work, spam keys so it works now
 
-16. TODO ❌
+16. STACK ❌
 INPUT: ArrowKeys
-DESCRIPTION:
-HARDMODE: 
+DESCRIPTION: Pancakes are falling onto the plate, you have to click at the right time so they stack on top of each other and don't fall to the sides
 
 17. TODO ❌
 INPUT: ArrowKeys
@@ -118,7 +119,7 @@ DESCRIPTION: You have to erase the board, may use info from the previous math ga
 INPUT: MouseClick
 DESCRIPTION: Some form of putt similar thing but you have to put a ball to a pocket by shooting the white one
 
-26. INPUT ❌
+26. DIAL ❌
 INPUT: MouseClick
 DESCRIPTION: You have to input a note password on the screen from a numpad
 
@@ -144,22 +145,22 @@ DESCRIPTION: A car follows your input and you have to make sure you don't run in
 INPUT: Mouse
 DESCRIPTION: You have to move something in a circular motion to stir in a pot
 
-32. TODO ❌
+32. KEEP ❌
 INPUT: Mouse
-DESCRIPTION:
+DESCRIPTION: There's plates on a stick and you have to balance them so they don't fall, similar to the balance microgame
 
-33. TODO ❌
+33. SCROLL ❌
 INPUT: Mouse
-DESCRIPTION:
+DESCRIPTION: There's a phone and legal tems in front of you, move your mouse bottom to top to scroll through it 
 
 34. TODO ❌
 INPUT: Mouse
 DESCRIPTION:
 
-35. TODO ❌
+35. CUT ❌
 INPUT: Mouse
-DESCRIPTION:
-HARDMODE: 
+DESCRIPTION: There's a carrot or an onion or a tomato and you have to go up to down to cut it in half
+HARDMODE: There's a piece of wood and you have to SAW through it
 
 36. TODO ❌
 INPUT: Mouse

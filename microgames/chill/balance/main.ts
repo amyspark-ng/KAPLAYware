@@ -85,7 +85,7 @@ createMicrogame({
 				ctx.pos(520, 220),
 			]);
 			ctx.onTimeout(() => {
-				ctx.setResult("win");
+				ctx.wait(0.1, () => ctx.setResult("win")); // so bomb explodes mandatory
 				ctx.wait(0.5 / ctx.speed, () => ctx.finishGame());
 			});
 		});

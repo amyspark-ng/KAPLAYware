@@ -26,7 +26,7 @@ k.onLoad(() => {
 	]);
 
 	cursor.onUpdate(() => {
-		cursor.pos = k.mousePos().add(25);
+		cursor.pos = k.mousePos().add(cursor.width / 2, cursor.height / 2);
 		cursor.opacity = k.lerp(cursor.opacity, cursor.hide ? 0 : 1, 0.5);
 
 		if (cursor.overrideFrame != null) {

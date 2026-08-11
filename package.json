@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@kaplayjs/crew": "^2.1.0",
-		"kaplay": "github:kaplayjs/kaplay#eef3effd93ac6c97e8baccdfa40ba669237b95b0"
+		"kaplay": "github:amyspark-ng/kaplay#863ab9d4e66fee587825837308e2ba40bf5e1902"
 	},
 	"devDependencies": {
 		"@types/node": "^25.0.3",

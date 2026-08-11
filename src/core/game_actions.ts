@@ -1,3 +1,5 @@
+import { k } from "../kaplay";
+import { addBomb } from "../objects/gameplay/bomb";
 import { createGameAct, GameAct } from "./act/game_act";
 import { MicrogameController } from "./controller";
 import { getGameColor } from "./game_registry";
@@ -10,7 +12,6 @@ export function prepGame(scenery: Scenery, controller: MicrogameController, game
 	const gameAct = createGameAct(scenery, game, controller);
 	gameAct.root.use(gameAct.ctx.layer("2"));
 	gameAct.root.color = getGameColor(gameAct.game.bgColor);
-	gameAct.bomb.root.pos = gameAct.ctx.vec2(0, 70);
 
 	// timeLeft has to be set so timeLeft is never undefined in gameContext
 	controller.timeLeft = gameAct.game.duration / controller.speed;
@@ -30,8 +31,6 @@ export function prepGame(scenery: Scenery, controller: MicrogameController, game
 /** Adds the timeLeft stuff and the bomb to an existing gameAct */
 export function addTimeSetup(controller: MicrogameController, gameAct: GameAct) {
 	let timeOver = false;
-	let hasBombLit = false;
-	let hasBombAppeared = false;
 
 	gameAct.ctx.add([]).onUpdate(() => {
 		if (controller.finished) return;
@@ -51,8 +50,11 @@ export function addTimeSetup(controller: MicrogameController, gameAct: GameAct) 
 			// TODO: make it more consistent with the timing of the game
 			const beatInterval = 60 / (140 * controller.speed);
 
-			if (controller.timeLeft <= beatInterval * 5 && !hasBombAppeared) {
-				hasBombAppeared = true;
+			// gameAct.bomb != null === hasBombAppeared
+			if (controller.timeLeft <= beatInterval * 5 && gameAct.bomb == null) {
+				gameAct.bomb = addBomb(gameAct);
+				console.log("BOMB ADDED: " + gameAct.bomb);
+				gameAct.bomb.root.pos = gameAct.ctx.vec2(0, 70);
 				const ctx = gameAct.ctx;
 				gameAct.root.tween(
 					gameAct.bomb.root.pos,
@@ -63,8 +65,7 @@ export function addTimeSetup(controller: MicrogameController, gameAct: GameAct) 
 				);
 			}
 
-			if (controller.timeLeft <= beatInterval * 4 && !hasBombLit) {
-				hasBombLit = true;
+			if (controller.timeLeft <= beatInterval * 4 && !gameAct.bomb.isLit) {
 				gameAct.bomb.lit(140 * controller.speed);
 			}
 		}

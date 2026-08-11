@@ -61,7 +61,6 @@ export class MicrogameController {
 		return this.finishKEvent.add(action);
 	}
 
-	// TODO: hardcode according to CONFIG.DEV
 	lose() {
 		this.progress--;
 		this.lives--;
