@@ -577,12 +577,12 @@ k.scene("gametest", async () => {
 	// #region WICK
 	const leftTip = UI.add([
 		k.sprite("bomb-cord-tip", { flipX: true }),
-		k.pos(0, 510),
+		k.pos(0, 493),
 	]);
 
 	const rightTip = UI.add([
 		k.sprite("bomb-cord-tip"),
-		k.pos(740, 510),
+		k.pos(740, 493),
 		k.color(k.WHITE),
 	]);
 

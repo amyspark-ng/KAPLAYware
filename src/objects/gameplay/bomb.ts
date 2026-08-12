@@ -41,12 +41,11 @@ export function addBomb(gameAct: GameAct) {
 
 	const cordtip = cord.add([
 		ctx.sprite("@bomb-cord-tip"),
-		ctx.pos(cord.width, 0),
+		ctx.pos(cord.width, 24),
 		ctx.anchor("center"),
 		ctx.opacity(),
 		ctx.z(998),
 	]);
-	cordtip.pos.y += cordtip.height / 2;
 
 	const fuse = cordtip.add([
 		ctx.sprite("@bomb-fuse"),
@@ -63,10 +62,11 @@ export function addBomb(gameAct: GameAct) {
 
 		const width = k.lerp(cord.width, ((k.width() / 2) / 3) * beatsLeft, 0.75);
 		cord.width = width;
-		cordtip.pos.x = width;
+		cordtip.pos.x = width + 31;
 
 		if (beatsLeft == 0 && !movingFuse) {
 			if (cordstart.exists()) cordstart.destroy();
+			fuse.pos.x -= 20;
 			cordtip.opacity = 0;
 			movingFuse = true;
 			gameAct.root.tween(fuse.pos.y, fuse.pos.y - 30, bomb.conductor.beatInterval, (p) => fuse.pos.y = p);
@@ -146,10 +146,17 @@ export function addBomb(gameAct: GameAct) {
 		// when timeOut and you win, it explodes and since you won it runs extinguish
 		// which access fuse, which it shouldn't because when it explodes the parent is destroyed
 		if (hasExploded) return;
+		if (beatsLeft < 1) return; // if still beats left it's too late to extinguish animation
 		isLit = false;
 		bomb.conductor.paused = true;
+
+		gameAct.root.tween(bombSpr.color, ctx.WHITE, bomb.conductor.beatInterval * 0.9, (p) => bombSpr.color = p);
 		fuse.fadeOut(bomb.conductor.beatInterval / 3).onEnd(() => fuse.destroy());
 		numberText?.fadeOut(bomb.conductor.beatInterval / 3).onEnd(() => numberText.destroy());
+		// TODO: make a smoke animation here or something
+		gameAct.engine.play("bomb-extinguish", { detune: ctx.rand(-10, 10) });
+		gameAct.engine.play("bomb-flower", { detune: ctx.rand(-10, 10) });
+		cordtip.play("a");
 	}
 
 	return {

@@ -53,7 +53,6 @@ export function addTimeSetup(controller: MicrogameController, gameAct: GameAct) 
 			// gameAct.bomb != null === hasBombAppeared
 			if (controller.timeLeft <= beatInterval * 5 && gameAct.bomb == null) {
 				gameAct.bomb = addBomb(gameAct);
-				console.log("BOMB ADDED: " + gameAct.bomb);
 				gameAct.bomb.root.pos = gameAct.ctx.vec2(0, 70);
 				const ctx = gameAct.ctx;
 				gameAct.root.tween(

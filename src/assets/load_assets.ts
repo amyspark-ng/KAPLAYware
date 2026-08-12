@@ -33,7 +33,17 @@ k.loadSprite("trans-static", "sprites/transition/static.png", {
 k.loadSprite("bomb", "sprites/bomb/bomb.png");
 k.loadSprite("bomb-cord-start", "sprites/bomb/cord-start.png");
 k.loadSprite("bomb-cord", "sprites/bomb/cord.png");
-k.loadSprite("bomb-cord-tip", "sprites/bomb/cord-tip.png");
+k.loadSprite("bomb-cord-tip", "sprites/bomb/cord-tip.png", {
+	sliceX: 7,
+	sliceY: 1,
+	anims: {
+		"a": {
+			from: 0,
+			to: 6,
+			speed: 25,
+		},
+	},
+});
 k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
 
 // test
@@ -52,8 +62,11 @@ k.loadSound("jingle-win", "sounds/jingles/win.ogg");
 k.loadSound("jingle-lose", "sounds/jingles/loss.ogg");
 k.loadSound("jingle-speed", "sounds/jingles/speedUp.ogg");
 
-k.loadSound("bomb-tick", "sounds/bomb/tick.mp3");
-k.loadSound("bomb-explosion", "sounds/bomb/explosion.mp3");
+k.loadSound("bomb-tick", "sounds/bomb/tick.ogg");
+k.loadSound("bomb-explosion", "sounds/bomb/explosion.ogg");
+k.loadSound("bomb-extinguish", "sounds/bomb/extinguish.ogg");
+k.loadSound("bomb-flower", "sounds/bomb/flower.ogg");
+k.loadSound("bomb-sizzling", "sounds/bomb/sizzling.ogg");
 
 // fonts
 k.loadBitmapFont("happy", "fonts/happy.png", 28, 37);

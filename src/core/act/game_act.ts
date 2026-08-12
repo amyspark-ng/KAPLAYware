@@ -33,7 +33,7 @@ export function createGameAct(scenery: Scenery, currentGame: Microgame, controll
 	gameAct.ctx.setResult = (result) => {
 		controller.lastGameResult = result;
 		// if bomb exists and you won extinguish it
-		if (result == "win" && gameAct.bomb?.isLit) gameAct.bomb.extinguish();
+		if (result == "win" && gameAct.bomb?.isLit && !gameAct.bomb.hasExploded) gameAct.bomb.extinguish();
 	};
 
 	return gameAct;

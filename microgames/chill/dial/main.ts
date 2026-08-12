@@ -9,7 +9,7 @@ createMicrogame({
 	hardModeOpt: {
 		duration: 8,
 	},
-	bgColor: "a6555f",
+	bgColor: "7b5480",
 	urlPrefix: "microgames/chill/dial/",
 	iconPath: "sprites/icon.png",
 	input: "mouseclick",
@@ -21,6 +21,10 @@ createMicrogame({
 			ctx.loadSound("dialtone", "sounds/dialtone.ogg"),
 			ctx.loadSound("phonetalking", "sounds/phonetalking.ogg"),
 			ctx.loadSound("button", "sounds/button.ogg"),
+			ctx.loadSprite("left", "sprites/left.png", { sliceX: 2, sliceY: 1 }),
+			ctx.loadSprite("bg1", "sprites/bg1.png"),
+			ctx.loadSprite("bg2", "sprites/bg2.png"),
+			ctx.loadSprite("note", "sprites/note.png"),
 			ctx.loadSprite("right", "sprites/right.png"),
 			ctx.loadSprite("calling", "sprites/calling.png"),
 			ctx.loadSprite("thumb", "sprites/thumb.png"),
@@ -31,7 +35,7 @@ createMicrogame({
 	start(ctx) {
 		const generateNumber = (): string => {
 			let s = "";
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < (ctx.isHardMode ? 4 : 5); i++) {
 				s += (Math.floor(Math.random() * 9)).toString();
 			}
 			return s;
@@ -41,9 +45,31 @@ createMicrogame({
 		let inputtedNumber = "";
 		let hasDialed = false;
 
-		ctx.add([
-			ctx.text(realNumber),
+		ctx.add([ctx.sprite(ctx.isHardMode ? "bg2" : "bg1")]);
+
+		const timer = ctx.add([ctx.timer()]);
+
+		const left = ctx.add([
+			ctx.sprite("left", { frame: 0 }),
+			ctx.pos(0, ctx.rand(350, 360)),
 		]);
+		const note = left.add([ctx.sprite("note"), ctx.pos(160, -100), ctx.color(ctx.choose([ctx.mulfok.DARK_PINK, ctx.mulfok.YELLOW, ctx.mulfok.GREEN, ctx.mulfok.BEANT_BLUE]))]);
+		const pos = ctx.vec2(ctx.rand(-5, 5), ctx.rand(-5, 5));
+		const scale = ctx.vec2(ctx.rand(0.9, 1.1), ctx.rand(0.9, 1.1));
+		const angle = ctx.rand(-10, 10);
+		note.add([
+			ctx.pos(ctx.rand(40, 50), ctx.rand(50, 70)),
+			ctx.color(ctx.BLACK),
+			ctx.text(realNumber, {
+				font: "happy",
+				transform: (idx, ch) => ({
+					pos: pos,
+					scale: scale,
+					angle: angle,
+				}),
+			}),
+		]);
+		left.add([ctx.sprite("left", { frame: 1 })]);
 
 		const phoneRight = ctx.add([
 			ctx.sprite("right"),
@@ -159,6 +185,8 @@ createMicrogame({
 
 					if (inputtedNumber == realNumber) ctx.setResult("win");
 					else ctx.setResult("lose");
+					if (ctx.getResult() == "lose") timer.wait(1 / ctx.speed, () => ctx.finishGame());
+					else timer.wait(3 / ctx.speed, () => ctx.finishGame());
 
 					phoneRight.sprite = "calling";
 					ctx.get("circle").forEach((circle) => {
@@ -167,7 +195,7 @@ createMicrogame({
 					});
 					numberDraw.cancel();
 					let time = 0;
-					ctx.add([ctx.timer()]).loop(1, () => {
+					timer.loop(1, () => {
 						time += 1;
 					});
 					ctx.add([]).onDraw(() => {
@@ -196,10 +224,6 @@ createMicrogame({
 					else {
 						ctx.play("phonetalking", { detune: ctx.rand(-50, 50), speed: 1 + ctx.speed / 2 });
 					}
-
-					if (ctx.timeLeft() > 0) {
-						ctx.add([ctx.timer()]).wait((ctx.getResult() == "lose" ? 1.5 : 3) / ctx.speed, () => ctx.finishGame());
-					}
 				};
 
 				circle.onUpdate(() => {
@@ -213,7 +237,7 @@ createMicrogame({
 						ctx.play("button", { detune: 30 * baseNumberTone + ctx.rand(-20, 20) });
 
 						// actual workings
-						if (number != undefined || number != null && number < 10 && inputtedNumber.length < 5) {
+						if ((number != undefined || number != null) && (number < 10 && inputtedNumber.length < 5)) {
 							inputtedNumber += number.toString();
 						}
 						else if (number === null) {
@@ -227,12 +251,12 @@ createMicrogame({
 
 		ctx.onTimeout(() => {
 			// if player hasn't dialed dial automatically, if they win they win if not pailas
-			if (!hasDialed) {
-				dial();
-				ctx.add([ctx.timer()]).wait((ctx.getResult() == "lose" ? 1.5 : 3) / ctx.speed, () => ctx.finishGame());
+			if (hasDialed) {
+				ctx.finishGame();
+				return;
 			}
 			else {
-				ctx.finishGame();
+				dial();
 			}
 		});
 	},
