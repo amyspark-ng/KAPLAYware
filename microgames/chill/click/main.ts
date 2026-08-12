@@ -115,6 +115,7 @@ createMicrogame({
 	iconPath: "sprites/icon.png",
 	input: "mouseclick",
 	boss: false,
+	hideCursor: false,
 	async load(ctx) {
 		return await Promise.all([
 			ctx.loadCrew("sprite", "cursor", "cursory"),

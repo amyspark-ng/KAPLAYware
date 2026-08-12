@@ -27,11 +27,10 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 
 	return {
 		...act.ctx,
-		sprite: (spr, opt) => {
-			const crewKeys = Object.keys(assets).concat(Object.keys(assets).map((a) => a + "-o"));
 
-			// if not crew and doesnt start with @
-			if (typeof spr == "string" && !crewKeys.includes(spr) && !spr.startsWith("@")) {
+		// If spr starts with "@" the ID rule will be ignored
+		sprite: (spr, opt) => {
+			if (typeof spr == "string" && !spr.startsWith("@")) {
 				spr = `${id}-${spr}`;
 			}
 			else if (typeof spr == "string" && spr.startsWith("@")) spr = spr.slice(1);
@@ -43,8 +42,8 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 					return spriteComp.sprite.replace(id + "-", "");
 				},
 				set sprite(val: string) {
-					if (!crewKeys.includes(val)) spriteComp.sprite = `${id}-${val}`;
-					else spriteComp.sprite = val;
+					if (val.startsWith("@")) spriteComp.sprite = val;
+					else spriteComp.sprite = `${id}-${val}`;
 				},
 			});
 		},
