@@ -40,6 +40,8 @@ HARDMODE: Bigger maze, You have to grab a key to open the door before that
 INPUT: ArrowKeys
 DESCRIPTION: You have to tap left or right so a person on the tightrope doesn't fall
 HARDMODE: Random gusts of wind may blow you over, add clouds so background changes
+- missing music
+- leg animation
 
 9. SPREAD ❌
 INPUT: ArrowKeys
@@ -122,6 +124,7 @@ DESCRIPTION: Some form of putt similar thing but you have to put a ball to a poc
 26. DIAL ❌
 INPUT: MouseClick
 DESCRIPTION: You have to input a note password on the screen from a numpad
+- music
 
 27. SORT ✅
 INPUT: MouseClick
