@@ -33,6 +33,7 @@ k.loadSprite("trans-static", "sprites/transition/static.png", {
 k.loadSprite("bomb", "sprites/bomb/bomb.png");
 k.loadSprite("bomb-cord-start", "sprites/bomb/cord-start.png");
 k.loadSprite("bomb-cord", "sprites/bomb/cord.png");
+k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
 k.loadSprite("bomb-cord-tip", "sprites/bomb/cord-tip.png", {
 	sliceX: 7,
 	sliceY: 1,
@@ -44,7 +45,6 @@ k.loadSprite("bomb-cord-tip", "sprites/bomb/cord-tip.png", {
 		},
 	},
 });
-k.loadSprite("bomb-fuse", "sprites/bomb/fuse.png");
 
 // test
 if (CONFIG.DEV_MICROGAME != undefined) {

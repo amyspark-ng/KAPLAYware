@@ -48,7 +48,7 @@ createMicrogame({
 		ctx.add([ctx.sprite("grass"), ctx.pos(ctx.rand(-20, 20))]); // decoration with random offset
 		if (ctx.isHardMode) ctx.add([ctx.sprite("flowers"), ctx.pos(ctx.rand(-20, 20))]);
 
-		const apples = ctx.get("apple", { liveUpdate: true });
+		const apples = ctx.get("@apple", { liveUpdate: true });
 
 		const getRandomPos = () => {
 			return ctx.vec2(ctx.rand(20, ctx.width() - 20), ctx.rand(20, ctx.height() - 20));
@@ -87,7 +87,7 @@ createMicrogame({
 
 		let basket = null as GameObj<SpriteComp>;
 		const bean = ctx.add([
-			ctx.sprite("bean"),
+			ctx.sprite("@bean"),
 			ctx.pos(ctx.center()),
 			ctx.area({ isSensor: true, scale: ctx.vec2(1, 0.4), offset: ctx.vec2(0, 0) }),
 			ctx.anchor("bot"),
@@ -221,7 +221,7 @@ createMicrogame({
 				ctx.setResult("lose");
 				bean.canMove = false;
 
-				bean.sprite = "skuller";
+				bean.sprite = "@skuller";
 				ctx.play("crunch", { detune: ctx.rand(-50, 50) });
 				ctx.tween(ctx.vec2(3), ctx.vec2(1.5), 0.35 / ctx.speed, (p) => bean.scale = p, ctx.easings.easeOutQuint);
 				ctx.tween(1, 0, 0.5 / ctx.speed, (p) => music.volume = p);
@@ -277,7 +277,7 @@ createMicrogame({
 
 		function spawnApple(good: boolean) {
 			const apple = ctx.add([
-				ctx.sprite(good ? "apple" : "badderapple"),
+				ctx.sprite(good ? "@apple" : "badderapple"),
 				ctx.pos(bush.screenPos.add(100, -100).add(ctx.rand(0, 1) * 100)),
 				ctx.area({ scale: ctx.vec2(0.5), isSensor: true }),
 				ctx.anchor("center"),
@@ -318,7 +318,7 @@ createMicrogame({
 
 			// this means you ran out of time to pick up the good apples
 			bean.canMove = false;
-			bean.sprite = "beant";
+			bean.sprite = "@beant";
 			ctx.setResult("lose");
 			ctx.wait(0.5 / ctx.speed, () => ctx.finishGame());
 

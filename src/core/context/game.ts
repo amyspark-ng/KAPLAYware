@@ -42,7 +42,7 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 					return spriteComp.sprite.replace(id + "-", "");
 				},
 				set sprite(val: string) {
-					if (val.startsWith("@")) spriteComp.sprite = val;
+					if (val.startsWith("@")) spriteComp.sprite = val.slice(1);
 					else spriteComp.sprite = `${id}-${val}`;
 				},
 			});

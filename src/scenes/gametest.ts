@@ -686,6 +686,8 @@ k.scene("gametest", async () => {
 	});
 
 	k.onUpdate(() => {
+		if (!selectedGame()) throw new Error("gametest.ts - selectedGame() is undefined");
+
 		UI.paused = isPlaying && !zoomedOut;
 		GAME_CURSOR.hide = !zoomedOut && selectedGame().hideCursor;
 

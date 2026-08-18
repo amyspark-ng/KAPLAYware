@@ -81,9 +81,7 @@ export function buildLoadContext(game: Microgame) {
 		else {
 			loadCtx[loader] = (name: string, ...args: any) => {
 				if (typeof name === "string") {
-					if (!Object.keys(assets).includes(name)) {
-						name = `${getGameID(game)}-${name}`;
-					}
+					name = `${getGameID(game)}-${name}`;
 				}
 				return k[loader](name, ...args);
 			};
