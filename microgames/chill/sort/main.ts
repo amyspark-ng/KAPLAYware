@@ -97,11 +97,11 @@ createMicrogame({
 		let lost = false;
 
 		const shapes = ["circle", "triangle"];
-		const bags = ["bag", "money_bag"];
-		const beans = ["bean", "zombean"];
-		const pets = ["kat", "marroc"];
-		const food = ["apple", "cake"];
-		const trash = ["egg_crack", "badapple", "badderapple"];
+		const bags = ["@bag", "@money_bag"];
+		const beans = ["@bean", "@zombean"];
+		const pets = ["@kat", "@marroc"];
+		const food = ["@apple", "@cake"];
+		const trash = ["@egg_crack", "badapple", "badderapple"];
 
 		const chosenCategory = ctx.choose([shapes, bags, beans, pets, food]);
 		const isShapes = JSON.stringify(chosenCategory) == JSON.stringify(shapes);
@@ -438,7 +438,7 @@ createMicrogame({
 
 		if (ctx.isHardMode) {
 			if (isShapes) addBox("square", ctx.vec2(400, 530), ["square"]);
-			else addBox("trash", ctx.vec2(400, 530), trash);
+			else addBox("@trash", ctx.vec2(400, 530), trash);
 		}
 	},
 });

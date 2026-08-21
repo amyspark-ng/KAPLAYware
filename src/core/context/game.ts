@@ -37,9 +37,12 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 
 			const spriteComp = k.sprite(spr, opt);
 
+			// TODO: MAKE THIS WORK PROPERLY AND MODIFY ALL SPRITE CODE SETTING THINGS I GUESS TS PMOING ME OFF
 			return mergeWithRef(spriteComp, {
 				get sprite() {
-					return spriteComp.sprite.replace(id + "-", "");
+					if (typeof spr != "string") return spriteComp.sprite;
+					else if (spr.startsWith("@")) return spr.slice(1);
+					else if (spr.startsWith(id)) return spr.replace(`${id}-`, "");
 				},
 				set sprite(val: string) {
 					if (val.startsWith("@")) spriteComp.sprite = val.slice(1);
@@ -50,7 +53,12 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 
 		getSprite: (name) => k.getSprite(`${id}-${name}`),
 
-		drawSprite: (opt) => k.drawSprite({ ...opt, sprite: `${id}-${opt.sprite}` }),
+		drawSprite: (opt) => {
+			return k.drawSprite({
+				...opt,
+				sprite: typeof opt.sprite == "string" ? (opt.sprite.startsWith("@") ? opt.sprite.slice(1) : `${id}-${opt.sprite}`) : opt.sprite,
+			});
+		},
 
 		play: (src, options) => {
 			src = typeof src == "string" ? (src.startsWith("@") ? src : `${id}-${src}`) : src;

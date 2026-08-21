@@ -36,5 +36,7 @@ export function createGameAct(scenery: Scenery, currentGame: Microgame, controll
 		if (result == "win" && gameAct.bomb?.isLit && !gameAct.bomb.hasExploded) gameAct.bomb.extinguish();
 	};
 
+	gameAct.ctx.setGravity(0); // Restart gravity set by the code inside the game act
+
 	return gameAct;
 }
