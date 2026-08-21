@@ -48,7 +48,7 @@ createMicrogame({
 		ctx.add([ctx.sprite("grass"), ctx.pos(ctx.rand(-20, 20))]); // decoration with random offset
 		if (ctx.isHardMode) ctx.add([ctx.sprite("flowers"), ctx.pos(ctx.rand(-20, 20))]);
 
-		const apples = ctx.get("@apple", { liveUpdate: true });
+		const apples = ctx.get("apple", { liveUpdate: true });
 
 		const getRandomPos = () => {
 			return ctx.vec2(ctx.rand(20, ctx.width() - 20), ctx.rand(20, ctx.height() - 20));

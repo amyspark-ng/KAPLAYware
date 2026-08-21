@@ -13,6 +13,7 @@ createMicrogame({
 	urlPrefix: "microgames/chill/dont/",
 	iconPath: "sprites/icon.png",
 	input: "all",
+	hideCursor: false,
 	boss: false,
 	async load(ctx) {
 		return Promise.all([

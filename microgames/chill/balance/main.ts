@@ -41,10 +41,6 @@ createMicrogame({
 		]);
 	},
 	start(ctx) {
-		// TODO: legs animation
-		// TODO: winning animation
-		// TODO: music
-
 		if (ctx.isHardMode) ctx.add([ctx.sprite("bg-s")]);
 
 		ctx.play("windambient", { volume: 0.25, detune: ctx.rand(-100, 100), loop: true });

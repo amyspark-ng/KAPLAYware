@@ -1,3 +1,5 @@
+❌✅
+
 <!-- THERE SHOULD BE 18 ON KEYBOARD AND 18 ON OTHER WHICH AMOUNTS TO 36 + 4 BOSSES ALL OF THIS EQUALS TO 40 MICROGAMES -->
 <!-- AT LEAST 9 HARD MODE ON EACH MODE -->
 <!-- EVERY CATEGORY SHOULD HAVE AT LEAST 9 HARD ONES WITH NEWER GAMEPLAY-->
@@ -7,6 +9,10 @@
 INPUT: ArrowKeys
 DESCRIPTION: Mini mark avoiding getting stomped by foot
 HARDMODE: You have to AIM to hit the mini mark, completely new gameplay basically
+<!-- TODO: dodge -->
+- missing music
+- there's still a dumb spot where you can't get killed
+- sometimes leg or first will kick before they go
 
 2. JUMP: ❌
 INPUT: ArrowKeys
@@ -40,8 +46,10 @@ HARDMODE: Bigger maze, You have to grab a key to open the door before that
 INPUT: ArrowKeys
 DESCRIPTION: You have to tap left or right so a person on the tightrope doesn't fall
 HARDMODE: Random gusts of wind may blow you over, add clouds so background changes
+<!-- TODO: balance -->
 - missing music
 - leg animation
+- sometimes on gametest it throws an error saying it can't find the icon 
 
 9. SPREAD ❌
 INPUT: ArrowKeys
@@ -124,6 +132,7 @@ DESCRIPTION: Some form of putt similar thing but you have to put a ball to a poc
 26. DIAL ❌
 INPUT: MouseClick
 DESCRIPTION: You have to input a note password on the screen from a numpad
+<!-- TODO: dial -->
 - music
 
 27. SORT ✅

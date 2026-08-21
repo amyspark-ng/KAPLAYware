@@ -186,7 +186,7 @@ createMicrogame({
 					if (inputtedNumber == realNumber) ctx.setResult("win");
 					else ctx.setResult("lose");
 					if (ctx.getResult() == "lose") timer.wait(1 / ctx.speed, () => ctx.finishGame());
-					else timer.wait(3 / ctx.speed, () => ctx.finishGame());
+					else timer.wait(2 / ctx.speed, () => ctx.finishGame());
 
 					phoneRight.sprite = "calling";
 					ctx.get("circle").forEach((circle) => {

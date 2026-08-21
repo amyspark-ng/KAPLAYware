@@ -30,20 +30,21 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 
 		// If spr starts with "@" the ID rule will be ignored
 		sprite: (spr, opt) => {
-			if (typeof spr == "string" && !spr.startsWith("@")) {
-				spr = `${id}-${spr}`;
+			// don't modify spr, keep its value, only change on set
+			let realspr = spr;
+			if (typeof spr == "string") {
+				if (spr.startsWith("@")) realspr = spr.slice(1);
+				else realspr = `${id}-${spr}`;
 			}
-			else if (typeof spr == "string" && spr.startsWith("@")) spr = spr.slice(1);
 
-			const spriteComp = k.sprite(spr, opt);
+			const spriteComp = k.sprite(realspr, opt);
 
-			// TODO: MAKE THIS WORK PROPERLY AND MODIFY ALL SPRITE CODE SETTING THINGS I GUESS TS PMOING ME OFF
 			return mergeWithRef(spriteComp, {
 				get sprite() {
-					if (typeof spr != "string") return spriteComp.sprite;
-					else if (spr.startsWith("@")) return spr.slice(1);
-					else if (spr.startsWith(id)) return spr.replace(`${id}-`, "");
+					// @ts-ignore
+					return spr;
 				},
+
 				set sprite(val: string) {
 					if (val.startsWith("@")) spriteComp.sprite = val.slice(1);
 					else spriteComp.sprite = `${id}-${val}`;
@@ -51,7 +52,7 @@ export function buildGameContext(act: Act, game: Microgame, controller: Microgam
 			});
 		},
 
-		getSprite: (name) => k.getSprite(`${id}-${name}`),
+		getSprite: (name) => k.getSprite(name.startsWith("@") ? name.slice(1) : `${id}-${name}`),
 
 		drawSprite: (opt) => {
 			return k.drawSprite({

@@ -12,8 +12,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(typescript@5.9.3)
       kaplay:
-        specifier: github:amyspark-ng/kaplay#863ab9d4e66fee587825837308e2ba40bf5e1902
-        version: https://codeload.github.com/amyspark-ng/kaplay/tar.gz/863ab9d4e66fee587825837308e2ba40bf5e1902
+        specifier: github:amyspark-ng/kaplay#e1b28457b4e062699d8c40cd4962d7336a936643
+        version: https://codeload.github.com/amyspark-ng/kaplay/tar.gz/e1b28457b4e062699d8c40cd4962d7336a936643
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -463,8 +463,8 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
-  kaplay@https://codeload.github.com/amyspark-ng/kaplay/tar.gz/863ab9d4e66fee587825837308e2ba40bf5e1902:
-    resolution: {gitHosted: true, integrity: sha512-cNg+JwnP5MOW+dF3t2Xp1P0UUMUZFxb5dK5k/bdGbp47zhPcFs9EbVO3IaZFzNTMJrYu/0awgqVQLw+X98xpxg==, tarball: https://codeload.github.com/amyspark-ng/kaplay/tar.gz/863ab9d4e66fee587825837308e2ba40bf5e1902}
+  kaplay@https://codeload.github.com/amyspark-ng/kaplay/tar.gz/e1b28457b4e062699d8c40cd4962d7336a936643:
+    resolution: {gitHosted: true, integrity: sha512-VbbFVUYziiVR6TszItrd5hCGZzsENgzz4KlfEfhgZ7a5tJY9twZsbNK30eLotn/5IdoeLMt9Gd3BaZyD/oqJLQ==, tarball: https://codeload.github.com/amyspark-ng/kaplay/tar.gz/e1b28457b4e062699d8c40cd4962d7336a936643}
     version: 4000.0.0-alpha.27.1
     engines: {node: '>=24.0.0'}
 
@@ -884,7 +884,7 @@ snapshots:
 
   is-number@7.0.0: {}
 
-  kaplay@https://codeload.github.com/amyspark-ng/kaplay/tar.gz/863ab9d4e66fee587825837308e2ba40bf5e1902: {}
+  kaplay@https://codeload.github.com/amyspark-ng/kaplay/tar.gz/e1b28457b4e062699d8c40cd4962d7336a936643: {}
 
   merge2@1.4.1: {}
 

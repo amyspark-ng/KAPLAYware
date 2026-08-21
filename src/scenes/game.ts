@@ -26,11 +26,15 @@ k.scene("game", () => {
 	const dispatch = async (event: GameEvent) => {
 		controller.state = nextState(controller.state, event, controller);
 
+		// manage cursor hidding and appearing
 		switch (controller.state) {
 			case GameState.Preparing:
 				GAME_CURSOR.grandparentCheck = transScenery.root;
 				currentGameAct?.clear();
 				currentGameAct = prepGame(gameScenery, controller, controller.getGameFromHat());
+
+				if (currentGameAct.game.input == "arrowkeys" || currentGameAct.game.hideCursor) GAME_CURSOR.hide = true;
+				else GAME_CURSOR.hide = false;
 
 				prepTransition(transScenery, currentGameAct, controller).then(() => {
 					dispatch({ type: "TRANSITION_DONE" });
@@ -41,6 +45,8 @@ k.scene("game", () => {
 			case GameState.Playing:
 				GAME_CURSOR.grandparentCheck = gameScenery.root;
 				addTimeSetup(controller, currentGameAct);
+				currentGameAct.engine.pauseEverything(false);
+
 				controller.onFinish((result) => {
 					dispatch({ type: "MICROGAME_END", result });
 				});

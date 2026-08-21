@@ -4,14 +4,13 @@ import { k } from "../kaplay";
 // Starts the loading process of regular assets
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 
-k.loadSprite("cursor", "sprites/cursor.png", {
-	sliceX: 4,
-	sliceY: 1,
-});
+k.loadCrew("sprite", "cursor-o", "cursor");
+k.loadCrew("sprite", "pointer-o", "pointer");
+k.loadCrew("sprite", "knock-o", "knock");
 
-k.loadCrew("sprite", "heart");
+k.loadCrew("sprite", "bean");
 k.loadCrew("sprite", "beant");
-k.loadBean();
+k.loadCrew("sprite", "heart");
 
 // transition
 k.loadSprite("trans-background", "sprites/transition/background.png");

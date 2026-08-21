@@ -118,12 +118,12 @@ createMicrogame({
 	hideCursor: false,
 	async load(ctx) {
 		return await Promise.all([
-			ctx.loadCrew("sprite", "cursor"),
 			ctx.loadSprite("hexagon", "sprites/hexagon.png"),
 			ctx.loadSprite("background", "sprites/background.png"),
 			ctx.loadSprite("powerup", "sprites/powerup.png"),
 			ctx.loadSprite("blur", "sprites/blur.png"),
 			ctx.loadSprite("part_star", "sprites/part_star.png"),
+			ctx.loadSprite("trianglearrow", "../../assets/sprites/trianglearrow.png"),
 			ctx.loadSprite("explosion", "../../assets/sprites/explosion.png", {
 				sliceX: 17,
 				sliceY: 1,
@@ -258,7 +258,7 @@ createMicrogame({
 			{
 				draw() {
 					ctx.drawSprite({
-						sprite: "@test-arrow",
+						sprite: "trianglearrow",
 						scale: ctx.vec2(0.7, 0.6),
 						anchor: "center",
 						color: ctx.mulfok.VOID_VIOLET,

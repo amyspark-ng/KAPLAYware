@@ -12,6 +12,7 @@ export interface Microgame {
 	bgColor: [number, number, number] | string;
 	boss: boolean;
 	input: "arrowkeys" | "mouse" | "mouseclick" | "all";
+	/** The path where the icon.png is located, has to be loaded sepparately because it needs to exist for gametest screen regardless of if the microgame itself is loaded */
 	iconPath: string;
 	hideCursor: boolean;
 

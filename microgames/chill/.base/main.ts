@@ -10,7 +10,7 @@
 // 		duration: 6,
 // 	},
 // 	bgColor: "291834",
-// 	urlPrefix: "microgames/chill//",
+// 	urlPrefix: "microgames/chill/.base/",
 // 	iconPath: "sprites/icon.png",
 // 	input: "mouseclick",
 // 	boss: false,
