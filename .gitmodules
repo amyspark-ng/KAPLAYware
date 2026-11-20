@@ -1,0 +1,3 @@
+[submodule "microgames"]
+	path = microgames
+	url = https://github.com/amyspark-ng/KAPLAYware-microgames
