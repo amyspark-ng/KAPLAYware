@@ -1,13 +1,9 @@
-import kaplay from "kaplay";
-
-import Microgame from "../microgames/types/microgame.ts";
-import MicrogamesMetadata from "../microgames/types/metadata.ts";
-
-const k = kaplay();
-
-k.loadRoot("./");
-k.loadSprite("bean", "sprites/bean.png");
-k.loadJSON("microgames_metadata", "../microgames/metadata.json");
+import CONFIG from "./config.ts";
+import k from "./kaplay.ts";
+import "./loader.ts";
 
 k.onLoad(() => {
+	const authors = k.getAsset("authors_metadata")?.data;
+	k.debug.log(authors);
+	k.debug.log(CONFIG.microgames[0]);
 });
