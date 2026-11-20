@@ -3,7 +3,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
-		"dev": "vite",
+		"dev-main": "vite",
+		"dev-submodule": "vite microgames/test-scene",
 		"preview": "vite preview",
 		"zip": "npm run build && mkdir -p dist && zip -r dist/game.zip dist -x \"**/.DS_Store\"",
 		"check": "tsc"

@@ -1,10 +1,13 @@
 import kaplay from "kaplay";
 
+import Microgame from "../microgames/types/microgame.ts";
+import MicrogamesMetadata from "../microgames/types/metadata.ts";
+
 const k = kaplay();
 
 k.loadRoot("./");
 k.loadSprite("bean", "sprites/bean.png");
+k.loadJSON("microgames_metadata", "../microgames/metadata.json");
 
-k.add([k.pos(120, 80), k.sprite("bean")]);
-
-k.onMousePress(() => k.addKaboom(k.mousePos()));
+k.onLoad(() => {
+});
