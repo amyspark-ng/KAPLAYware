@@ -1,0 +1,19 @@
+{
+	"name": "kaplayware",
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite",
+		"preview": "vite preview",
+		"zip": "npm run build && mkdir -p dist && zip -r dist/game.zip dist -x \"**/.DS_Store\"",
+		"check": "tsc"
+	},
+	"dependencies": {
+		"kaplay": "github:kaplayjs/kaplay#master"
+	},
+	"devDependencies": {
+		"@types/node": "^26.6.6",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.8"
+	}
+}
