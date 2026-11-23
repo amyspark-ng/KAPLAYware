@@ -1,6 +1,6 @@
-import Microgame from "../microgames/types/microgame.ts";
 import CONFIG from "./config.ts";
 import k from "./kaplay.ts";
+import Microgame from "../microgames/src/core/types/microgame.ts";
 
 k.loadRoot("./"); // A good idea for Itch.io publishing later
 k.loadSprite("bean", "sprites/bean.png");
