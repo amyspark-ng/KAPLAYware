@@ -1,6 +1,6 @@
 import CONFIG from "./config.ts";
 import k from "./kaplay.ts";
-import "./loader.ts";
+import "./load.ts";
 // import createMicroScene from "../microgames/functions/core/micro_scene.ts";
 
 k.onLoad(() => {
